@@ -1,0 +1,8 @@
+<nav class="nav">
+  <a routerLink="/">Tobias Bastholm</a>
+  @for (route of routes; track route) {
+    @if (route.showInNavList) {
+      <a [routerLink]="route.path">{{ route.displayName }}</a>
+    }
+  }
+</nav>

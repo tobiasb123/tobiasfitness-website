@@ -1,0 +1,183 @@
+<div class="contact-form">
+  <div class="background-picture" width="1080px" height="300px"></div>
+  <div class="form-container">
+    <div class="progress">
+      <label class="progress-label active">Information</label>
+      <label class="progress-label">Ydelser</label>
+      <label class="progress-label">Andet</label>
+      <label class="progress-label">Kvitering</label>
+    </div>
+    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+      @if (currentStep === 1) {
+        <div class="info-form">
+          <div class="form-element">
+            <label for="firstname">Fornavn*</label>
+            <input id="firstname" type="text" placeholder="John" [formControl]="firstNameControl" />
+            @if (firstNameControl.invalid && firstNameControl.touched) {
+              <small>*Fornavn er påkrævet.</small>
+            }
+          </div>
+
+          <div class="form-element">
+            <label for="lastname">Efternavn*</label>
+            <input id="lastname" type="text" placeholder="Doe" [formControl]="lastNameControl" />
+            @if (lastNameControl.invalid && lastNameControl.touched) {
+              <small>*Efternavn er påkrævet.</small>
+            }
+          </div>
+
+          <div class="form-element full">
+            <label for="email">Email*</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="John.Doe@gmail.com"
+              [formControl]="emailControl"
+            />
+            @if (emailControl.invalid && emailControl.touched) {
+              <small>*Email er inkorrect.</small>
+            }
+          </div>
+
+          <div class="form-element full">
+            <label for="adress">Adresse</label>
+            <input id="adress" type="text" placeholder="Vejnavn 1" [formControl]="adressControl" />
+          </div>
+
+          <div class="form-element">
+            <label for="zip-code">Postnummer</label>
+            <input id="zip-code" type="number" placeholder="0000" [formControl]="zipCodeControl" />
+          </div>
+
+          <div class="form-element">
+            <label for="town">By</label>
+            <input id="town" type="text" placeholder="Bynavn" [formControl]="townControl" />
+          </div>
+
+          <button type="button" (click)="nextStep()">Næste</button>
+        </div>
+      }
+      @if (currentStep === 2) {
+        <div class="service-form">
+          <div class="form-element">
+            <label class="form-label">Første Konsultation - 399kr</label>
+            <button
+              class="service-button"
+              type="button"
+              (click)="checkBox('Første Konsultation - 399kr')"
+            >
+              Vælg
+            </button>
+          </div>
+
+          <div class="form-element">
+            <label class="form-label">Opfølgende Konsultation - 149kr</label>
+            <button
+              class="service-button"
+              type="button"
+              (click)="checkBox('Opfølgende Konsultation - 149kr')"
+            >
+              Vælg
+            </button>
+          </div>
+
+          <div class="form-element">
+            <label class="form-label">Første Konsultation - Online - 299kr</label>
+            <button
+              class="service-button"
+              type="button"
+              (click)="checkBox('Første Konsultation - Online - 299kr')"
+            >
+              Vælg
+            </button>
+          </div>
+
+          <div class="form-element">
+            <label class="form-label">Opfølgende Konsultation - Online - 99kr</label>
+            <button
+              class="service-button"
+              type="button"
+              (click)="checkBox('Opfølgende Konsultation - Online - 99kr')"
+            >
+              Vælg
+            </button>
+          </div>
+
+          <div class="form-element">
+            <label class="form-label">Personlig Træning - 349kr</label>
+            <button
+              class="service-button"
+              type="button"
+              (click)="checkBox('Personlig Træning - 349kr')"
+            >
+              Vælg
+            </button>
+          </div>
+
+          <div class="form-element">
+            <label class="form-label">Kostvejledning - 149kr</label>
+            <button
+              class="service-button"
+              type="button"
+              (click)="checkBox('Kostvejledning - 149kr')"
+            >
+              Vælg
+            </button>
+          </div>
+
+          <button id="back" type="button" (click)="backStep()">Tilbage</button>
+          <button id="next" type="button" (click)="nextStep()">Næste</button>
+        </div>
+      }
+      @if (currentStep === 3) {
+        <div class="extra-form">
+          <div class="form-element">
+            <label for="extra-text" class="form-label">Andet</label>
+            <textarea name="extra-text" id="extra-text" [formControl]="extraControl"></textarea>
+          </div>
+
+          <button id="back" type="button" (click)="backStep()">Tilbage</button>
+          <button id="next" type="submit">
+            {{ submitting ? 'Sender...' : 'Sendt' }}
+          </button>
+        </div>
+      }
+    </form>
+
+    @if (currentStep === 4) {
+      @if (submitted) {
+        <div class="reciept">
+          <label>Kvitering</label>
+          <div class="grid-container">
+            <label class="text">
+              Jeg vender tilbage hurtigst muligt Inden for 48 timer. Hvis der går længere tid, er du
+              meget velkommen til at benytte denne form igen.
+            </label>
+            <label><strong>Fornavn:</strong> {{ firstNameControl.value }}</label>
+            <label><strong>Efternavn:</strong> {{ lastNameControl.value }}</label>
+            <label><strong>Email:</strong> {{ emailControl.value }}</label>
+            <label><strong>Adresse:</strong> {{ adressControl.value }}</label>
+            <label><strong>Postnummer:</strong> {{ zipCodeControl.value }}</label>
+            <label><strong>By:</strong> {{ townControl.value }}</label>
+            <div class="other-container">
+              <label><strong>Service:</strong> {{ serviceControl.value }}</label>
+              <label><strong>Andet:</strong> {{ extraControl.value }}</label>
+            </div>
+          </div>
+          <button id="back" type="button" (click)="formGroup.reset()" [routerLink]="'/'">
+            Tilbage til forside
+          </button>
+        </div>
+      }
+      @if (error) {
+        <div class="error">
+          <label>{{ error }}</label>
+          <button type="button" (click)="tryAgain()">Prøv Igen</button>
+          <button type="button" (click)="formGroup.reset()" [routerLink]="'/'">
+            Tilbage til forside
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
