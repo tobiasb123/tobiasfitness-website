@@ -14,4 +14,15 @@ export class NavComponent implements OnInit {
   ngOnInit(): void {
     this.routes = routes;
   }
+
+  navList = document.getElementsByClassName('nav');
+
+  openCloseNav() {
+    console.log(this.navList.item(0)?.classList);
+    if (this.navList.item(0)?.classList.contains('open')) {
+      this.navList.item(0)?.classList.remove('open');
+    } else {
+      this.navList.item(0)?.classList.add('open');
+    }
+  }
 }

@@ -1,0 +1,40 @@
+.prices-page {
+  height: calc(100dvh - 60px);
+
+  background-image: url('/GymBackground-Forside.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 60px;
+}
+
+.services {
+  --grid-max-col: 4;
+  --grid-min-col-size: 500px;
+  --grid-gap: 10px;
+
+  width: calc(100% - (var(--grid-gap) * 2));
+  height: calc(100% - (var(--grid-gap) * 2));
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--grid-min-col-size), 100%), 1fr));
+
+  gap: var(--grid-gap);
+
+  padding: var(--grid-gap);
+}
+
+.service {
+  background-color: aqua;
+
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}

@@ -10,12 +10,14 @@
   width: 100dvw;
   height: 60px;
 
+  z-index: 1;
+
   a {
     box-sizing: border-box;
     height: auto;
     width: auto;
     padding: 20px 30px;
-    justify-content: flex-start;
+    justify-self: start;
 
     text-decoration: none;
     color: white;
@@ -26,5 +28,60 @@
     &:hover {
       background: rgb(74, 74, 230);
     }
+  }
+}
+
+.openCloseButton {
+  display: none;
+  width: 60px;
+  height: 60px;
+}
+
+@media (max-width: 375px) {
+  .nav {
+    width: 50%;
+    height: 100%;
+    right: -50%;
+    flex-direction: column;
+    justify-content: start;
+
+    transition: all 0.5s ease;
+
+    a {
+      width: 100%;
+    }
+
+    .openCloseButton {
+      background-image: url('/openNav.svg');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-color: black;
+      border: none;
+    }
+  }
+
+  .nav.open {
+    right: 0;
+
+    .openCloseButton {
+      background-image: url('/closeNav.svg');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-color: black;
+      border: none;
+    }
+  }
+
+  .otherNavComponents {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+  }
+
+  .openCloseButton {
+    display: block;
+    position: absolute;
+    left: -60px;
   }
 }

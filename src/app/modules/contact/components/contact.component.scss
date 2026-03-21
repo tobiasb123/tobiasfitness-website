@@ -1,0 +1,393 @@
+$progress-label-normal: rgb(125, 125, 255);
+$progress-label-active: rgb(174, 174, 255);
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 100dvh;
+
+  background-image: url('../../../../../public/GymBackground-Forside.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  align-items: center;
+
+  gap: 20px;
+
+  margin-top: 60px;
+}
+
+.progress {
+  display: flex;
+  background: rgb(151, 151, 255);
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  width: 100%;
+
+  padding: 10px;
+
+  gap: 20px;
+
+  label {
+    background: $progress-label-normal;
+    border-radius: 5px;
+
+    width: 150px;
+
+    text-align: center;
+  }
+
+  .active {
+    background: $progress-label-active;
+  }
+}
+
+.info-form {
+  display: inline-grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+
+  width: 600px;
+
+  gap: 15px;
+
+  .form-element {
+    display: flex;
+    flex-direction: column;
+
+    grid-column: span 6;
+
+    align-items: center;
+    justify-content: start;
+
+    input {
+      appearance: none;
+      outline: none;
+
+      background-color: rgb(245, 245, 245);
+
+      padding: 10px;
+      border-radius: 5px;
+
+      align-self: stretch;
+      justify-self: stretch;
+
+      transition: all 0.5s ease;
+
+      &:focus {
+        background-color: white;
+        box-shadow: 0 0 6px rgb(139, 139, 139);
+      }
+    }
+
+    label {
+      font-family: Poppins;
+    }
+  }
+
+  .full {
+    grid-column: 1 / -1;
+  }
+
+  button {
+    min-width: 235px;
+    grid-column: 8 / 13;
+
+    align-self: center;
+    justify-self: end;
+  }
+}
+
+.service-form {
+  --grid-max-col-count: 3;
+  --grid-min-col-size: 235px;
+  --grid-gap: 15px;
+
+  display: inline-grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-col-size), 1fr));
+
+  height: unset;
+  width: 80vw;
+
+  gap: var(--grid-gap);
+
+  .form-element {
+    display: inline-grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+
+    box-shadow: 0 0 2px rgb(139, 139, 139);
+    border-radius: 15px;
+    background-color: rgb(214, 214, 214);
+
+    min-width: 235px;
+    min-height: 125px;
+
+    button {
+      align-self: end;
+      justify-self: end;
+      grid-row: 2 / 3;
+      grid-column: 2 / 3;
+
+      width: 100px;
+
+      margin: 5px;
+
+      grid-row: 4 / 5;
+    }
+    label {
+      grid-column: 1 / 3;
+      grid-row: 1 / 3;
+    }
+  }
+  .active {
+    box-shadow: 0 0 15px rgb(66, 121, 79);
+    border-radius: 15px;
+    background-color: rgb(204, 221, 201);
+  }
+}
+
+.extra-form {
+  display: inline-grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+
+  width: 80vw;
+  height: 100%;
+
+  gap: 15px;
+
+  .form-element {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    justify-self: stretch;
+
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+
+    gap: 10px;
+    textarea {
+      height: 100%;
+    }
+
+    label {
+      align-self: center;
+    }
+  }
+}
+
+.reciept {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding-bottom: 10px;
+
+  .grid-container {
+    --grid-max-col-count: 2;
+    --grid-min-col-size: 235px;
+    --grid-gap: 15px;
+
+    display: inline-grid;
+    grid-template-columns: repeat(auto-fill, 1fr);
+
+    height: unset;
+    width: 80vw;
+
+    gap: var(--grid-gap);
+
+    background-color: rgb(201, 201, 255);
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 10px;
+
+    label {
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      text-wrap: var(--grid-min-col-size);
+    }
+
+    .other-container {
+      display: flex;
+      flex-direction: column;
+
+      grid-column: 1 / -1;
+
+      align-items: center;
+    }
+
+    .text {
+      grid-column: 1 / -1;
+    }
+  }
+
+  label {
+    font-size: 20px;
+    font-weight: bold;
+
+    text-decoration: underline;
+  }
+}
+
+.button-container {
+  --grid-max-col-count: 3;
+  --grid-min-col-size: 235px;
+  --grid-gap: 15px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--grid-min-col-size), 235px));
+
+  height: unset;
+  width: 80vw;
+
+  gap: var(--grid-gap);
+
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 50px;
+
+  #next {
+    min-width: 235px;
+  }
+
+  #back {
+    min-width: 235px;
+  }
+}
+
+.error {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 10px;
+
+  label {
+    grid-column: 1 / -1;
+
+    align-self: center;
+    justify-self: center;
+  }
+}
+
+// These are default designs
+label {
+  font-family: Poppins;
+  font-size: 16px;
+
+  padding: 10px;
+}
+small {
+  color: red;
+  font-family: Poppins;
+  font-weight: bold;
+  align-self: start;
+}
+button {
+  font-family: Poppins;
+  font-size: 16px;
+
+  cursor: pointer;
+
+  appearance: none;
+  outline: none;
+  border: none;
+
+  background-color: rgb(245, 245, 245);
+
+  padding: 10px;
+
+  border-radius: 15px;
+
+  &:hover {
+    background-color: white;
+    box-shadow: 0 0 6px rgb(139, 139, 139);
+  }
+}
+textarea {
+  resize: none;
+
+  appearance: none;
+  outline: none;
+  border: none;
+
+  background-color: rgb(245, 245, 245);
+  border-radius: 15px;
+  box-shadow: 0 0 2px rgb(139, 139, 139);
+  padding: 10px;
+  font-family: Poppins;
+  font-size: 16px;
+
+  &:focus {
+    background-color: white;
+    box-shadow: 0 0 6px rgb(139, 139, 139);
+  }
+}
+input.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+input.ng-valid {
+  border: none;
+}
+input.ng-untouched {
+  border: none;
+}
+
+// These are scaling designs
+@media (max-width: 700px) {
+  .info-form {
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+
+    width: unset;
+
+    .form-element {
+      grid-column: span 1;
+
+      align-self: stretch;
+      justify-self: stretch;
+
+      input {
+        width: unset;
+      }
+    }
+
+    button {
+      grid-column: 1 / -1;
+
+      align-self: center;
+      justify-self: center;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .form-container {
+    margin-top: 0px;
+  }
+  .info-form {
+    grid-template-rows: repeat(7, 1fr);
+    grid-template-columns: 1fr;
+  }
+}
