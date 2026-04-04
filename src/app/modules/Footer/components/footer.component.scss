@@ -1,0 +1,169 @@
+footer {
+  background-color: rgb(24, 21, 51);
+
+  width: 100vw;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px;
+}
+
+.grid-holder {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+
+  margin-bottom: 100px;
+
+  img {
+    align-self: center;
+  }
+}
+
+.holder {
+  display: flex;
+  width: 100%;
+  gap: 7.5%;
+
+  align-items: center;
+}
+
+.grid {
+  --grid-max-col: 2;
+  --grid-min-col-size: 150px;
+  --grid-gap: 15px;
+
+  width: calc(100% - (var(--grid-gap) * var(--grid-max-col)));
+  height: calc(100% - (var(--grid-gap) * var(--grid-max-col)));
+
+  min-width: 125px;
+
+  display: grid;
+
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(var(--grid-min-col-size), 100%),
+      calc((100% - var(--grid-gap)) / var(--grid-max-col))
+    )
+  );
+
+  gap: var(--grid-gap);
+
+  padding: 5px;
+
+  .link {
+    text-decoration: none;
+    color: rgb(202, 202, 202);
+
+    font-family: Poppins;
+    font-size: 14px;
+
+    padding: 10px;
+
+    position: relative;
+
+    transition: 0.5s all ease;
+
+    &:hover {
+      color: white;
+    }
+
+    &::after {
+      content: '';
+      height: 2px;
+      width: 100%;
+      background: white;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      opacity: 0;
+      transition: 0.5s all ease;
+      pointer-events: none;
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+
+  .info {
+    text-decoration: none;
+    color: white;
+
+    font-family: Poppins;
+    font-size: 14px;
+
+    padding: 10px;
+
+    position: relative;
+  }
+}
+
+.socials {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  min-width: 150px;
+
+  .button-container {
+    display: flex;
+    gap: 30px;
+
+    .instagram {
+      background-image: url('../../../../../public/footer_instagram_logo.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .facebook {
+      background-image: url('../../../../../public/footer_facebook_logo.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .social-button {
+      width: 50px;
+      height: 50px;
+
+      border-radius: 15px;
+      border: none;
+
+      cursor: pointer;
+    }
+  }
+}
+
+h3 {
+  grid-column: 1 / -1;
+
+  color: white;
+  text-decoration: underline;
+
+  font-family: Merriweather;
+
+  align-self: center;
+}
+
+@media (max-width: 600px) {
+  .holder {
+    flex-direction: column;
+  }
+
+  .grid {
+    display: flex;
+    flex-direction: column;
+
+    align-self: center;
+    align-items: center;
+  }
+
+  .socials {
+    align-self: center;
+    align-items: center;
+  }
+}

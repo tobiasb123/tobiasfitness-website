@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { FooterCoreComponent } from '../../Footer/pages/footer-core.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule],
+  imports: [RouterModule, FooterCoreComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

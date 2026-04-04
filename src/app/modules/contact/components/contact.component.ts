@@ -2,10 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { FooterCoreComponent } from '../../Footer/pages/footer-core.component';
 
 @Component({
   selector: 'app-contact',
-  imports: [RouterModule, ReactiveFormsModule],
+  imports: [RouterModule, ReactiveFormsModule, FooterCoreComponent],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
 })
@@ -18,6 +19,7 @@ export class ContactComp {
   townControl = new FormControl<string>('');
   serviceControl = new FormControl<string>('');
   extraControl = new FormControl<string>('');
+  priceControl = new FormControl<string>('');
 
   formGroup = new FormGroup({
     firstName: this.firstNameControl,
@@ -28,6 +30,7 @@ export class ContactComp {
     town: this.townControl,
     service: this.serviceControl,
     extra: this.extraControl,
+    pris: this.priceControl,
   });
 
   currentStep: number = 1;
@@ -112,43 +115,51 @@ export class ContactComp {
 
   serviceFormComponents = [
     {
-      title: 'Første Konsultation - 399kr',
+      title: 'Første Konsultation',
+      price: '399kr',
       state: 'Vælg',
       class: 'form-element',
     },
     {
-      title: 'Opfølgende Konsultation - 149kr',
+      title: 'Opfølgende Konsultation',
+      price: '149kr',
       state: 'Vælg',
       class: 'form-element',
     },
     {
-      title: 'Første Konsultation - Online - 299kr',
+      title: 'Første Konsultation - Online',
+      price: '299kr',
       state: 'Vælg',
       class: 'form-element',
     },
     {
-      title: 'Opfølgende Konsultation - Online - 99kr',
+      title: 'Opfølgende Konsultation - Online',
+      price: '99kr',
       state: 'Vælg',
       class: 'form-element',
     },
     {
-      title: 'Personlig Træning - 349kr',
+      title: 'Personlig Træning',
+      price: '349kr',
       state: 'Vælg',
       class: 'form-element',
     },
     {
-      title: 'Kostvejledning - 149kr',
+      title: 'Kostvejledning',
+      price: '149kr',
       state: 'Vælg',
       class: 'form-element',
     },
   ];
 
-  checkBox(service: string, index: number) {
+  checkBox(service: string, price: string, index: number) {
     if (this.serviceControl.value !== service) {
       this.serviceControl.patchValue(service);
+      this.priceControl.patchValue(price);
     } else {
       if (this.serviceControl.value === service) {
         this.serviceControl.patchValue('');
+        this.priceControl.patchValue('');
       }
     }
 

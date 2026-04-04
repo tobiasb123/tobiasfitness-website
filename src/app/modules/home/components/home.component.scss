@@ -3,10 +3,6 @@
   flex-direction: column;
   align-items: center;
 
-  height: 100dvh;
-
-  gap: 10px;
-
   background-color: rgb(39, 35, 48);
 }
 
@@ -31,7 +27,7 @@
 .section-1 {
   grid-template-rows: repeat(5, 1fr);
 
-  background-image: url('../../../../../public/GymBackground-Forside.jpg');
+  background-image: url('../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
   background-size: cover;
 
@@ -40,6 +36,8 @@
   min-height: 100%;
 
   padding: 50px;
+
+  margin-top: 60px;
 
   .headline {
     align-self: center;
@@ -71,7 +69,7 @@
     justify-self: start;
 
     .instagram {
-      background-image: url('../../../../../public/Instagram_Logo.jpg');
+      background-image: url('../../../../../public/Instagram_Logo.png');
       background-size: cover;
       background-position: center center;
     }
@@ -112,6 +110,79 @@
   }
 }
 
+.section-2 {
+  grid-template-rows: repeat(5, 1fr);
+
+  background-color: rgb(31, 27, 66);
+
+  // background-image: url('../../../../../public/GymBackground.jpg');
+  // background-repeat: no-repeat;
+  // background-size: cover;
+
+  box-sizing: border-box;
+
+  padding: 50px;
+
+  .about-me {
+    grid-column: 1 / 4;
+    grid-row: 2 / 6;
+
+    align-self: start;
+    justify-self: center;
+
+    height: auto;
+
+    .prices {
+      height: 150px;
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+
+      a {
+        width: 100%;
+        max-width: 300px;
+        height: 100px;
+
+        background-color: rgb(201, 128, 69);
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        font-size: 24px;
+        font-weight: bold;
+
+        text-decoration: none;
+        color: white;
+
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 0 6px rgb(78, 78, 78);
+
+        user-select: none;
+
+        transition: 0.25s all ease;
+
+        &:hover {
+          background-color: rgb(218, 144, 85);
+          box-shadow: 0 0 6px rgb(231, 173, 124);
+        }
+      }
+    }
+  }
+
+  .my-services {
+    grid-column: 5 / 10;
+    grid-row: 3 / 6;
+
+    align-self: start;
+    justify-self: center;
+  }
+}
+
 // These are default designs
 
 section {
@@ -120,6 +191,17 @@ section {
   grid-template-rows: repeat(12, 1fr);
 
   width: 100%;
+}
+
+.info-box {
+  height: 300px;
+  width: auto;
+
+  padding: 15px 30px;
+
+  background-color: rgb(97, 74, 153);
+  border-radius: 15px;
+  box-shadow: 0 0 6px rgb(44, 44, 44);
 }
 
 label {
@@ -143,7 +225,7 @@ a {
 }
 
 // These are scalling designs
-@media (max-width: 1200px) {
+@media (max-width: 1220px) {
   .forbilede {
     max-width: 90%;
     height: auto;
@@ -155,8 +237,6 @@ a {
     flex-direction: column;
 
     min-height: unset;
-
-    margin-top: 60px;
 
     .headline {
       grid-column: 1 / -1;
@@ -189,9 +269,23 @@ a {
       justify-self: center;
     }
   }
+
+  .section-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .about-me {
+      height: auto;
+    }
+
+    .my-services {
+      height: auto;
+    }
+  }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .section-1 {
     margin-top: 0px;
     padding-bottom: 85px;

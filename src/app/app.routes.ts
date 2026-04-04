@@ -1,7 +1,6 @@
 import { Route, Routes } from '@angular/router';
 import { HomeComponent } from './modules/home/pages/home.component';
 import { ContactComponent } from './modules/contact/pages/contact.component';
-import { PricesComp } from './modules/prices/components/prices.component';
 import { PricesComponent } from './modules/prices/pages/prices.component';
 
 export interface RouteExt extends Route {
@@ -22,7 +21,7 @@ export const routes: RouteExt[] = [
     showInNavList: true,
   },
   {
-    path: 'contact/:step',
+    path: 'contact',
     component: ContactComponent,
     displayName: 'Kontakt',
     showInNavList: true,

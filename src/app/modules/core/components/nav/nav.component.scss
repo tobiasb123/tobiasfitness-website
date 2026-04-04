@@ -23,6 +23,8 @@
     color: white;
     font-family: Merriweather, Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
+    user-select: none;
+
     transition: 0.4s ease;
 
     &:hover {
@@ -37,7 +39,7 @@
   height: 60px;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .nav {
     width: 50%;
     height: 100%;
@@ -52,7 +54,7 @@
     }
 
     .openCloseButton {
-      background-image: url('/openNav.svg');
+      background-image: url('../../../../../../public/openNav.svg');
       background-repeat: no-repeat;
       background-size: cover;
       background-color: black;
@@ -64,7 +66,7 @@
     right: 0;
 
     .openCloseButton {
-      background-image: url('/closeNav.svg');
+      background-image: url('../../../../../../public/closeNav.svg');
       background-repeat: no-repeat;
       background-size: cover;
       background-color: black;

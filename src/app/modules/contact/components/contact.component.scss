@@ -8,7 +8,7 @@ $progress-label-active: rgb(174, 174, 255);
 
   height: 100dvh;
 
-  background-image: url('../../../../../public/GymBackground-Forside.jpg');
+  background-image: url('../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
   background-size: cover;
 
@@ -65,6 +65,8 @@ $progress-label-active: rgb(174, 174, 255);
   width: 600px;
 
   gap: 15px;
+
+  margin-bottom: 15px;
 
   .form-element {
     display: flex;
@@ -126,6 +128,8 @@ $progress-label-active: rgb(174, 174, 255);
 
   gap: var(--grid-gap);
 
+  margin-bottom: 15px;
+
   .form-element {
     display: inline-grid;
     grid-template-columns: repeat(2, 1fr);
@@ -172,6 +176,8 @@ $progress-label-active: rgb(174, 174, 255);
 
   gap: 15px;
 
+  margin-bottom: 15px;
+
   .form-element {
     display: flex;
     flex-direction: column;
@@ -202,6 +208,8 @@ $progress-label-active: rgb(174, 174, 255);
   gap: 10px;
 
   padding-bottom: 10px;
+
+  margin-bottom: 15px;
 
   .grid-container {
     --grid-max-col-count: 2;
@@ -382,7 +390,7 @@ input.ng-untouched {
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .form-container {
     margin-top: 0px;
   }

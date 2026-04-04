@@ -1,0 +1,41 @@
+<footer>
+  <div class="grid-holder">
+    <img src="Tobias_Bastholm_Fitness_Logo.png" width="400px" height="200px" />
+    <div class="holder">
+      <div class="grid line-holder">
+        <h3>Links</h3>
+        <div>
+          <a class="link" routerLink="/">Forside</a>
+        </div>
+        <div>
+          <a class="link" routerLink="/prices">Priser</a>
+        </div>
+        <div>
+          <a class="link" routerLink="/contact">Kontakt</a>
+        </div>
+        <div>
+          <a class="link" href="mailto:tobias.bastholm@gmail.com">Send en mail</a>
+        </div>
+      </div>
+
+      <div class="socials">
+        <h3>Sociale-Medier</h3>
+        <div class="button-container">
+          <a
+            class="instagram social-button"
+            (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
+          ></a>
+          <a
+            class="facebook social-button"
+            (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
+          ></a>
+        </div>
+      </div>
+
+      <div class="grid">
+        <h3>Info</h3>
+        <a class="info">CVR:0000000</a>
+      </div>
+    </div>
+  </div>
+</footer>
