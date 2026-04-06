@@ -26,14 +26,14 @@ export class PricesComp {
     },
     {
       name: 'Første Konsultation - Online',
-      price: '299kr',
+      price: '349kr',
       description:
         'Den første konsultation går ud på at finde ud af hvor du er i dag, hvad du har brug for og hvordan jeg kan hjælpe dig med at nå dine mål.',
       icon: 'Priser_Billede_3.jpeg',
     },
     {
       name: 'Opfølgende Konsultation - Online',
-      price: '99kr',
+      price: '149kr',
       description:
         'I den opfølgende konsultation tager vi et kig på hvordan det går med både det mentale og fysiske i forhold til de ændringer der er blevet lavet. Og om der skal justeres på noget.',
       icon: 'Priser_Billede_3.jpeg',

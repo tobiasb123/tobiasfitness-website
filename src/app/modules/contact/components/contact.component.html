@@ -40,18 +40,47 @@
           </div>
 
           <div class="form-element full">
-            <label for="adress">Adresse</label>
+            <label for="adress">Adresse*</label>
             <input id="adress" type="text" placeholder="Vejnavn 1" [formControl]="adressControl" />
+            @if (adressControl.invalid && adressControl.touched) {
+              <small>*Adresse er påkrævet.</small>
+            }
           </div>
 
           <div class="form-element">
-            <label for="zip-code">Postnummer</label>
-            <input id="zip-code" type="number" placeholder="0000" [formControl]="zipCodeControl" />
+            <label for="zip-code">Postnummer*</label>
+            <input id="zip-code" type="text" placeholder="0000" [formControl]="zipCodeControl" />
+            @if (zipCodeControl.invalid && zipCodeControl.touched) {
+              <small>*Postnummer er påkrævet.</small>
+            }
           </div>
 
           <div class="form-element">
-            <label for="town">By</label>
+            <label for="town">By*</label>
             <input id="town" type="text" placeholder="Bynavn" [formControl]="townControl" />
+            @if (townControl.invalid && townControl.touched) {
+              <small>*By er påkrævet.</small>
+            }
+          </div>
+
+          <div class="form-element full">
+            <label for="date">Ønsket Dato*</label>
+            <input id="date" type="date" [formControl]="dateControl" />
+            @if (dateControl.invalid && dateControl.touched) {
+              <small>*Ønsket Dato er påkrævet.</small>
+            }
+          </div>
+
+          <div class="form-element full">
+            <label for="time">Ønsket Tid*</label>
+            <select id="time" [formControl]="timeControl">
+              @for (hour of hourOptions; track $index) {
+                <option value="{{ hour }}">{{ hour }}</option>
+              }
+            </select>
+            @if (timeControl.invalid && timeControl.touched) {
+              <small>*Ønsket Tid er påkrævet.</small>
+            }
           </div>
 
           <button type="button" (click)="nextStep()">Næste</button>
@@ -59,16 +88,23 @@
       }
       @if (currentStep === 2) {
         <div class="service-form">
+          <label class="service-title">Vælg en service</label>
           @for (service of serviceFormComponents; track service) {
             <div class="{{ service.class }}">
-              <label class="form-label">{{ service.title }} - {{ service.price }}</label>
-              <button
-                class="service-button"
-                type="button"
-                (click)="checkBox(service.title, service.price, $index)"
-              >
-                {{ service.state }}
-              </button>
+              <img src="{{ service.img }}" alt="" />
+              <div class="space">
+                <div>
+                  <label class="form-label titel">{{ service.title }}</label>
+                  <label class="form-label price">{{ service.price }}</label>
+                </div>
+                <button
+                  class="service-button"
+                  type="button"
+                  (click)="checkBox(service.title, service.price, $index)"
+                >
+                  {{ service.state }}
+                </button>
+              </div>
             </div>
           }
         </div>
@@ -81,7 +117,7 @@
       @if (currentStep === 3) {
         <div class="extra-form">
           <div class="form-element">
-            <label for="extra-text" class="form-label">Andet</label>
+            <label for="extra-text" class="form-label">Noget andet jeg skal vide?</label>
             <textarea name="extra-text" id="extra-text" [formControl]="extraControl"></textarea>
           </div>
         </div>
@@ -115,6 +151,7 @@
               <label><strong>Pris:</strong> {{ priceControl.value }}</label>
               <label><strong>Andet:</strong> {{ extraControl.value }}</label>
               <label>Betaling sker i person via mobilepay.</label>
+              <label>Møde sted bliver aftalt ved opfølgende email.</label>
             </div>
           </div>
           <button id="back" type="button" (click)="formGroup.reset()" [routerLink]="'/'">

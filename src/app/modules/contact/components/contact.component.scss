@@ -6,7 +6,7 @@ $progress-label-active: rgb(174, 174, 255);
   flex-direction: column;
   align-items: center;
 
-  height: 100dvh;
+  // height: 100dvh;
 
   background-image: url('../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
@@ -66,7 +66,7 @@ $progress-label-active: rgb(174, 174, 255);
 
   gap: 15px;
 
-  margin-bottom: 15px;
+  margin-bottom: 100px;
 
   .form-element {
     display: flex;
@@ -76,6 +76,26 @@ $progress-label-active: rgb(174, 174, 255);
 
     align-items: center;
     justify-content: start;
+
+    select {
+      appearance: none;
+      outline: none;
+
+      background-color: rgb(245, 245, 245);
+
+      padding: 10px;
+      border-radius: 5px;
+
+      align-self: stretch;
+      justify-self: stretch;
+
+      transition: all 0.5s ease;
+
+      &:focus {
+        background-color: white;
+        box-shadow: 0 0 6px rgb(139, 139, 139);
+      }
+    }
 
     input {
       appearance: none;
@@ -117,7 +137,7 @@ $progress-label-active: rgb(174, 174, 255);
 
 .service-form {
   --grid-max-col-count: 3;
-  --grid-min-col-size: 235px;
+  --grid-min-col-size: 400px;
   --grid-gap: 15px;
 
   display: inline-grid;
@@ -128,41 +148,83 @@ $progress-label-active: rgb(174, 174, 255);
 
   gap: var(--grid-gap);
 
-  margin-bottom: 15px;
+  .service-title {
+    grid-column: 1 / -1;
+    align-self: stretch;
+    text-align: center;
+  }
 
   .form-element {
-    display: inline-grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
 
     box-shadow: 0 0 2px rgb(139, 139, 139);
     border-radius: 15px;
     background-color: rgb(214, 214, 214);
 
-    min-width: 235px;
-    min-height: 125px;
+    padding: 5px;
 
-    button {
-      align-self: end;
-      justify-self: end;
-      grid-row: 2 / 3;
-      grid-column: 2 / 3;
+    gap: 10px;
 
-      width: 100px;
+    transition: all 0.25s ease;
 
-      margin: 5px;
-
-      grid-row: 4 / 5;
+    .space {
+      justify-content: space-between;
     }
-    label {
-      grid-column: 1 / 3;
-      grid-row: 1 / 3;
+
+    div {
+      display: flex;
+      flex-direction: column;
+
+      width: 100%;
+      height: 100%;
+
+      .titel {
+        align-self: start;
+      }
+
+      .price {
+        align-self: start;
+      }
+
+      button {
+        width: 100%;
+        height: 50px;
+      }
+    }
+
+    img {
+      width: 150px;
+      height: auto;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      border-radius: 15px;
+
+      box-shadow: 0 0 2px rgb(59, 59, 59);
     }
   }
   .active {
     box-shadow: 0 0 15px rgb(66, 121, 79);
     border-radius: 15px;
-    background-color: rgb(204, 221, 201);
+    background-color: rgb(182, 235, 172);
+
+    .service-button {
+      background-color: rgb(255, 201, 201);
+
+      &:hover {
+        box-shadow: 0 0 6px rgb(161, 102, 102);
+      }
+    }
+  }
+
+  .service-button {
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: rgb(203, 255, 225);
+      box-shadow: 0 0 6px rgb(66, 126, 91);
+    }
   }
 }
 
@@ -176,8 +238,6 @@ $progress-label-active: rgb(174, 174, 255);
 
   gap: 15px;
 
-  margin-bottom: 15px;
-
   .form-element {
     display: flex;
     flex-direction: column;
@@ -189,7 +249,7 @@ $progress-label-active: rgb(174, 174, 255);
 
     gap: 10px;
     textarea {
-      height: 100%;
+      height: 300px;
     }
 
     label {
@@ -209,7 +269,7 @@ $progress-label-active: rgb(174, 174, 255);
 
   padding-bottom: 10px;
 
-  margin-bottom: 15px;
+  margin-bottom: 100px;
 
   .grid-container {
     --grid-max-col-count: 2;
@@ -276,6 +336,8 @@ $progress-label-active: rgb(174, 174, 255);
 
   margin-top: 50px;
 
+  margin-bottom: 100px;
+
   #next {
     min-width: 235px;
   }
@@ -329,8 +391,8 @@ button {
   border-radius: 15px;
 
   &:hover {
-    background-color: white;
-    box-shadow: 0 0 6px rgb(139, 139, 139);
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 15px rgb(143, 143, 143);
   }
 }
 textarea {
@@ -352,13 +414,16 @@ textarea {
     box-shadow: 0 0 6px rgb(139, 139, 139);
   }
 }
-input.ng-invalid.ng-touched {
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
   border: 1px solid red;
 }
-input.ng-valid {
+input.ng-valid,
+select.ng-valid {
   border: none;
 }
-input.ng-untouched {
+input.ng-untouched,
+select.ng-untouched {
   border: none;
 }
 
@@ -388,6 +453,14 @@ input.ng-untouched {
       justify-self: center;
     }
   }
+
+  #next {
+    grid-row-start: 1;
+  }
+
+  #back {
+    grid-row-start: 2;
+  }
 }
 
 @media (max-width: 600px) {
@@ -397,5 +470,9 @@ input.ng-untouched {
   .info-form {
     grid-template-rows: repeat(7, 1fr);
     grid-template-columns: 1fr;
+  }
+
+  .service-form {
+    --grid-min-col-size: 330px;
   }
 }

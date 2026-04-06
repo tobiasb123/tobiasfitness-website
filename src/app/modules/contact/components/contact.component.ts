@@ -14,9 +14,11 @@ export class ContactComp {
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
-  adressControl = new FormControl<string>('');
-  zipCodeControl = new FormControl<string>('');
-  townControl = new FormControl<string>('');
+  adressControl = new FormControl<string>('', [Validators.required]);
+  zipCodeControl = new FormControl<string>('', [Validators.required]);
+  townControl = new FormControl<string>('', [Validators.required]);
+  dateControl = new FormControl<string>('', [Validators.required]);
+  timeControl = new FormControl<string>('', [Validators.required]);
   serviceControl = new FormControl<string>('');
   extraControl = new FormControl<string>('');
   priceControl = new FormControl<string>('');
@@ -28,6 +30,8 @@ export class ContactComp {
     adress: this.adressControl,
     zipCode: this.zipCodeControl,
     town: this.townControl,
+    date: this.dateControl,
+    time: this.timeControl,
     service: this.serviceControl,
     extra: this.extraControl,
     pris: this.priceControl,
@@ -117,36 +121,42 @@ export class ContactComp {
     {
       title: 'Første Konsultation',
       price: '399kr',
+      img: 'Priser_Billede_1.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Opfølgende Konsultation',
       price: '149kr',
+      img: 'Priser_Billede_1.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Første Konsultation - Online',
-      price: '299kr',
+      price: '349kr',
+      img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Opfølgende Konsultation - Online',
-      price: '99kr',
+      price: '149kr',
+      img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Personlig Træning',
       price: '349kr',
+      img: 'Priser_Billede_2.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Kostvejledning',
       price: '149kr',
+      img: 'Priser_Billede_4.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
@@ -184,4 +194,17 @@ export class ContactComp {
     this.serviceFormComponents[index].state = 'Vælg';
     this.serviceFormComponents[index].class = 'form-element';
   }
+
+  hourOptions = [
+    '09:00',
+    '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
+    '18:00',
+  ];
 }
