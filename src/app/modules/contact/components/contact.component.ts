@@ -47,7 +47,9 @@ export class ContactComp {
   submitting: boolean = false;
   submitted: boolean = false;
   error: string | null = null;
-  onSubmit() {
+  onSubmit(event: SubmitEvent) {
+    event.preventDefault();
+
     if (!this.emailControl.valid) {
       console.log('No Valid Email.');
       return;
