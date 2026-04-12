@@ -9,13 +9,19 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
     "strictPropertyInitialization": false,
-    "baseUrl": "./"
+    "strictNullChecks": false,
+    "paths": {
+      "@environments": ["./src/environments/index.ts"],
+      "@models/*": ["./models/*"],
+      "@modules/firebase": ["./src/app/modules/firebase/index.ts"],
+      "@modules/auth": ["./src/app/modules/auth/index.ts"],
+      "@modules/core": ["./src/app/modules/core/index.ts"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

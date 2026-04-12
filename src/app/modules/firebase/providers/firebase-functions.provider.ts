@@ -1,9 +1,9 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { FirebaseApp } from 'firebase/app';
 import { connectFunctionsEmulator, getFunctions } from 'firebase/functions';
-import { environment } from 'src/environments/environment';
 import { FIREBASE_APP } from '../tokens/firebase-app.token';
 import { FIREBASE_FUNCTIONS } from '../tokens/firebase-functions.token';
+import { environment } from '@environments';
 
 export function provideFirebaseFunctions(): EnvironmentProviders {
   return makeEnvironmentProviders([

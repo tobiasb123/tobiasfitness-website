@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
 import { CoreComponent } from './modules/core/pages/core/core.component';
+import { AuthFunctionsService } from '@modules/auth';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +8,10 @@ import { CoreComponent } from './modules/core/pages/core/core.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class App {
-  protected readonly title = signal('tobiasfitness-website');
+export class App implements OnInit {
+  private authFunctions = inject(AuthFunctionsService);
+
+  ngOnInit(): void {
+    this.authFunctions.initialize();
+  }
 }
