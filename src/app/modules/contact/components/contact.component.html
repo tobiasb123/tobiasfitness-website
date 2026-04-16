@@ -31,7 +31,7 @@
             <input
               id="email"
               type="email"
-              placeholder="John.Doe@gmail.com"
+              placeholder="John.Doe@example.com"
               [formControl]="emailControl"
             />
             @if (emailControl.invalid && emailControl.touched) {
@@ -41,7 +41,7 @@
 
           <div class="form-element full">
             <label for="adress">Adresse*</label>
-            <input id="adress" type="text" placeholder="Vejnavn 1" [formControl]="adressControl" />
+            <input id="adress" type="text" placeholder="Vejnavn 00" [formControl]="adressControl" />
             @if (adressControl.invalid && adressControl.touched) {
               <small>*Adresse er påkrævet.</small>
             }

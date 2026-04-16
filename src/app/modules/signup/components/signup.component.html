@@ -1,0 +1,36 @@
+<section>
+  <h1>Opret Konto</h1>
+  <div>
+    <form [formGroup]="formGroup" (submit)="onSubmit($event)">
+      <div class="form-element">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="text"
+          placeholder="john.doe@example.com"
+          [formControl]="emailControl"
+        />
+        @if (emailControl.invalid && emailControl.touched) {
+          <small>*Email er inkorrect.</small>
+        }
+      </div>
+
+      <div class="form-element">
+        <label for="password">Kodeord</label>
+        <input
+          id="password"
+          name="password"
+          type="text"
+          placeholder="kodeord"
+          [formControl]="passwordControl"
+        />
+        @if (passwordControl.invalid && passwordControl.touched) {
+          <small>*Kodeord er påkrævet.</small>
+        }
+      </div>
+
+      <button type="submit">Opret</button>
+    </form>
+  </div>
+</section>

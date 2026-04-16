@@ -4,8 +4,37 @@
   <div class="otherNavComponents">
     @for (route of routes; track route) {
       @if (route.showInNavList) {
-        <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
+        @if (route.displayName !== 'Konto' && route.displayName !== 'Admin-Menu') {
+          <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
+        }
+        @if (route.displayName === 'Konto') {
+          @if (loggedIn) {
+            <a (click)="accountAccess()">Konto</a>
+          } @else {
+            <a (click)="accountAccess()">Log Ind</a>
+          }
+        }
+        @if (route.displayName === 'Admin-Menu' && loggedIn | async) {
+          <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
+        }
       }
     }
   </div>
 </nav>
+
+<div class="account-access">
+  @if (loggedIn | async) {
+    <div class="info-holder">
+      <label>{{ currentUser()?.displayName }}</label>
+      <label>{{ currentUser().email }}</label>
+    </div>
+    <div class="button-holder">
+      <button (click)="logOut()">Log Out</button>
+    </div>
+  } @else {
+    <div class="button-holder">
+      <button (click)="signUp()">Opret Konto</button>
+      <button (click)="logIn()">Log Ind</button>
+    </div>
+  }
+</div>
