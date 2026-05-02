@@ -32,7 +32,7 @@ export const routes: RouteExt[] = [
   {
     path: 'contact',
     component: ContactComponent,
-    displayName: 'Kontakt',
+    displayName: 'Bestil Tid',
     showInNavList: true,
   },
   {

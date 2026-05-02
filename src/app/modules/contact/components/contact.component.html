@@ -89,24 +89,28 @@
       @if (currentStep === 2) {
         <div class="service-form">
           <label class="service-title">Vælg en service</label>
-          @for (service of serviceFormComponents; track service) {
-            <div class="{{ service.class }}">
-              <img src="{{ service.img }}" alt="" />
-              <div class="space">
-                <div>
-                  <label class="form-label titel">{{ service.title }}</label>
-                  <label class="form-label price">{{ service.price }}</label>
+          <div class="flex-box">
+            @for (service of serviceFormComponents; track service) {
+              <div class="{{ service.class }}">
+                <img src="{{ service.img }}" alt="" />
+                <div class="space">
+                  <div>
+                    <label class="form-label titel">{{ service.title }}</label>
+                    <label class="form-label">{{ service.price }}</label>
+                    <label class="form-label">{{ service.time }}</label>
+                    <label class="form-label">{{ service.place }}</label>
+                  </div>
+                  <button
+                    class="service-button"
+                    type="button"
+                    (click)="checkBox(service.title, service.price, $index)"
+                  >
+                    {{ service.state }}
+                  </button>
                 </div>
-                <button
-                  class="service-button"
-                  type="button"
-                  (click)="checkBox(service.title, service.price, $index)"
-                >
-                  {{ service.state }}
-                </button>
               </div>
-            </div>
-          }
+            }
+          </div>
         </div>
 
         <div class="button-container">
@@ -151,7 +155,7 @@
               <label><strong>Pris:</strong> {{ priceControl.value }}</label>
               <label><strong>Andet:</strong> {{ extraControl.value }}</label>
               <label>Betaling sker i person via mobilepay.</label>
-              <label>Møde sted bliver aftalt ved opfølgende email.</label>
+              <label>Hvis det forgår i person mødes vi på "Østre Havnevej 11c, 4300 Holbæk".</label>
             </div>
           </div>
           <button id="back" type="button" (click)="formGroup.reset()" [routerLink]="'/'">

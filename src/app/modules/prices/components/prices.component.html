@@ -1,26 +1,21 @@
 <div class="prices-page">
-  <h1>Konsultationer</h1>
-  <div class="multi services">
-    @for (service of multiServices; track $index) {
+  <h1>Ydelser</h1>
+  <div class="services">
+    @for (service of generalServices; track $index) {
       <div class="service">
         <img src="{{ service.icon }}" />
         <div class="disc">
           <h2>{{ service.name }}</h2>
-          <h3>{{ service.price }}</h3>
-          <p>{{ service.description }}</p>
-        </div>
-      </div>
-    }
-  </div>
-  <h1>Andet</h1>
-  <div class="single services">
-    @for (service of singleServices; track $index) {
-      <div class="service">
-        <img src="{{ service.icon }}" />
-        <div class="disc">
-          <h2>{{ service.name }}</h2>
-          <h3>{{ service.price }}</h3>
-          <p>{{ service.description }}</p>
+          <p>
+            <strong>{{ service.price }}</strong>
+          </p>
+          <p>
+            <strong>{{ service.time }}</strong>
+          </p>
+          <p>
+            <strong>{{ service.place }}</strong>
+          </p>
+          <p id="discription">{{ service.description }}</p>
         </div>
       </div>
     }

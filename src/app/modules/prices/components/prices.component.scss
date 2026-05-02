@@ -23,26 +23,30 @@ h3 {
 }
 
 .services {
-  --grid-max-col: 2;
-  --grid-min-col-size: 500px;
-  --grid-gap: 10px;
-
-  width: calc(100% - (var(--grid-gap) * var(--grid-max-col)));
-  height: calc(100% - (var(--grid-gap) * var(--grid-max-col)));
-
   display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(
-      min(var(--grid-min-col-size), 100%),
-      calc((100% - var(--grid-gap)) / var(--grid-max-col))
-    )
-  );
+  width: calc(100% - 1rem);
+  margin-inline: auto;
+  margin-block: 1rem;
 
-  gap: var(--grid-gap);
+  container-type: inline-size;
 
-  padding: var(--grid-gap);
+  // When visually have 1 column
+  @container (width >= calc(300px * 2 + 1rem)) {
+    .service {
+      grid-column: span 2;
+    }
+  }
+
+  // When visually have 2 column
+  @container (width >= calc(300px * 4 + 3rem)) {
+    .service:last-child:nth-child(odd) {
+      grid-column-start: 2;
+      grid-column-end: 4;
+    }
+  }
 }
 
 .service {
@@ -52,7 +56,7 @@ h3 {
   background-color: rgb(148, 170, 196);
 
   align-items: start;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
 
   padding: 10px;
@@ -100,12 +104,20 @@ h3 {
   display: flex;
   flex-direction: column;
 
+  width: 100%;
+
   align-items: center;
   justify-content: center;
 
-  gap: 10px;
-
   padding: 10px;
+
+  p {
+    margin: 5px;
+  }
+
+  #discription {
+    margin-top: 30px;
+  }
 }
 
 img {

@@ -121,44 +121,56 @@ export class ContactComp {
 
   serviceFormComponents = [
     {
-      title: 'Første Konsultation',
-      price: '399kr',
-      img: 'Priser_Billede_1.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Opfølgende Konsultation',
-      price: '149kr',
-      img: 'Priser_Billede_1.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Første Konsultation - Online',
-      price: '349kr',
+      title: '1 måneds forløb',
+      price: 'Pris: 1500kr',
+      time: 'Antal gange: 4 x 1 time',
+      place: 'Kan forgå i person eller online',
       img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
-      title: 'Opfølgende Konsultation - Online',
-      price: '149kr',
+      title: '3 måneders forløb',
+      price: 'Pris: 3600kr',
+      time: 'Antal gange: 12 x 1 time',
+      place: 'Kan forgå i person eller online',
+      img: 'Priser_Billede_3.jpeg',
+      state: 'Vælg',
+      class: 'form-element',
+    },
+    {
+      title: '6 måneders forløb',
+      price: 'Pris: 6300kr',
+      time: 'Antal gange: 24 x 1 time',
+      place: 'Kan forgå i person eller online',
       img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Personlig Træning',
-      price: '349kr',
+      price: 'Pris: 750kr',
+      time: 'Antal gange: 1 x 1 time',
+      place: 'Forgår i person',
       img: 'Priser_Billede_2.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
     {
       title: 'Kostvejledning',
-      price: '149kr',
+      price: 'Pris: 750kr',
+      time: 'Antal gange: 1 x 1 time',
+      place: 'Kan forgå i person eller online',
       img: 'Priser_Billede_4.jpeg',
+      state: 'Vælg',
+      class: 'form-element',
+    },
+    {
+      title: 'Lejning til event',
+      price: 'Pris: Forhandles',
+      time: 'Antal gange: Forhandles',
+      place: 'Forgår i person',
+      img: 'Priser_Billede_1.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },
@@ -197,7 +209,7 @@ export class ContactComp {
     this.serviceFormComponents[index].class = 'form-element';
   }
 
-  hourOptions = [
+  hourOptions: Array<string> = [
     '09:00 - 10:00',
     '11:00 - 12:00',
     '13:00 - 14:00',
