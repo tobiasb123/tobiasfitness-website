@@ -1,13 +1,14 @@
-import { Booking, NewBooking } from '@models/booking';
+import { Booking, NewBooking, Service } from '@models/booking';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { getBlockedDays, getTimePeriods } from '../../shared/config/config.shared';
-import { createAuthEndpoint } from '../../shared/http';
+import { createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
 import { doesPeriodMatch, getBookings } from './common/booking.common';
 import moment = require('moment-timezone');
 
 const firestore = getFirestore();
 const bookingsCollection = firestore.collection('bookings');
+const servicesCollection = firestore.collection('services');
 
 export const newBooking = createAuthEndpoint(async (req, res, uid) => {
   const data = req.body as NewBooking;
@@ -60,4 +61,23 @@ export const newBooking = createAuthEndpoint(async (req, res, uid) => {
   });
 
   res.json(booking);
+});
+
+export const getServices = createPublicEndpoint(async (req, res) => {
+  const services = await servicesCollection.get().then((servicesSnap) => {
+    const services: Service[] = [];
+
+    for (const serviceDoc of servicesSnap.docs) {
+      const service = serviceDoc.data() as Service;
+
+      services.push({
+        ...service,
+        id: serviceDoc.id,
+      });
+    }
+
+    return services;
+  });
+
+  res.json(services);
 });

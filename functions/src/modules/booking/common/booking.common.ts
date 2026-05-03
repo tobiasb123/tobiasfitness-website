@@ -9,14 +9,14 @@ export const getBookings = async (): Promise<Booking[]> => {
   return await bookingsCollection.get().then((bookingSnap) => {
     const bookings: Booking[] = [];
 
-    bookingSnap.docs.forEach((bookingDoc) => {
+    for (const bookingDoc of bookingSnap.docs) {
       const booking = bookingDoc.data() as Booking;
 
       bookings.push({
         ...booking,
         id: bookingDoc.id,
       });
-    });
+    }
 
     return bookings;
   });

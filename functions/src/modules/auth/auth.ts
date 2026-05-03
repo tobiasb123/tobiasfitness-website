@@ -30,6 +30,10 @@ export const register = createAuthEndpoint(async (req, res, user) => {
   res.json(userProfile);
 });
 
+export const getUserProfile = createAuthEndpoint(async (req, res, user) => {
+  res.json(user);
+});
+
 export const updateDetails = createAuthEndpoint(async (req, res, user) => {
   const data = req.body as Partial<UserProfile>;
   const emailChanged = !!data.email && data.email !== user.email;

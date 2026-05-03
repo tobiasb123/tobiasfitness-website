@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { DataHolderComponent } from './data-holder/data-holder.component';
-import { DataFinderComponent } from './data-finder/data-finder.component';
-import { DataEditerComponent } from './data-editer/data-editer.component';
 import { BehaviorSubject } from 'rxjs';
+import { DataFinderComponent } from './data-finder/data-finder.component';
+import { DataHolderComponent } from './data-holder/data-holder.component';
 
 @Component({
   selector: 'app-admin-menu',
-  imports: [RouterModule, DataHolderComponent, DataFinderComponent, DataEditerComponent],
+  imports: [RouterModule, DataHolderComponent, DataFinderComponent],
   templateUrl: './admin-menu.component.html',
   styleUrl: './admin-menu.component.scss',
 })

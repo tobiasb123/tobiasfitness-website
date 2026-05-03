@@ -1,23 +1,21 @@
 import { inject, Injectable, Injector, runInInjectionContext, signal } from '@angular/core';
-import { AUTH_STATE } from '../../tokens/auth-state.token';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { BaseProfile, UserProfile } from '@models/auth';
+import { Address } from '@models/auth/interfaces/address.interface';
+import { getFirebaseError } from '@modules/core';
 import { FirebaseService } from '@modules/firebase';
 import {
   browserLocalPersistence,
   browserSessionPersistence,
   createUserWithEmailAndPassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
   User,
-  UserCredential,
 } from 'firebase/auth';
-import { UserProfile } from '@models/auth';
-import { getFirebaseError } from '@modules/core';
-import { Router } from '@angular/router';
 import { map, Observable } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { AUTH_STATE } from '../../tokens/auth-state.token';
 
 @Injectable({
   providedIn: 'root',
@@ -29,31 +27,44 @@ export class AuthFunctionsService {
   private router = inject(Router);
   private injector = inject(Injector);
 
-  private updateEmailFunc = this.firebaseService.httpsCallable<
-    {
-      idToken: string;
-      newEmail: string;
-    },
-    UserProfile
-  >('auth-updateEmail');
-  private updatePasswordFunc = this.firebaseService.httpsCallable<
-    { idToken: string; newPassword: string },
-    void
-  >('auth-updatePassword');
-
-  public currentUser = signal<User>(undefined);
   public currentUserProfile = signal<UserProfile>(undefined);
 
   public initialize(): void {
     this.auth.onIdTokenChanged((user) => {
-      this.currentUser.set(user);
-      this.authState.set(user ? 'loggedIn' : 'ready');
+      if (user) {
+        this.firebaseService.httpGet<UserProfile>('auth-getUserProfile').then((userProfile) => {
+          this.currentUserProfile.set(userProfile);
+          this.authState.set('loggedIn');
+        });
+      } else {
+        this.currentUserProfile.set(undefined);
+        this.authState.set('ready');
+      }
     });
   }
 
-  public async signUp(email: string, password: string): Promise<User> {
+  public async signUp(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phoneNumber: string,
+    address: Address,
+  ): Promise<UserProfile> {
     return await createUserWithEmailAndPassword(this.auth, email, password)
-      .then((userCred) => userCred.user)
+      .then(async () => {
+        const profile: BaseProfile = {
+          firstName: firstName,
+          lastName: lastName,
+          phoneNumber: phoneNumber,
+          address: address,
+        };
+
+        return await this.firebaseService.httpPost<BaseProfile, UserProfile>(
+          'auth-register',
+          profile,
+        );
+      })
       .catch((error) => {
         throw getFirebaseError(error);
       });
@@ -98,41 +109,10 @@ export class AuthFunctionsService {
     );
   }
 
-  public async updateEmail(
-    user: User,
-    newEmail: string,
-    currentPassword: string,
-  ): Promise<UserProfile> {
-    const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-    return await reauthenticateWithCredential(user, credential)
-      .then(async (userCredential) => {
-        return await this.updateEmailFunc({
-          idToken: await userCredential.user.getIdToken(),
-          newEmail: newEmail,
-        }).then((result) => result.data);
-      })
-      .catch((error) => {
-        throw getFirebaseError(error);
-      });
-  }
-
-  public async updatePassword(
-    user: User,
-    currentPassword: string,
-    newPassword: string,
-  ): Promise<void> {
-    const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-    return await reauthenticateWithCredential(user, credential)
-      .then(async (userCredential) => {
-        return await this.updatePasswordFunc({
-          idToken: await userCredential.user.getIdToken(),
-          newPassword: newPassword,
-        }).then((result) => result.data);
-      })
-      .catch((error) => {
-        throw getFirebaseError(error);
-      });
+  public async updateDetails(updates: Partial<UserProfile>): Promise<void> {
+    return await this.firebaseService.httpPost<Partial<UserProfile>, void>(
+      'auth-updateDetails',
+      updates,
+    );
   }
 }

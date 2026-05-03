@@ -1,22 +1,19 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
-import { FirebaseApp } from 'firebase/app';
-import { connectFunctionsEmulator, getFunctions } from 'firebase/functions';
-import { FIREBASE_APP } from '../tokens/firebase-app.token';
-import { FIREBASE_FUNCTIONS } from '../tokens/firebase-functions.token';
 import { environment } from '@environments';
+import { FIREBASE_FUNCTIONS_BASE_URL } from '../tokens/firebase-functions-base-url.token';
+
+const FUNCTIONS_REGION = 'us-central1';
+const FIREBASE_PROJECT_ID = 'tobiasbastholmfitness';
 
 export function provideFirebaseFunctions(): EnvironmentProviders {
+  const isEmulator = environment.type === 'developmentFunc';
+
   return makeEnvironmentProviders([
     {
-      provide: FIREBASE_FUNCTIONS,
-      useFactory: (app: FirebaseApp) => {
-        const functions = getFunctions(app);
-        if (environment.type === 'developmentFunc') {
-          connectFunctionsEmulator(functions, 'localhost', 5001);
-        }
-        return functions;
-      },
-      deps: [FIREBASE_APP],
+      provide: FIREBASE_FUNCTIONS_BASE_URL,
+      useValue: isEmulator
+        ? `http://localhost:5001/${FIREBASE_PROJECT_ID}/${FUNCTIONS_REGION}`
+        : `https://${FUNCTIONS_REGION}-${FIREBASE_PROJECT_ID}.cloudfunctions.net`,
     },
   ]);
 }
