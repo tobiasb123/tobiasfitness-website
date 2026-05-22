@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { HttpsError, onRequest, Request } from 'firebase-functions/v2/https';
+import { getUser } from '../../modules/auth/common/auth.common';
 import { requireAuth } from './auth.shared';
 import { sendHttpError } from './http-error.shared';
 
@@ -60,7 +61,8 @@ export function createAdminEndpoint(
   handler: (req: Request, res: Response, user: DecodedIdToken) => Promise<void>,
 ) {
   return createAuthEndpoint(async (req, res, user) => {
-    if (!user.admin) {
+    const userProfile = await getUser(user.uid);
+    if (!userProfile.admin) {
       throw new HttpsError('permission-denied', 'Kun administratorer har adgang');
     }
 

@@ -10,10 +10,9 @@ const usersCollection = firestore.collection('users');
 
 export const register = createAuthEndpoint(async (req, res, user) => {
   const data = req.body as BaseProfile;
-  const userProfile: UserProfile = {
+  const userProfile: Partial<UserProfile> = {
     ...data,
     email: user.email!,
-    uid: user.uid,
   };
 
   await usersCollection
@@ -36,7 +35,10 @@ export const register = createAuthEndpoint(async (req, res, user) => {
 
 export const getUserProfile = createAuthEndpoint(async (req, res, user) => {
   const userProfile = await getUser(user.uid);
-  res.json(userProfile);
+  res.json(<UserProfile>{
+    ...userProfile,
+    email: user.email,
+  });
 });
 
 export const updateDetails = createAuthEndpoint(async (req, res, user) => {

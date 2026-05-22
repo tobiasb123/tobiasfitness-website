@@ -1,8 +1,10 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthFunctionsService } from '@modules/auth';
-import { Observable, Subscription } from 'rxjs';
+import { FirebaseError } from 'firebase/app';
+import { Observable } from 'rxjs';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-signin',
@@ -11,6 +13,8 @@ import { Observable, Subscription } from 'rxjs';
   styleUrl: './signin.component.scss',
 })
 export class SigninComp {
+  private toast = inject(ToastService);
+
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
   passwordControl = new FormControl<string>('', [Validators.required]);
   rememberMeControl = new FormControl<boolean>(false);
@@ -35,11 +39,19 @@ export class SigninComp {
       return;
     }
 
-    this.authFunctions.signIn(
-      this.emailControl.value,
-      this.passwordControl.value,
-      this.rememberMeControl.value,
-    );
-    this.router.navigate(['']);
+    const toastRef = this.toast.open('Logger ind...', 'loading');
+
+    this.authFunctions
+      .signIn(this.emailControl.value, this.passwordControl.value, this.rememberMeControl.value)
+      .then(() => {
+        this.toast.update(toastRef, 'Logget ind!', 'success');
+        this.router.navigate(['']);
+      })
+      .catch((error: FirebaseError) => {
+        toastRef.updateToast({
+          type: 'error',
+        });
+        toastRef.updateMessage(error.message);
+      });
   }
 }

@@ -1,13 +1,14 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { routes } from './app.routes';
+import { AUTH_STATE, AuthState } from '@modules/auth';
 import {
   provideFirebaseApp,
   provideFirebaseAuth,
   provideFirebaseFunctions,
 } from '@modules/firebase';
-import { AUTH_STATE, AuthState } from '@modules/auth';
+import { provideHotToastConfig } from '@ngxpert/hot-toast';
+import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,5 +29,6 @@ export const appConfig: ApplicationConfig = {
       provide: AUTH_STATE,
       useValue: signal<AuthState>('loading'),
     },
+    provideHotToastConfig(),
   ],
 };

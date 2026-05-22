@@ -5,6 +5,7 @@ import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
 import { Observable } from 'rxjs';
 import { Address } from '../../../../../models/auth/interfaces/address.interface';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-signup',
@@ -13,6 +14,8 @@ import { Address } from '../../../../../models/auth/interfaces/address.interface
   styleUrl: './signup.component.scss',
 })
 export class SignupComp {
+  private toast = inject(ToastService);
+
   firstnameControl = new FormControl<string>('', [Validators.required]);
   lastnameControl = new FormControl<string>('', [Validators.required]);
   phonenumberControl = new FormControl<string>('', [Validators.required]);
@@ -53,6 +56,8 @@ export class SignupComp {
       return;
     }
 
+    const toastRef = this.toast.open('Opretter konto...', 'loading');
+
     this.authFunctions
       .signUp(
         this.emailControl.value,
@@ -63,10 +68,11 @@ export class SignupComp {
         this.address,
       )
       .then(() => {
+        this.toast.update(toastRef, 'Konto oprettet!', 'success');
         this.router.navigate(['']);
       })
       .catch((error: FirebaseError) => {
-        console.log(error.message);
+        this.toast.update(toastRef, error.message, 'error');
       });
   }
 }

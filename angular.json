@@ -96,7 +96,7 @@
               "buildTarget": "tobiasfitness-website:build:development-func"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "dev"
         },
         "test": {
           "builder": "@angular/build:unit-test"
