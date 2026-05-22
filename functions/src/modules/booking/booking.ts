@@ -1,4 +1,4 @@
-import { Booking, NewBooking, Service } from '@models/booking';
+import { Booking, NewBooking, Service } from '@models/booking/interfaces';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { getBlockedDays, getTimePeriods } from '../../shared/config/config.shared';
@@ -10,7 +10,7 @@ const firestore = getFirestore();
 const bookingsCollection = firestore.collection('bookings');
 const servicesCollection = firestore.collection('services');
 
-export const newBooking = createAuthEndpoint(async (req, res, uid) => {
+export const newBooking = createAuthEndpoint(async (req, res) => {
   const data = req.body as NewBooking;
   const currentDate = moment();
   const chosenDate = moment(data.date);

@@ -3,18 +3,26 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ng serve",
+      "name": "Debug Angular",
       "type": "chrome",
       "request": "launch",
-      "preLaunchTask": "npm: start",
+      "preLaunchTask": "ng-serve",
       "url": "http://localhost:4200/"
     },
     {
-      "name": "ng test",
+      "name": "Debug Angular Func",
       "type": "chrome",
       "request": "launch",
-      "preLaunchTask": "npm: test",
-      "url": "http://localhost:9876/debug.html"
+      "preLaunchTask": "ng-serve-func",
+      "url": "http://localhost:4200/"
+    },
+    {
+      "name": "Debug Functions",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "preLaunchTask": "func-debug"
     }
   ]
 }

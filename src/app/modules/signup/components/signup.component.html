@@ -2,32 +2,122 @@
   <h1>Opret Konto</h1>
   <div>
     <form [formGroup]="formGroup" (submit)="onSubmit($event)">
-      <div class="form-element">
-        <label for="email">Email</label>
+      <div class="element-group">
+        <div class="form-element">
+          <label for="firstName">Fornavn*</label>
+          <input
+            id="firstName"
+            name="firstName"
+            type="text"
+            placeholder="John"
+            [formControl]="firstnameControl"
+          />
+          @if (firstnameControl.invalid && firstnameControl.touched) {
+            <small>*Fornavn er påkrævet.</small>
+          }
+        </div>
+
+        <div class="form-element">
+          <label for="lastName">Efternavn*</label>
+          <input
+            id="lastName"
+            name="lastName"
+            type="text"
+            placeholder="Doe"
+            [formControl]="lastnameControl"
+          />
+          @if (lastnameControl.invalid && lastnameControl.touched) {
+            <small>*Efternavn er påkrævet.</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-element full">
+        <label for="street">Adresse*</label>
         <input
-          id="email"
-          name="email"
+          id="street"
+          name="street"
           type="text"
-          placeholder="john.doe@example.com"
-          [formControl]="emailControl"
+          placeholder="vejnavn 00"
+          [formControl]="streetControl"
         />
-        @if (emailControl.invalid && emailControl.touched) {
-          <small>*Email er inkorrect.</small>
+        @if (streetControl.invalid && streetControl.touched) {
+          <small>*Adresse er påkrævet.</small>
         }
       </div>
 
-      <div class="form-element">
-        <label for="password">Kodeord</label>
+      <div class="element-group">
+        <div class="form-element">
+          <label for="postalCode">Postnummer*</label>
+          <input
+            id="postalCode"
+            name="postalCode"
+            type="text"
+            placeholder="1234"
+            [formControl]="postalCodeControl"
+          />
+          @if (postalCodeControl.invalid && postalCodeControl.touched) {
+            <small>*Postnummer er påkrævet.</small>
+          }
+        </div>
+
+        <div class="form-element">
+          <label for="city">By*</label>
+          <input
+            id="city"
+            name="city"
+            type="text"
+            placeholder="Bynavn"
+            [formControl]="cityControl"
+          />
+          @if (cityControl.invalid && cityControl.touched) {
+            <small>*By er påkrævet.</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-element full">
+        <label for="phonenumber">Telefonnummer*</label>
         <input
-          id="password"
-          name="password"
+          id="phonenumber"
+          name="phonenumber"
           type="text"
-          placeholder="kodeord"
-          [formControl]="passwordControl"
+          placeholder="12345678"
+          [formControl]="phonenumberControl"
         />
-        @if (passwordControl.invalid && passwordControl.touched) {
-          <small>*Kodeord er påkrævet.</small>
+        @if (phonenumberControl.invalid && phonenumberControl.touched) {
+          <small>*Telefonnummer er påkrævet.</small>
         }
+      </div>
+
+      <div class="element-group">
+        <div class="form-element">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="text"
+            placeholder="john.doe@example.com"
+            [formControl]="emailControl"
+          />
+          @if (emailControl.invalid && emailControl.touched) {
+            <small>*Email er inkorrect.</small>
+          }
+        </div>
+
+        <div class="form-element">
+          <label for="password">Kodeord</label>
+          <input
+            id="password"
+            name="password"
+            type="text"
+            placeholder="kodeord"
+            [formControl]="passwordControl"
+          />
+          @if (passwordControl.invalid && passwordControl.touched) {
+            <small>*Kodeord er påkrævet.</small>
+          }
+        </div>
       </div>
 
       <button type="submit">Opret</button>

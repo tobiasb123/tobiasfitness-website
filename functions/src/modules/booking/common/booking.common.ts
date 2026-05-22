@@ -1,4 +1,4 @@
-import { Booking, TimePeriod } from '@models/booking';
+import { Booking, TimePeriod } from '@models/booking/interfaces';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getTimePeriods } from '../../../shared/config';
 

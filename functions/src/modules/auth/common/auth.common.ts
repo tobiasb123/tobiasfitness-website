@@ -1,4 +1,4 @@
-import { UserProfile } from '@models/auth';
+import { UserProfile } from '@models/auth/interfaces';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/https';
@@ -24,16 +24,16 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
   const usersSnap = await usersCollection.get();
 
   for (const user of userList.users) {
-    const userProfileSnap = usersSnap.docs.find((userProfileDoc) => {
-      const fireUserProfile = userProfileDoc.data() as UserProfile;
-      return fireUserProfile.uid === user.uid;
-    });
+    const userProfileDoc = usersSnap.docs.find((userProfileDoc) => userProfileDoc.id === user.uid);
 
-    if (!userProfileSnap?.exists) {
+    if (!userProfileDoc?.exists) {
       throw new HttpsError('not-found', 'Bruger blev ikke fundet');
     }
 
-    const userProfile = userProfileSnap.data() as UserProfile;
+    const userProfile = {
+      ...(userProfileDoc.data() as UserProfile),
+      uid: userProfileDoc.id,
+    };
     userProfiles.push({
       ...userProfile,
       email: user.email!,

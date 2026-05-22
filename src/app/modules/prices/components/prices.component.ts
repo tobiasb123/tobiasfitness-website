@@ -52,23 +52,5 @@ export class PricesComp {
         'Her har du mulighed for at sætte dig ned sammen med mig og kigge på din kost. Jeg kan hjælpe dig med at, strukturere din kost, håndtere dårlige vaner og hjælpe dig med at sammensætte en kostplan. Dette kan forgå i person eller online.',
       icon: 'Priser_Billede_4.jpeg',
     },
-    {
-      name: 'Lejning til event',
-      price: 'Pris: Forhandles',
-      time: 'Antal gange: Forhandles',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk"',
-      description:
-        'Du har mulighed for at leje mig til events på det institut du arbejder for. Jeg kan tilbyde næsten alt inden for fysisk aktivitet, såsom trænings leje, løbeture og en hel masse andet. Det er også en mulighed at leje mig til at lave en opvarmning til et event eller lign.',
-      icon: 'Priser_Billede_3.jpeg',
-    },
-    {
-      name: 'Lejning til event',
-      price: 'Pris: Forhandles',
-      time: 'Antal gange: Forhandles',
-      place: 'Forgår i person',
-      description:
-        'Du har mulighed for at leje mig til events på det institut du arbejder for. Jeg kan tilbyde næsten alt inden for fysisk aktivitet, såsom trænings leje, løbeture og en hel masse andet. Det er også en mulighed at leje mig til at lave en opvarmning til et event eller lign.',
-      icon: 'Priser_Billede_3.jpeg',
-    },
   ];
 }

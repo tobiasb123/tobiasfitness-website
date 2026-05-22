@@ -1,4 +1,4 @@
-import { TimePeriod } from '@models/booking';
+import { TimePeriod } from '@models/booking/interfaces';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/https';
 import { Config } from './interfaces/config.interface';

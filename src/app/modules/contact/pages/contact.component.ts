@@ -20,7 +20,7 @@ export class ContactComponent implements OnInit {
   lastNameControl = new FormControl<string>('', [Validators.required]);
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
   addressControl = new FormControl<string>('', [Validators.required]);
-  zipCodeControl = new FormControl<string>('', [Validators.required]);
+  zipCodeControl = new FormControl<number>(null, [Validators.required]);
   townControl = new FormControl<string>('', [Validators.required]);
   dateControl = new FormControl<string>('', [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
@@ -53,6 +53,11 @@ export class ContactComponent implements OnInit {
 
     if (userProfile) {
       this.firstNameControl.setValue(userProfile.firstName);
+      this.lastNameControl.setValue(userProfile.lastName);
+      this.emailControl.setValue(userProfile.email);
+      this.addressControl.setValue(userProfile.address.street);
+      this.zipCodeControl.setValue(userProfile.address.postalCode);
+      this.townControl.setValue(userProfile.address.city);
     }
   }
 
@@ -133,7 +138,7 @@ export class ContactComponent implements OnInit {
       title: '1 måneds forløb',
       price: 'Pris: 1500kr',
       time: 'Antal gange: 4 x 1 time',
-      place: 'Kan forgå i person eller online',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
       img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
@@ -142,7 +147,7 @@ export class ContactComponent implements OnInit {
       title: '3 måneders forløb',
       price: 'Pris: 3600kr',
       time: 'Antal gange: 12 x 1 time',
-      place: 'Kan forgå i person eller online',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
       img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
@@ -151,7 +156,7 @@ export class ContactComponent implements OnInit {
       title: '6 måneders forløb',
       price: 'Pris: 6300kr',
       time: 'Antal gange: 24 x 1 time',
-      place: 'Kan forgå i person eller online',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
       img: 'Priser_Billede_3.jpeg',
       state: 'Vælg',
       class: 'form-element',
@@ -160,7 +165,7 @@ export class ContactComponent implements OnInit {
       title: 'Personlig Træning',
       price: 'Pris: 750kr',
       time: 'Antal gange: 1 x 1 time',
-      place: 'Forgår i person',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk"',
       img: 'Priser_Billede_2.jpeg',
       state: 'Vælg',
       class: 'form-element',
@@ -169,17 +174,8 @@ export class ContactComponent implements OnInit {
       title: 'Kostvejledning',
       price: 'Pris: 750kr',
       time: 'Antal gange: 1 x 1 time',
-      place: 'Kan forgå i person eller online',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
       img: 'Priser_Billede_4.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Lejning til event',
-      price: 'Pris: Forhandles',
-      time: 'Antal gange: Forhandles',
-      place: 'Forgår i person',
-      img: 'Priser_Billede_1.jpeg',
       state: 'Vælg',
       class: 'form-element',
     },

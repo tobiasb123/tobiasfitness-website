@@ -1,16 +1,34 @@
 <div class="body">
-  <div class="menu">
-    <div class="info">
-      <label id="name">Name</label>
-      <label id="email">Email</label>
-      <label id="id">ID</label>
+  <div class="list-container">
+    <div class="Profiles view active">
+      @for (profile of allUsers(); track profile.uid) {
+        <div class="profile" (click)="selectUser(profile.uid)">
+          <p>uid: {{ profile.uid }}</p>
+          <p>Navn: {{ profile.firstName }} {{ profile.lastName }}</p>
+          <p>Email: {{ profile.email }}</p>
+        </div>
+      }
+    </div>
+    <div class="Apointments view"></div>
+  </div>
+  <div class="options">
+    <div class="view-options">
+      <button class="view-option active" (click)="selectView($event)">Profiles</button>
+      <button class="view-option" (click)="selectView($event)">Apointments</button>
     </div>
 
-    <div class="inputs">
-      <input id="add" type="button" value="Add" />
-      <input id="delete" type="button" value="Delete" />
-      <input id="edit" type="button" value="Edit" />
+    <div class="selected-profile">
+      @if (selectedUser()) {
+        <p>uid: {{ selectedUser().uid }}</p>
+        <p>Navn: {{ selectedUser().firstName }} {{ selectedUser().lastName }}</p>
+        <p>Email: {{ selectedUser().email }}</p>
+      }
     </div>
+
+    <button (click)="openEditer()">Open Profile</button>
   </div>
-  <div class="list-container"></div>
 </div>
+
+@if (selectedUser()) {
+  <app-data-editer class="editer" [selectedUser]="selectedUser()"></app-data-editer>
+}

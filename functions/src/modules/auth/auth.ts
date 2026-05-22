@@ -1,8 +1,9 @@
-import { BaseProfile, UserProfile } from '@models/auth';
+import { BaseProfile, UserProfile } from '@models/auth/interfaces';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/https';
 import { createAuthEndpoint } from '../../shared/http';
+import { getUser } from './common/auth.common';
 
 const firestore = getFirestore();
 const usersCollection = firestore.collection('users');
@@ -15,23 +16,27 @@ export const register = createAuthEndpoint(async (req, res, user) => {
     uid: user.uid,
   };
 
-  await usersCollection.add(userProfile).catch(async () => {
-    await getAuth()
-      .deleteUser(user.uid)
-      .catch(() => {
-        throw new HttpsError(
-          'aborted',
-          'Opretning af konto fejlede. Venligst kontakt kundeservice',
-        );
-      });
-    throw new HttpsError('aborted', 'Opretning af konto fejlede. Venligst kontakt kundeservice');
-  });
+  await usersCollection
+    .doc(user.uid)
+    .create(userProfile)
+    .catch(async () => {
+      await getAuth()
+        .deleteUser(user.uid)
+        .catch(() => {
+          throw new HttpsError(
+            'aborted',
+            'Opretning af konto fejlede. Venligst kontakt kundeservice',
+          );
+        });
+      throw new HttpsError('aborted', 'Opretning af konto fejlede. Venligst kontakt kundeservice');
+    });
 
   res.json(userProfile);
 });
 
 export const getUserProfile = createAuthEndpoint(async (req, res, user) => {
-  res.json(user);
+  const userProfile = await getUser(user.uid);
+  res.json(userProfile);
 });
 
 export const updateDetails = createAuthEndpoint(async (req, res, user) => {

@@ -14,7 +14,7 @@
             <a (click)="accountAccess()">Log Ind</a>
           }
         }
-        @if (route.displayName === 'Admin-Menu' && loggedIn | async) {
+        @if (route.displayName === 'Admin-Menu') {
           <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
         }
       }
@@ -25,7 +25,7 @@
 <div class="account-access">
   @if (loggedIn | async) {
     <div class="info-holder">
-      <label>{{ currentUser()?.displayName }}</label>
+      <label>{{ currentUser().firstName }} {{ currentUser().lastName }}</label>
       <label>{{ currentUser().email }}</label>
     </div>
     <div class="button-holder">

@@ -1,10 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { RouteExt, routes } from '../../../../app.routes';
-import { AuthFunctionsService } from '@modules/auth';
-import { Observable, tap } from 'rxjs';
-import { UserProfile } from '@models/auth';
 import { AsyncPipe } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { AuthFunctionsService } from '@modules/auth';
+import { Observable } from 'rxjs';
+import { RouteExt, routes } from '../../../../app.routes';
 
 @Component({
   selector: 'app-nav',
@@ -19,7 +18,7 @@ export class NavComponent implements OnInit {
   private router = inject(Router);
 
   loggedIn: Observable<boolean> = this.authFunctions.isLoggedIn();
-  currentUser = this.authFunctions.currentUser;
+  currentUser = this.authFunctions.currentUserProfile;
 
   ngOnInit(): void {
     this.routes = routes;

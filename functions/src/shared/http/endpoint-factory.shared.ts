@@ -1,7 +1,6 @@
-import { UserProfile } from '@models/auth';
 import { Response } from 'express';
+import { DecodedIdToken } from 'firebase-admin/auth';
 import { HttpsError, onRequest, Request } from 'firebase-functions/v2/https';
-import { getUser } from '../../modules/auth/common/auth.common';
 import { requireAuth } from './auth.shared';
 import { sendHttpError } from './http-error.shared';
 
@@ -34,13 +33,12 @@ export function createPublicEndpoint(handler: (req: Request, res: Response) => P
  * @returns A Firebase `onRequest` endpoint with auth and shared error handling.
  */
 export function createAuthEndpoint(
-  handler: (req: Request, res: Response, user: UserProfile) => Promise<void>,
+  handler: (req: Request, res: Response, user: DecodedIdToken) => Promise<void>,
 ) {
   return onRequest({ cors: true }, async (req, res) => {
     try {
       const user = await requireAuth(req);
-      const profile = await getUser(user.uid);
-      await handler(req, res, profile);
+      await handler(req, res, user);
     } catch (err) {
       if (!res.headersSent) {
         sendHttpError(res, err);
@@ -59,7 +57,7 @@ export function createAuthEndpoint(
  * @returns A Firebase `onRequest` endpoint with auth, admin check, and shared error handling.
  */
 export function createAdminEndpoint(
-  handler: (req: Request, res: Response, user: UserProfile) => Promise<void>,
+  handler: (req: Request, res: Response, user: DecodedIdToken) => Promise<void>,
 ) {
   return createAuthEndpoint(async (req, res, user) => {
     if (!user.admin) {

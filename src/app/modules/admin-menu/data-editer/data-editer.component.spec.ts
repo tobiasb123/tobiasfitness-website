@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DataFinderComponent } from './data-finder.component';
+import { DataEditerComponent } from './data-editer.component';
 
-describe('DataFinderComponent', () => {
-  let component: DataFinderComponent;
-  let fixture: ComponentFixture<DataFinderComponent>;
+describe('DataEditerComponent', () => {
+  let component: DataEditerComponent;
+  let fixture: ComponentFixture<DataEditerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DataFinderComponent],
+      imports: [DataEditerComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DataFinderComponent);
+    fixture = TestBed.createComponent(DataEditerComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

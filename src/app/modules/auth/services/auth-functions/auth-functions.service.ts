@@ -1,7 +1,7 @@
 import { inject, Injectable, Injector, runInInjectionContext, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { BaseProfile, UserProfile } from '@models/auth';
+import { BaseProfile, UserProfile } from '@models/auth/interfaces';
 import { Address } from '@models/auth/interfaces/address.interface';
 import { getFirebaseError } from '@modules/core';
 import { FirebaseService } from '@modules/firebase';
@@ -12,6 +12,7 @@ import {
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
+  Unsubscribe,
   User,
 } from 'firebase/auth';
 import { map, Observable } from 'rxjs';
@@ -26,11 +27,12 @@ export class AuthFunctionsService {
   private auth = this.firebaseService.getAuth();
   private router = inject(Router);
   private injector = inject(Injector);
+  private idTokenListener: Unsubscribe;
 
   public currentUserProfile = signal<UserProfile>(undefined);
 
   public initialize(): void {
-    this.auth.onIdTokenChanged((user) => {
+    this.idTokenListener = this.auth.onIdTokenChanged((user) => {
       if (user) {
         this.firebaseService.httpGet<UserProfile>('auth-getUserProfile').then((userProfile) => {
           this.currentUserProfile.set(userProfile);
@@ -43,6 +45,11 @@ export class AuthFunctionsService {
     });
   }
 
+  private uninitialize(): void {
+    this.idTokenListener();
+    this.idTokenListener = undefined;
+  }
+
   public async signUp(
     email: string,
     password: string,
@@ -51,6 +58,8 @@ export class AuthFunctionsService {
     phoneNumber: string,
     address: Address,
   ): Promise<UserProfile> {
+    this.uninitialize();
+
     return await createUserWithEmailAndPassword(this.auth, email, password)
       .then(async () => {
         const profile: BaseProfile = {
@@ -60,12 +69,16 @@ export class AuthFunctionsService {
           address: address,
         };
 
-        return await this.firebaseService.httpPost<BaseProfile, UserProfile>(
+        const user = await this.firebaseService.httpPost<BaseProfile, UserProfile>(
           'auth-register',
           profile,
         );
+
+        this.initialize();
+        return user;
       })
       .catch((error) => {
+        this.initialize();
         throw getFirebaseError(error);
       });
   }

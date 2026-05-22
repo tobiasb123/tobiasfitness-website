@@ -1,0 +1,145 @@
+<div class="bg"></div>
+<div class="data-editer">
+  <div class="nav-bar">
+    <button class="ebn active" (click)="setActiveEditerTabbn($event)">Oversigt</button>
+    <button class="ebn" (click)="setActiveEditerTabbn($event)">Tider</button>
+    <button class="ebn" (click)="setActiveEditerTabbn($event)">Profil</button>
+  </div>
+
+  <div class="Oversigt tab active">
+    <div class="overview-info tab-part">
+      <label class="title">Profil Information</label>
+      <label>{{ selectedUser.firstName }} {{ selectedUser.lastName }}</label>
+      <label>{{ selectedUser.phoneNumber }}</label>
+      <label>{{ selectedUser.email }}</label>
+    </div>
+    <div class="overview-apointments tab-part">
+      <label class="title">Kommende Tider</label>
+    </div>
+  </div>
+  <div class="Tider tab">
+    <div class="apointment-options tab-part">
+      <label class="title">Valgt Dato og Tid</label>
+      <label>Dato</label>
+      <label>Tid</label>
+      <label class="title">Valgt Service</label>
+      <label>Service</label>
+      <div class="buttons">
+        <button (click)="openEditTab()">Edit</button>
+        <button>Delete</button>
+      </div>
+    </div>
+    <div class="apointments tab-part">
+      <label class="title">Gamle Tider</label>
+      <div class="old-Apointments"></div>
+      <label class="title">Kommende Tider</label>
+      <div class="future-Apointments"></div>
+    </div>
+  </div>
+  <div class="Profil tab">
+    <div class="profile tab-part">
+      <form>
+        <div class="element-group">
+          <div class="form-element">
+            <label for="first-name">Fornavn</label>
+            <input
+              id="first-name"
+              class="input"
+              name="first-name"
+              type="text"
+              [formControl]="firstNameControl"
+            />
+          </div>
+
+          <div class="form-element">
+            <label for="last-name">Efternavn</label>
+            <input
+              id="last-name"
+              class="input"
+              name="last-name"
+              type="text"
+              [formControl]="lastNameControl"
+            />
+          </div>
+        </div>
+
+        <div class="element-group">
+          <div class="form-element">
+            <label for="email">Email</label>
+            <input id="email" class="input" name="email" type="text" [formControl]="emailControl" />
+          </div>
+
+          <div class="form-element">
+            <label for="phonenumber">Telefonnummer</label>
+            <input
+              id="phonenumber"
+              class="input"
+              name="phonenumber"
+              type="text"
+              [formControl]="phonenumberControl"
+            />
+          </div>
+        </div>
+
+        <div class="form-element">
+          <label for="address">Adresse</label>
+          <input
+            id="address"
+            class="input"
+            name="address"
+            type="text"
+            [formControl]="addressControl"
+          />
+        </div>
+
+        <div class="element-group">
+          <div class="form-element">
+            <label for="postalCode">Postnummer</label>
+            <input
+              id="postalCode"
+              class="input"
+              name="postalCode"
+              type="text"
+              [formControl]="zipCodeControl"
+            />
+          </div>
+
+          <div class="form-element">
+            <label for="city">By</label>
+            <input id="city" class="input" name="city" type="text" [formControl]="townControl" />
+          </div>
+        </div>
+
+        <div class="form-element comment">
+          <label for="comment">Andet</label>
+          <textarea id="comment" name="comment" [formControl]="commentControl"></textarea>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="Edit tab">
+    <div class="apointment-edit tab-part">
+      <form>
+        <h2 class="form-element">Ændre Tid</h2>
+        <div class="form-element">
+          <label for="time">Tid</label>
+          <select id="time" class="input" [formControl]="timeControl">
+            @for (hour of hourOptions; track $index) {
+              <option value="{{ hour }}">{{ hour }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-element">
+          <label for="date">Dato</label>
+          <input id="date" class="input" name="date" type="date" [formControl]="dateControl" />
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="option-buttons">
+    <button (click)="save()">Gem</button>
+    <button (click)="closeEditer()">Luk</button>
+  </div>
+</div>

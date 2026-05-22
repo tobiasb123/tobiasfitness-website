@@ -18,9 +18,9 @@ export class FirebaseService {
     return this.auth;
   }
 
-  async httpGet<TResult>(name: string, options: { auth?: boolean } = {}): Promise<TResult> {
+  async httpGet<TResult>(name: string): Promise<TResult> {
     const url = `${this.functionsBaseUrl}/${name}`;
-    const headers = await this.buildHeaders(options.auth);
+    const headers = await this.buildHeaders();
     return firstValueFrom(this.http.get<TResult>(url, { headers })).catch((error) => {
       throw this.normalizeHttpError(error);
     });
@@ -28,7 +28,7 @@ export class FirebaseService {
 
   async httpPost<TBody, TResult>(name: string, body: TBody): Promise<TResult> {
     const url = `${this.functionsBaseUrl}/${name}`;
-    const headers = await this.buildHeaders(true);
+    const headers = await this.buildHeaders();
     return firstValueFrom(this.http.post<TResult>(url, body, { headers })).catch((error) => {
       throw this.normalizeHttpError(error);
     });
@@ -46,11 +46,12 @@ export class FirebaseService {
     return new FirebaseError(code, message);
   }
 
-  private async buildHeaders(withAuth = false): Promise<Record<string, string>> {
-    if (!withAuth || !this.auth.currentUser) {
+  private async buildHeaders(): Promise<Record<string, string>> {
+    if (!this.auth.currentUser) {
       return {};
     }
     const token = await this.auth.currentUser.getIdToken();
+    console.log(token);
     return { Authorization: `Bearer ${token}` };
   }
 }

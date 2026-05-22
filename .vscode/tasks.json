@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "ng-serve",
       "type": "npm",
       "script": "start",
       "isBackground": true,
@@ -12,17 +13,18 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": {
-            "regexp": "Changes detected"
+            "regexp": "(.*?)"
           },
           "endsPattern": {
-            "regexp": "bundle generation (complete|failed)"
+            "regexp": "bundle generation complete"
           }
         }
       }
     },
     {
+      "label": "ng-serve-func",
       "type": "npm",
-      "script": "test",
+      "script": "start:func",
       "isBackground": true,
       "problemMatcher": {
         "owner": "typescript",
@@ -30,10 +32,29 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": {
-            "regexp": "Changes detected"
+            "regexp": "(.*?)"
           },
           "endsPattern": {
-            "regexp": "bundle generation (complete|failed)"
+            "regexp": "bundle generation complete"
+          }
+        }
+      }
+    },
+    {
+      "label": "func-debug",
+      "type": "npm",
+      "script": "func:debug",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "Starting emulators: functions"
+          },
+          "endsPattern": {
+            "regexp": "All emulators ready! It is now safe to connect your app"
           }
         }
       }
