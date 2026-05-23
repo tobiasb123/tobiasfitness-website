@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { FooterCoreComponent } from '../../Footer/pages/footer-core.component';
 
 @Component({
   selector: 'app-prices',
-  imports: [RouterModule, FooterCoreComponent],
+  imports: [RouterModule],
   templateUrl: './prices.component.html',
   styleUrl: './prices.component.scss',
 })
-export class PricesComp {
+export class PricesComponent {
   generalServices = [
     {
       name: '1 måneds forløb',

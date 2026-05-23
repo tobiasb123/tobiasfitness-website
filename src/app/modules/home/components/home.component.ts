@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { FooterCoreComponent } from '../../Footer/pages/footer-core.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, FooterCoreComponent],
+  imports: [RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComp {
+export class HomeComponent {
   goToLink(url: string) {
     window.open(url, '_blank');
   }

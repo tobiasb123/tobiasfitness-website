@@ -13,7 +13,7 @@ import { ToastService } from '../../core/services/toast/toast.service';
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss',
 })
-export class SignupComp {
+export class SignupComponent {
   private toast = inject(ToastService);
 
   firstnameControl = new FormControl<string>('', [Validators.required]);

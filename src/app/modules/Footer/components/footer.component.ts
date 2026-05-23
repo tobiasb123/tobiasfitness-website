@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })
-export class FooterComp {
+export class FooterComponent {
   goToLink(url: string) {
     window.open(url, '_blank');
   }

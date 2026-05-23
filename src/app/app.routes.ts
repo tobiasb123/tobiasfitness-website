@@ -1,10 +1,10 @@
-import { Route, Routes } from '@angular/router';
-import { HomeComponent } from './modules/home/pages/home.component';
-import { ContactComponent } from './modules/contact/pages/contact.component';
-import { PricesComponent } from './modules/prices/pages/prices.component';
-import { SignupComponent } from './modules/signup/pages/signup.component';
-import { SigninComponent } from './modules/signin/pages/signin.component';
+import { Route } from '@angular/router';
 import { AdminMenuComponent } from './modules/admin-menu/admin-menu.component';
+import { ContactComponent } from './modules/contact/pages/contact.component';
+import { HomeComponent } from './modules/home/components/home.component';
+import { PricesComponent } from './modules/prices/components/prices.component';
+import { SigninComponent } from './modules/signin/components/signin.component';
+import { SignupComponent } from './modules/signup/components/signup.component';
 
 export interface RouteExt extends Route {
   displayName?: string;

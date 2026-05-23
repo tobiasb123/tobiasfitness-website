@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthFunctionsService } from '@modules/auth';
 import { Observable } from 'rxjs';
 import { RouteExt, routes } from '../../../../app.routes';
+import { ToastService } from '../../services/toast/toast.service';
 
 @Component({
   selector: 'app-nav',
@@ -13,6 +14,8 @@ import { RouteExt, routes } from '../../../../app.routes';
 })
 export class NavComponent implements OnInit {
   routes: RouteExt[];
+
+  private toast = inject(ToastService);
 
   private authFunctions = inject(AuthFunctionsService);
   private router = inject(Router);
@@ -45,6 +48,7 @@ export class NavComponent implements OnInit {
   }
 
   logOut() {
+    this.toast.open('Du blev logget ud', 'warning');
     this.accountAccessDiv[0].classList.remove('visible');
     this.authFunctions.logout();
   }

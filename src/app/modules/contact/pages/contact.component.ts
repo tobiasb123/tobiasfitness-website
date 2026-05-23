@@ -2,12 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { UserProfile } from '@models/auth/interfaces';
+import { Booking, NewBooking } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
-import { FooterCoreComponent } from '../../Footer/pages/footer-core.component';
+import { FirebaseService } from '@modules/firebase';
+import { FirebaseError } from 'firebase/app';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-contact',
-  imports: [RouterModule, ReactiveFormsModule, FooterCoreComponent],
+  imports: [RouterModule, ReactiveFormsModule],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
 })
@@ -15,6 +19,10 @@ export class ContactComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private firebaseService = inject(FirebaseService);
+  private toast = inject(ToastService);
+
+  private userProfile: UserProfile;
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
@@ -22,7 +30,7 @@ export class ContactComponent implements OnInit {
   addressControl = new FormControl<string>('', [Validators.required]);
   zipCodeControl = new FormControl<number>(null, [Validators.required]);
   townControl = new FormControl<string>('', [Validators.required]);
-  dateControl = new FormControl<string>('', [Validators.required]);
+  dateControl = new FormControl<Date>(new Date(), [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
   serviceControl = new FormControl<string>('');
   extraControl = new FormControl<string>('');
@@ -49,15 +57,15 @@ export class ContactComponent implements OnInit {
   error: string | null = null;
 
   ngOnInit(): void {
-    const userProfile = this.authFunctions.currentUserProfile();
+    this.userProfile = this.authFunctions.currentUserProfile();
 
-    if (userProfile) {
-      this.firstNameControl.setValue(userProfile.firstName);
-      this.lastNameControl.setValue(userProfile.lastName);
-      this.emailControl.setValue(userProfile.email);
-      this.addressControl.setValue(userProfile.address.street);
-      this.zipCodeControl.setValue(userProfile.address.postalCode);
-      this.townControl.setValue(userProfile.address.city);
+    if (this.userProfile) {
+      this.firstNameControl.setValue(this.userProfile.firstName);
+      this.lastNameControl.setValue(this.userProfile.lastName);
+      this.emailControl.setValue(this.userProfile.email);
+      this.addressControl.setValue(this.userProfile.address.street);
+      this.zipCodeControl.setValue(this.userProfile.address.postalCode);
+      this.townControl.setValue(this.userProfile.address.city);
     }
   }
 
@@ -72,25 +80,47 @@ export class ContactComponent implements OnInit {
     this.submitting = true;
     this.error = null;
 
-    this.http
-      .post('https://formspree.io/f/xkozqowa', this.formGroup.value, {
-        headers: { Accept: 'application/json' },
+    const newBooking: NewBooking = {
+      uid: this.userProfile.uid,
+      firstName: this.firstNameControl.value,
+      lastName: this.lastNameControl.value,
+      email: this.emailControl.value,
+      phoneNumber: this.userProfile.phoneNumber,
+      date: this.dateControl.value.toString(),
+      // FIX TIME PERIOD,
+      timePeriod: undefined,
+      // FIX TIME PERIOD
+      comment: this.extraControl.value,
+    };
+
+    this.firebaseService
+      .httpPost<NewBooking, Booking>('booking-newBooking', newBooking)
+      .then((booking) => {
+        this.http
+          .post('https://formspree.io/f/xkozqowa', this.formGroup.value, {
+            headers: { Accept: 'application/json' },
+          })
+          .subscribe({
+            next: () => {
+              this.submitting = false;
+              this.submitted = true;
+              this.currentStep = 4;
+              this.updateProgressBgColor();
+              this.cdr.detectChanges();
+              this.toast.open('Din booking er registretet', 'success');
+            },
+            error: () => {
+              this.submitting = false;
+              this.error = 'Der skete en fejl. Prøv igen senere.';
+              this.currentStep = 4;
+              this.updateProgressBgColor();
+              this.cdr.detectChanges();
+              this.toast.open(this.error, 'error');
+            },
+          });
       })
-      .subscribe({
-        next: () => {
-          this.submitting = false;
-          this.submitted = true;
-          this.currentStep = 4;
-          this.updateProgressBgColor();
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          this.submitting = false;
-          this.error = 'Der skete en fejl. Prøv igen senere.';
-          this.currentStep = 4;
-          this.updateProgressBgColor();
-          this.cdr.detectChanges();
-        },
+      .catch((error: FirebaseError) => {
+        this.toast.open(error.message, 'error');
       });
   }
 
