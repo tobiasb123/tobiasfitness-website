@@ -104,20 +104,19 @@ export class ContactComponent implements OnInit {
             next: () => {
               this.submitting = false;
               this.submitted = true;
-              this.currentStep = 4;
               this.updateProgressBgColor();
-              this.cdr.detectChanges();
               this.toast.open('Din booking er registretet', 'success');
             },
             error: () => {
               this.submitting = false;
               this.error = 'Der skete en fejl. Prøv igen senere.';
-              this.currentStep = 4;
               this.updateProgressBgColor();
-              this.cdr.detectChanges();
               this.toast.open(this.error, 'error');
             },
           });
+      })
+      .then(() => {
+        this.currentStep = 4;
       })
       .catch((error: FirebaseError) => {
         this.toast.open(error.message, 'error');
@@ -164,33 +163,33 @@ export class ContactComponent implements OnInit {
   }
 
   serviceFormComponents = [
-    {
-      title: '1 måneds forløb',
-      price: 'Pris: 1500kr',
-      time: 'Antal gange: 4 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_3.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: '3 måneders forløb',
-      price: 'Pris: 3600kr',
-      time: 'Antal gange: 12 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_3.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: '6 måneders forløb',
-      price: 'Pris: 6300kr',
-      time: 'Antal gange: 24 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_3.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
+    // {
+    //   title: '1 måneds forløb',
+    //   price: 'Pris: 1500kr',
+    //   time: 'Antal gange: 4 x 1 time',
+    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+    //   img: 'Priser_Billede_3.jpeg',
+    //   state: 'Vælg',
+    //   class: 'form-element',
+    // },
+    // {
+    //   title: '3 måneders forløb',
+    //   price: 'Pris: 3600kr',
+    //   time: 'Antal gange: 12 x 1 time',
+    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+    //   img: 'Priser_Billede_3.jpeg',
+    //   state: 'Vælg',
+    //   class: 'form-element',
+    // },
+    // {
+    //   title: '6 måneders forløb',
+    //   price: 'Pris: 6300kr',
+    //   time: 'Antal gange: 24 x 1 time',
+    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+    //   img: 'Priser_Billede_3.jpeg',
+    //   state: 'Vælg',
+    //   class: 'form-element',
+    // },
     {
       title: 'Personlig Træning',
       price: 'Pris: 750kr',
@@ -204,6 +203,33 @@ export class ContactComponent implements OnInit {
       title: 'Kostvejledning',
       price: 'Pris: 750kr',
       time: 'Antal gange: 1 x 1 time',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+      img: 'Priser_Billede_4.jpeg',
+      state: 'Vælg',
+      class: 'form-element',
+    },
+    {
+      title: 'Personlig Træning Klippekort',
+      price: 'Pris: 2.400kr',
+      time: 'Antal Klip: 4',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+      img: 'Priser_Billede_4.jpeg',
+      state: 'Vælg',
+      class: 'form-element',
+    },
+    {
+      title: 'Personlig Træning Klippekort',
+      price: 'Pris: 6.000kr',
+      time: 'Antal Klip: 12',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+      img: 'Priser_Billede_4.jpeg',
+      state: 'Vælg',
+      class: 'form-element',
+    },
+    {
+      title: 'Personlig Træning Klippekort',
+      price: 'Pris: 10.000kr',
+      time: 'Antal Klip: 24',
       place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
       img: 'Priser_Billede_4.jpeg',
       state: 'Vælg',

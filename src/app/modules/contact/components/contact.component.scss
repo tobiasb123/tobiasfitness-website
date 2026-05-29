@@ -12,6 +12,10 @@ $progress-label-active: rgb(174, 174, 255);
 
   overflow-x: hidden;
   overflow-y: auto;
+
+  width: 100dvw;
+
+  margin-top: 60px;
 }
 
 .form-container {
@@ -23,8 +27,6 @@ $progress-label-active: rgb(174, 174, 255);
   align-items: center;
 
   gap: 20px;
-
-  margin-top: 60px;
 }
 
 .progress {
@@ -476,6 +478,11 @@ select.ng-untouched {
 }
 
 @media (max-width: 600px) {
+  .contact-form {
+    width: 100dvw;
+    margin-left: 0;
+  }
+
   .form-container {
     margin-top: 0px;
   }

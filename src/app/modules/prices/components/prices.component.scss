@@ -27,7 +27,7 @@ h3 {
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 
-  width: calc(100% - 1rem);
+  width: calc(100% - 3rem);
   margin-inline: auto;
   margin-block: 1rem;
 
@@ -51,7 +51,6 @@ h3 {
 
 .service {
   display: flex;
-  flex-direction: row;
 
   background-color: rgb(148, 170, 196);
 
@@ -130,15 +129,30 @@ img {
   box-shadow: 0 0 3px rgb(78, 78, 78);
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1100px) {
   .services {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+
+    margin-inline: 0;
+
+    width: calc(100% - 3rem);
+  }
+
+  .service {
+    flex-direction: column;
+    align-items: center;
+  }
+  img {
+    width: auto;
+    max-width: 300px;
   }
 }
 
 @media (max-width: 600px) {
   .prices-page {
-    margin-top: 0px;
+    margin-top: 0;
+    margin-left: 0;
   }
 
   .service {

@@ -1,169 +1,68 @@
-.nav {
+.header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  background: rgb(41, 41, 41);
+  flex-direction: row;
 
   position: fixed;
   top: 0;
+  height: auto;
   width: 100dvw;
-  height: 60px;
+
+  gap: 10px;
+  padding: 0 10px;
+
+  background-color: rgb(220, 220, 220);
+  box-shadow: 0 0 4px rgb(66, 66, 66);
 
   z-index: 10;
 
   a {
-    box-sizing: border-box;
-    height: auto;
-    width: auto;
-    padding: 20px 30px;
-    justify-self: start;
-
-    text-decoration: none;
-    color: white;
-    font-family: Merriweather, Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-    user-select: none;
-
-    transition: 0.4s ease;
-
-    &:hover {
-      background: rgb(74, 74, 230);
-    }
+    max-width: fit-content;
+    align-self: center;
   }
 }
 
-.account-access {
+.accountButton {
+  anchor-name: --account-button;
+}
+
+a {
+  box-sizing: border-box;
+  height: auto;
+  width: 100%;
+  padding: 20px 30px;
+  justify-self: start;
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+  font-family: Merriweather, Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  user-select: none;
+
+  transition: 0.4s ease;
+
+  cursor: pointer;
+
+  &:hover {
+    background: rgb(180, 180, 180);
+  }
+}
+
+.nav {
   display: flex;
   flex-direction: column;
+  align-items: center;
 
-  width: 200px;
-  height: 200px;
+  position: fixed;
+  left: calc(-1 * var(--nav-width));
+  height: calc(100dvh - 60px);
+  width: var(--nav-width);
+  margin-top: 60px;
 
-  background-color: rgb(77, 77, 77);
-
-  position: absolute;
-  right: 5px;
-  top: -200px;
-
-  border-radius: 5px;
-
-  box-shadow: 0 0 2px rgba(65, 65, 65, 0.747);
-
-  transition: all 0.5s ease;
+  background: rgb(220, 220, 220);
+  box-shadow: 0 0 3px rgb(66, 66, 66);
 
   z-index: 9;
 
-  &.visible {
-    top: 65px;
-  }
-
-  .button-holder {
-    display: flex;
-    flex-direction: column;
-
-    width: 100%;
-
-    gap: 10px;
-
-    align-items: center;
-    justify-content: center;
-
-    position: absolute;
-    bottom: 10px;
-
-    button {
-      appearance: none;
-      outline: none;
-      border: none;
-
-      padding: 5px;
-
-      width: 90%;
-      height: 30px;
-
-      background-color: rgb(207, 207, 207);
-
-      border-radius: 5px;
-
-      transition: all 0.25s ease;
-
-      &:hover {
-        background-color: white;
-        box-shadow: 0 0 5px rgb(148, 148, 148);
-      }
-    }
-  }
-
-  .info-holder {
-    display: flex;
-    flex-direction: column;
-
-    width: 90%;
-
-    background-color: rgb(139, 139, 139);
-
-    align-items: center;
-    align-self: center;
-
-    padding: 5px;
-    margin-top: 5px;
-
-    border-radius: 5px;
-
-    :first-child {
-      font-size: 14px;
-    }
-
-    label {
-      font-family: Poppins;
-      font-size: 12px;
-
-      color: white;
-    }
-  }
-}
-
-.openCloseButton {
-  display: none;
-  width: 60px;
-  height: 60px;
-}
-
-@media (max-width: 600px) {
-  .nav {
-    width: 50%;
-    height: 100%;
-    right: -50%;
-    flex-direction: column;
-    justify-content: start;
-
-    transition: all 0.5s ease;
-
-    a {
-      width: 100%;
-    }
-
-    .openCloseButton {
-      background-image: url('../../../../../../public/openNav.svg');
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-color: black;
-      border: none;
-    }
-  }
-
-  .nav.open {
-    right: 0;
-
-    .openCloseButton {
-      background-image: url('../../../../../../public/closeNav.svg');
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-color: black;
-      border: none;
-    }
-  }
+  transition: all 0.25s ease;
 
   .otherNavComponents {
     display: flex;
@@ -172,17 +71,89 @@
     width: 100%;
   }
 
-  .openCloseButton {
-    display: block;
-    position: absolute;
-    left: -60px;
+  .home-link {
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  &.open {
+    left: 0;
+  }
+}
+
+.menuButton {
+  display: block;
+  width: 40px;
+  height: 40px;
+
+  align-self: center;
+
+  background-image: url('../../../../../../public/menu-icon.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: rgb(220, 220, 220);
+  border: none;
+
+  cursor: pointer;
+}
+
+.screen-clear {
+  display: none;
+  position: fixed;
+  width: 100dvw;
+  height: 100dvh;
+}
+
+.account-access {
+  display: flex;
+  flex-direction: column;
+
+  width: var(--nav-width);
+
+  position-anchor: --account-button;
+  position: relative;
+  left: calc(-1 * var(--nav-width));
+
+  transition: 0.25s all ease;
+
+  a {
+    padding-left: 45px;
+    font-size: 14px;
+  }
+
+  &.visible {
+    left: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: row-reverse;
+  }
+
+  .nav {
+    width: var(--nav-width);
+    left: auto;
+    right: calc(-1 * var(--nav-width));
+
+    &.open {
+      left: auto;
+      right: 0;
+    }
+  }
+
+  .screen-clear.open {
+    display: flex;
+    background: rgba(0, 0, 0, 0.25);
   }
 
   .account-access {
-    width: 200px;
-    height: 100%;
+    left: auto;
+    right: calc(-1 * var(--nav-width));
 
-    left: 0;
-    top: 60px;
+    &.visible {
+      left: auto;
+      right: 0;
+    }
   }
 }

@@ -9,30 +9,30 @@ import { RouterModule } from '@angular/router';
 })
 export class PricesComponent {
   generalServices = [
-    {
-      name: '1 måneds forløb',
-      price: 'Pris: 1500kr',
-      time: 'Antal gange: 4 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      description: 'Inkludere: Konsultation, Personlig træning, Træningsprogram og Kostvejledning',
-      icon: 'Priser_Billede_3.jpeg',
-    },
-    {
-      name: '3 måneders forløb',
-      price: 'Pris: 3600kr',
-      time: 'Antal gange: 12 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      description: 'Inkludere: Konsultation, Personlig træning, Træningsprogram og Kostvejledning',
-      icon: 'Priser_Billede_3.jpeg',
-    },
-    {
-      name: '6 måneders forløb',
-      price: 'Pris: 6300kr',
-      time: 'Antal gange: 24 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      description: 'Inkludere: Konsultation, Personlig træning, Træningsprogram og Kostvejledning',
-      icon: 'Priser_Billede_3.jpeg',
-    },
+    // {
+    //   name: '1 måneds forløb',
+    //   price: 'Pris: 1500kr',
+    //   time: 'Antal gange: 4 x 1 time',
+    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+    //   description: 'Inkludere: Konsultation, Personlig træning, Træningsprogram og Kostvejledning',
+    //   icon: 'Priser_Billede_3.jpeg',
+    // },
+    // {
+    //   name: '3 måneders forløb',
+    //   price: 'Pris: 3600kr',
+    //   time: 'Antal gange: 12 x 1 time',
+    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+    //   description: 'Inkludere: Konsultation, Personlig træning, Træningsprogram og Kostvejledning',
+    //   icon: 'Priser_Billede_3.jpeg',
+    // },
+    // {
+    //   name: '6 måneders forløb',
+    //   price: 'Pris: 6300kr',
+    //   time: 'Antal gange: 24 x 1 time',
+    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+    //   description: 'Inkludere: Konsultation, Personlig træning, Træningsprogram og Kostvejledning',
+    //   icon: 'Priser_Billede_3.jpeg',
+    // },
     {
       name: 'Personlig Træning',
       price: 'Pris: 750kr',
@@ -50,6 +50,30 @@ export class PricesComponent {
       description:
         'Her har du mulighed for at sætte dig ned sammen med mig og kigge på din kost. Jeg kan hjælpe dig med at, strukturere din kost, håndtere dårlige vaner og hjælpe dig med at sammensætte en kostplan. Dette kan forgå i person eller online.',
       icon: 'Priser_Billede_4.jpeg',
+    },
+    {
+      name: 'Personlig Træning Klippekort',
+      price: 'Pris: 2.400kr',
+      time: 'Antal Klip: 4 x 1 time',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+      description: 'Inkludere: Personlig træning og Træningsprogram',
+      icon: 'Priser_Billede_3.jpeg',
+    },
+    {
+      name: 'Personlig Træning Klippekort',
+      price: 'Pris: 6.000kr',
+      time: 'Antal Klip: 12 x 1 time',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+      description: 'Inkludere: Personlig træning og Træningsprogram',
+      icon: 'Priser_Billede_3.jpeg',
+    },
+    {
+      name: 'Personlig Træning Klippekort',
+      price: 'Pris: 10.000kr',
+      time: 'Antal Klip: 24 x 1 time',
+      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
+      description: 'Inkludere: Personlig træning og Træningsprogram',
+      icon: 'Priser_Billede_3.jpeg',
     },
   ];
 }

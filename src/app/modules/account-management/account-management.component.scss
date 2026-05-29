@@ -1,0 +1,121 @@
+section {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px;
+
+  width: 100dvw;
+  height: auto;
+
+  background-color: rgb(180, 180, 180);
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 80%;
+
+  gap: 25px;
+
+  h1 {
+    margin: 0;
+    font-family: Merriweather;
+    color: white;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 25px;
+
+  margin-bottom: 50px;
+
+  .form-element {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    label {
+      text-align: center;
+
+      color: white;
+    }
+
+    input {
+      appearance: none;
+      border: none;
+      box-sizing: none;
+      outline: none;
+
+      background-color: rgb(245, 245, 245);
+
+      padding: 10px;
+      border-radius: 5px;
+
+      min-width: 300px;
+
+      align-self: stretch;
+      justify-self: stretch;
+
+      transition: all 0.5s ease;
+
+      &:focus {
+        background-color: white;
+        box-shadow: 0 0 6px rgb(139, 139, 139);
+      }
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: row;
+
+    gap: 10px;
+  }
+
+  .save-button {
+    border: none;
+    box-sizing: none;
+    appearance: none;
+
+    margin-top: 25px;
+
+    align-self: center;
+
+    border-radius: 10px;
+    height: 30px;
+    width: 300px;
+
+    cursor: pointer;
+
+    background-color: rgb(226, 226, 226);
+    box-shadow: 0 0 2px rgb(59, 59, 59);
+
+    &:hover {
+      background-color: white;
+      box-shadow: 0 0 2px white;
+    }
+
+    &:active {
+      background-color: white;
+      box-shadow: 0 0 2px black;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  section {
+    margin-left: 0;
+    width: 100dvw;
+  }
+}

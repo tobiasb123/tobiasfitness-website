@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
+import { AccountManagementComponent } from './modules/account-management/account-management.component';
 import { AdminMenuComponent } from './modules/admin-menu/admin-menu.component';
-import { ContactComponent } from './modules/contact/pages/contact.component';
+import { ContactComponent } from './modules/contact/components/contact.component';
 import { HomeComponent } from './modules/home/components/home.component';
 import { PricesComponent } from './modules/prices/components/prices.component';
 import { SigninComponent } from './modules/signin/components/signin.component';
@@ -16,6 +17,12 @@ export const routes: RouteExt[] = [
     path: '',
     component: HomeComponent,
     pathMatch: 'full',
+  },
+  {
+    path: 'account-management',
+    component: AccountManagementComponent,
+    displayName: 'account-management',
+    showInNavList: false,
   },
   {
     path: 'admin-menu',

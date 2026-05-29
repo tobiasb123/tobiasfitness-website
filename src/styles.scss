@@ -12,3 +12,18 @@ html {
   font-family: Poppins;
   font-size: 16px;
 }
+
+h3 {
+  font-family: Merriweather;
+}
+
+/* Shared sizing for the fixed navigation */
+:root {
+  --nav-width: 250px;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --nav-width: 50%;
+  }
+}

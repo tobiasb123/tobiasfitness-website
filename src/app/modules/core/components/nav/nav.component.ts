@@ -28,13 +28,24 @@ export class NavComponent implements OnInit {
   }
 
   navList = document.getElementsByClassName('nav');
+  screenClearDiv = document.getElementsByClassName('screen-clear');
 
   openCloseNav() {
-    console.log(this.navList.item(0)?.classList);
     if (this.navList.item(0)?.classList.contains('open')) {
       this.navList.item(0)?.classList.remove('open');
+      this.screenClearDiv[0].classList.remove('open');
+      this.accountAccessDiv[0].classList.remove('visible');
     } else {
       this.navList.item(0)?.classList.add('open');
+      this.screenClearDiv[0].classList.add('open');
+    }
+  }
+
+  closeNav() {
+    if (this.navList.item(0)?.classList.contains('open')) {
+      this.navList.item(0)?.classList.remove('open');
+      this.screenClearDiv[0].classList.remove('open');
+      this.accountAccessDiv[0].classList.remove('visible');
     }
   }
 
@@ -49,17 +60,20 @@ export class NavComponent implements OnInit {
 
   logOut() {
     this.toast.open('Du blev logget ud', 'warning');
-    this.accountAccessDiv[0].classList.remove('visible');
+    this.accountAccess();
     this.authFunctions.logout();
+    this.closeNav();
   }
 
   logIn() {
-    this.accountAccessDiv[0].classList.remove('visible');
+    this.accountAccess();
     this.router.navigate(['signin']);
+    this.closeNav();
   }
 
   signUp() {
-    this.accountAccessDiv[0].classList.remove('visible');
+    this.accountAccess();
     this.router.navigate(['signup']);
+    this.closeNav();
   }
 }
