@@ -3,11 +3,11 @@
   flex-direction: column;
   align-items: center;
 
-  background-color: rgb(39, 35, 48);
-  /* keep content clear of the fixed nav using the shared variable */
+  background-image: url('../../../../../public/GymBackground.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
   width: 100dvw;
   margin-top: 60px;
-  transition: margin 0.25s ease;
 }
 
 .forbilede {
@@ -25,15 +25,13 @@
 }
 
 .section-1 {
-  background-image: url('../../../../../public/GymBackground.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-
   box-sizing: border-box;
 
   min-height: 100%;
 
   padding: 50px;
+
+  gap: 50px;
 
   .headline {
     align-self: center;
@@ -43,7 +41,15 @@
     font-weight: bold;
 
     color: rgb(255, 255, 255);
-    text-shadow: 0 0 10px rgb(112, 112, 112);
+    text-shadow:
+      3px 0 0 #313131,
+      -3px 0 0 #313131,
+      0 3px 0 #313131,
+      0 -3px 0 #313131,
+      2px 2px 0 #313131,
+      -2px -2px 0 #313131,
+      2px -2px 0 #313131,
+      -2px 2px 0 #313131;
   }
 
   .socials {
@@ -95,8 +101,14 @@
       font-weight: bold;
       font-size: 24px;
       text-shadow:
-        -2px 2px 3px #ffffff,
-        2px 2px 3px #ffffff;
+        3px 0 0 #313131,
+        -3px 0 0 #313131,
+        0 3px 0 #313131,
+        0 -3px 0 #313131,
+        2px 2px 0 #313131,
+        -2px -2px 0 #313131,
+        2px -2px 0 #313131,
+        -2px 2px 0 #313131;
     }
 
     .facebook {
@@ -117,8 +129,14 @@
       font-weight: bold;
       font-size: 24px;
       text-shadow:
-        -2px 2px 3px #ffffff,
-        2px 2px 3px #ffffff;
+        3px 0 0 #313131,
+        -3px 0 0 #313131,
+        0 3px 0 #313131,
+        0 -3px 0 #313131,
+        2px 2px 0 #313131,
+        -2px -2px 0 #313131,
+        2px -2px 0 #313131,
+        -2px 2px 0 #313131;
     }
   }
 }
@@ -126,7 +144,7 @@
 .section-2 {
   flex-direction: row;
 
-  background-color: rgb(31, 27, 66);
+  justify-content: center;
 
   box-sizing: border-box;
   padding: 50px;
@@ -148,7 +166,7 @@ section {
 
   padding: 15px 30px;
 
-  background-color: rgb(97, 74, 153);
+  background-color: rgb(206, 206, 206);
   border-radius: 15px;
   box-shadow: 0 0 6px rgb(44, 44, 44);
 
@@ -165,7 +183,7 @@ section {
       max-width: 300px;
       height: 100px;
 
-      background-color: rgb(201, 128, 69);
+      background-color: rgb(69, 126, 201);
 
       display: flex;
 
@@ -180,7 +198,7 @@ section {
 
       border-radius: 15px;
       border: none;
-      box-shadow: 0 0 6px rgb(78, 78, 78);
+      box-shadow: 0 0 6px rgb(42, 71, 110);
 
       user-select: none;
 
@@ -189,8 +207,8 @@ section {
       cursor: pointer;
 
       &:hover {
-        background-color: rgb(218, 144, 85);
-        box-shadow: 0 0 6px rgb(231, 173, 124);
+        background-color: rgb(41, 89, 151);
+        box-shadow: 0 0 6px rgb(69, 126, 201);
       }
     }
   }

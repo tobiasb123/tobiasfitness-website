@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthFunctionsService } from '@modules/auth';
@@ -12,7 +12,7 @@ import { ToastService } from '../../core/services/toast/toast.service';
   templateUrl: './signin.component.html',
   styleUrl: './signin.component.scss',
 })
-export class SigninComponent {
+export class SigninComponent implements OnInit {
   private toast = inject(ToastService);
 
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
@@ -30,6 +30,10 @@ export class SigninComponent {
   loggedIn: Observable<boolean> = this.authFunctions.isLoggedIn();
 
   private router = inject(Router);
+
+  ngOnInit(): void {
+    this.scrollToTop();
+  }
 
   onSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -53,5 +57,9 @@ export class SigninComponent {
         });
         toastRef.updateMessage(error.message);
       });
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

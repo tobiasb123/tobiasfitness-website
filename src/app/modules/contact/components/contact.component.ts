@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
@@ -18,7 +18,6 @@ import { ToastService } from '../../core/services/toast/toast.service';
 export class ContactComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef);
   private firebaseService = inject(FirebaseService);
   private toast = inject(ToastService);
 
@@ -33,7 +32,6 @@ export class ContactComponent implements OnInit {
   dateControl = new FormControl<Date>(new Date(), [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
   serviceControl = new FormControl<string>('');
-  extraControl = new FormControl<string>('');
   priceControl = new FormControl<string>('');
 
   formGroup = new FormGroup({
@@ -46,9 +44,67 @@ export class ContactComponent implements OnInit {
     date: this.dateControl,
     time: this.timeControl,
     service: this.serviceControl,
-    extra: this.extraControl,
     pris: this.priceControl,
   });
+
+  hourOptions: Array<string> = [
+    '09:00 - 10:00',
+    '11:00 - 12:00',
+    '13:00 - 14:00',
+    '15:00 - 16:00',
+    '17:00 - 18:00',
+  ];
+
+  serviceFormComponents = [
+    {
+      title: 'Personlig Træning',
+      price: 'Pris: 750kr',
+      time: 'Antal gange: 1 x 1 time',
+      img: 'Priser_Billede_2.jpeg',
+      check: 'service-checkmark.png',
+    },
+    {
+      title: 'Kostvejledning',
+      price: 'Pris: 750kr',
+      time: 'Antal gange: 1 x 1 time',
+      img: 'Priser_Billede_4.jpeg',
+      check: 'service-checkmark.png',
+    },
+    {
+      title: 'Konsultation / PT Klippekort',
+      price: 'Pris: 2.400kr',
+      time: 'Antal Klip: 4',
+      img: 'Priser_Billede_4.jpeg',
+      check: 'service-checkmark.png',
+    },
+    {
+      title: 'Konsultation / PT Klippekort',
+      price: 'Pris: 6.000kr',
+      time: 'Antal Klip: 12',
+      img: 'Priser_Billede_4.jpeg',
+      check: 'service-checkmark.png',
+    },
+    {
+      title: 'Konsultation / PT Klippekort',
+      price: 'Pris: 10.000kr',
+      time: 'Antal Klip: 24',
+      img: 'Priser_Billede_4.jpeg',
+      check: 'service-checkmark.png',
+    },
+  ];
+
+  serviceOverview = [
+    {
+      title: 'Ingen service',
+      price: 'Pris: 0kr',
+      time: 'Antal gange: 0',
+      img: 'Priser_Billede_2.jpeg',
+      check: 'service-checkmark.png',
+    },
+  ];
+
+  time_period = document.getElementsByClassName('time-period');
+  service = document.getElementsByClassName('service');
 
   currentStep: number = 1;
 
@@ -67,6 +123,8 @@ export class ContactComponent implements OnInit {
       this.zipCodeControl.setValue(this.userProfile.address.postalCode);
       this.townControl.setValue(this.userProfile.address.city);
     }
+
+    this.scrollToTop();
   }
 
   onSubmit(event: SubmitEvent) {
@@ -90,7 +148,6 @@ export class ContactComponent implements OnInit {
       // FIX TIME PERIOD,
       timePeriod: undefined,
       // FIX TIME PERIOD
-      comment: this.extraControl.value,
     };
 
     this.firebaseService
@@ -104,13 +161,13 @@ export class ContactComponent implements OnInit {
             next: () => {
               this.submitting = false;
               this.submitted = true;
-              this.updateProgressBgColor();
+              // this.updateProgressBgColor();
               this.toast.open('Din booking er registretet', 'success');
             },
             error: () => {
               this.submitting = false;
               this.error = 'Der skete en fejl. Prøv igen senere.';
-              this.updateProgressBgColor();
+              // this.updateProgressBgColor();
               this.toast.open(this.error, 'error');
             },
           });
@@ -123,158 +180,75 @@ export class ContactComponent implements OnInit {
       });
   }
 
-  progressLabels = document.getElementsByClassName('progress-label');
-  formLabels = document.getElementsByClassName('form-label');
-  serviceButtons = document.getElementsByClassName('service-button');
-
-  nextStep() {
-    if (!this.formGroup.valid) {
-      this.formGroup.markAllAsTouched();
-      return;
-    }
-    this.currentStep++;
-    this.updateProgressBgColor();
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  backStep() {
-    this.currentStep--;
-    this.updateProgressBgColor();
-  }
-
-  tryAgain() {
-    this.formGroup.reset();
-
-    this.currentStep = 1;
-    this.updateProgressBgColor();
-  }
-
-  updateProgressBgColor() {
-    for (let index = 0; index < this.progressLabels.length; index++) {
-      const element = this.progressLabels[index];
-      if (element.classList.contains('active')) {
-        element.classList.remove('active');
+  open_Service_Options() {
+    if (this.dateControl.valid && this.timeControl.valid) {
+      if (this.time_period[0]) {
+        this.time_period[0].classList.remove('focus');
+        this.time_period[0].parentElement.classList.add('inside');
       }
-    }
-    this.progressLabels[this.currentStep - 1].classList.add('active');
-
-    if (this.currentStep === 4) {
-      this.currentStep = 4;
-    }
-  }
-
-  serviceFormComponents = [
-    // {
-    //   title: '1 måneds forløb',
-    //   price: 'Pris: 1500kr',
-    //   time: 'Antal gange: 4 x 1 time',
-    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-    //   img: 'Priser_Billede_3.jpeg',
-    //   state: 'Vælg',
-    //   class: 'form-element',
-    // },
-    // {
-    //   title: '3 måneders forløb',
-    //   price: 'Pris: 3600kr',
-    //   time: 'Antal gange: 12 x 1 time',
-    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-    //   img: 'Priser_Billede_3.jpeg',
-    //   state: 'Vælg',
-    //   class: 'form-element',
-    // },
-    // {
-    //   title: '6 måneders forløb',
-    //   price: 'Pris: 6300kr',
-    //   time: 'Antal gange: 24 x 1 time',
-    //   place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-    //   img: 'Priser_Billede_3.jpeg',
-    //   state: 'Vælg',
-    //   class: 'form-element',
-    // },
-    {
-      title: 'Personlig Træning',
-      price: 'Pris: 750kr',
-      time: 'Antal gange: 1 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk"',
-      img: 'Priser_Billede_2.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Kostvejledning',
-      price: 'Pris: 750kr',
-      time: 'Antal gange: 1 x 1 time',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_4.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Personlig Træning Klippekort',
-      price: 'Pris: 2.400kr',
-      time: 'Antal Klip: 4',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_4.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Personlig Træning Klippekort',
-      price: 'Pris: 6.000kr',
-      time: 'Antal Klip: 12',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_4.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-    {
-      title: 'Personlig Træning Klippekort',
-      price: 'Pris: 10.000kr',
-      time: 'Antal Klip: 24',
-      place: 'Forgår på "Østre Havnevej 11c, 4300 Holbæk" eller online',
-      img: 'Priser_Billede_4.jpeg',
-      state: 'Vælg',
-      class: 'form-element',
-    },
-  ];
-
-  checkBox(service: string, price: string, index: number) {
-    if (this.serviceControl.value !== service) {
-      this.serviceControl.patchValue(service);
-      this.priceControl.patchValue(price);
+      if (this.service[0]) {
+        this.service[0].classList.add('focus');
+      }
     } else {
-      if (this.serviceControl.value === service) {
-        this.serviceControl.patchValue('');
-        this.priceControl.patchValue('');
-      }
+      this.toast.open('Dato & Tid er ikke udfyldt', 'error');
     }
-
-    for (let i = 0; i < this.serviceFormComponents.length; i++) {
-      const element = this.serviceFormComponents[i];
-      if (element !== this.serviceFormComponents[index]) {
-        element.state = 'Vælg';
-        element.class = 'form-element';
-      }
-    }
-
-    if (this.serviceFormComponents[index].state === 'Vælg') {
-      var tempDic = this.serviceFormComponents[index];
-      tempDic.state = 'Fjern';
-      tempDic.class = 'form-element active';
-
-      this.serviceFormComponents[index] = tempDic;
-      console.log(this.serviceFormComponents[index]);
-      return;
-    }
-
-    this.serviceFormComponents[index].state = 'Vælg';
-    this.serviceFormComponents[index].class = 'form-element';
   }
 
-  hourOptions: Array<string> = [
-    '09:00 - 10:00',
-    '11:00 - 12:00',
-    '13:00 - 14:00',
-    '15:00 - 16:00',
-    '17:00 - 18:00',
-  ];
+  open_Time_Period() {
+    if (this.time_period[0]) {
+      this.time_period[0].classList.add('focus');
+      this.time_period[0].parentElement.classList.add('inside');
+    }
+    if (this.service[0]) {
+      this.service[0].classList.remove('focus');
+    }
+  }
+
+  to_Booking() {
+    if (this.time_period[0]) {
+      this.time_period[0].classList.remove('focus');
+      this.time_period[0].parentElement.classList.remove('inside');
+    }
+    if (this.service[0]) {
+      this.service[0].classList.remove('focus');
+    }
+  }
+
+  select_service(event: any) {
+    var selectedServiceElement;
+    var serviceElements = this.service[0].children[0].children;
+    for (let index = 0; index < this.serviceFormComponents.length; index++) {
+      const element = this.serviceFormComponents[index];
+      var children = event.target.children;
+      if (children) {
+        if (children[1].innerHTML === element.title) {
+          if (children[2].innerHTML === element.time) {
+            this.serviceOverview = [element];
+            selectedServiceElement = event.target;
+            event.target.classList.add('selected');
+
+            if (element.title === 'Personlig Træning Klippekort') {
+              var timeSplit = element.time.split(': ')[1];
+
+              this.serviceControl.setValue(element.title + ' x' + timeSplit);
+            } else {
+              this.serviceControl.setValue(element.title);
+            }
+          }
+        }
+      }
+    }
+    for (let index = 0; index < serviceElements.length; index++) {
+      const element = serviceElements[index];
+      if (element !== selectedServiceElement) {
+        if (element.classList.contains('selected')) {
+          element.classList.remove('selected');
+        }
+      }
+    }
+  }
 }

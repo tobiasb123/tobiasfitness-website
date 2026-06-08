@@ -5,12 +5,17 @@ section {
   align-items: center;
   justify-content: center;
 
-  padding: 10px;
+  padding: 50px;
 
   width: 100dvw;
-  height: auto;
+  min-height: 100%;
 
-  background-color: rgb(180, 180, 180);
+  background-image: url('../../../../public/GymBackground.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-sizing: border-box;
+
+  margin-top: 60px;
 }
 
 .account-info {
@@ -25,9 +30,9 @@ section {
   gap: 25px;
 
   h1 {
-    margin: 0;
     font-family: Merriweather;
     color: white;
+    text-shadow: 0 0 10px rgb(112, 112, 112);
   }
 }
 

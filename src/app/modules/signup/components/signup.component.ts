@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthFunctionsService } from '@modules/auth';
@@ -13,7 +13,7 @@ import { ToastService } from '../../core/services/toast/toast.service';
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss',
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   private toast = inject(ToastService);
 
   firstnameControl = new FormControl<string>('', [Validators.required]);
@@ -48,6 +48,10 @@ export class SignupComponent {
 
   private router = inject(Router);
 
+  ngOnInit(): void {
+    this.scrollToTop();
+  }
+
   onSubmit(event: SubmitEvent) {
     event.preventDefault();
 
@@ -74,5 +78,9 @@ export class SignupComponent {
       .catch((error: FirebaseError) => {
         this.toast.update(toastRef, error.message, 'error');
       });
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
