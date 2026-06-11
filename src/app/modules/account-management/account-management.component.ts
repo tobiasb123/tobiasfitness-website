@@ -1,16 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
+import { PassStateService } from '../core/services/pass-state/pass-state.service';
 
 @Component({
   selector: 'app-account-management',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './account-management.component.html',
   styleUrl: './account-management.component.scss',
 })
 export class AccountManagementComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
+  private passStateService = inject(PassStateService);
+  private router = inject(Router);
   private userProfile: UserProfile;
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
@@ -30,6 +34,15 @@ export class AccountManagementComponent implements OnInit {
     postalCode: this.postalCodeControl,
     city: this.cityControl,
   });
+
+  setPassState(value: boolean): void {
+    this.passStateService.setUsingPass(value);
+  }
+
+  usePassAndNavigate(): void {
+    this.setPassState(true);
+    this.router.navigate(['/contact']);
+  }
 
   ngOnInit(): void {
     this.userProfile = this.authFunctions.currentUserProfile();

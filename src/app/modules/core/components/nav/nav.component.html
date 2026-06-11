@@ -1,13 +1,20 @@
 <div class="header">
   <button class="menuButton" (click)="openCloseNav()"></button>
-  <a class="home-link" routerLink="/" (click)="closeNav()">Tobiasbastholmfitness</a>
+  <div>
+    <a class="home-link" routerLink="/" (click)="closeNav()">Tobiasbastholmfitness</a>
+    <a class="meal-prep-link" routerLink="/meal-prep">Opskrifter</a>
+  </div>
 </div>
 
 <nav class="nav">
   <div class="otherNavComponents">
     @for (route of routes; track route) {
       @if (route.showInNavList) {
-        @if (route.displayName !== 'Konto' && route.displayName !== 'Admin-Menu') {
+        @if (
+          route.displayName !== 'Konto' &&
+          route.displayName !== 'Admin-Menu' &&
+          route.displayName !== 'Bestil Tid'
+        ) {
           <a class="accountButton" [routerLink]="route.path" (click)="openCloseNav()">{{
             route.displayName
           }}</a>
@@ -26,6 +33,11 @@
               <a (click)="logIn()">Log Ind</a>
             }
           </div>
+        }
+        @if (route.displayName === 'Bestil Tid') {
+          <a [routerLink]="route.path" (click)="openCloseNav()" (click)="setPassState(false)">{{
+            route.displayName
+          }}</a>
         }
       }
     }

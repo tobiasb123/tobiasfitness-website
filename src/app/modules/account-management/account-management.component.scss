@@ -1,3 +1,15 @@
+.body {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  background-image: url('../../../../public/GymBackground.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 section {
   display: flex;
   flex-direction: column;
@@ -7,12 +19,8 @@ section {
 
   padding: 50px;
 
-  width: 100dvw;
   min-height: 100%;
 
-  background-image: url('../../../../public/GymBackground.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
   box-sizing: border-box;
 
   margin-top: 60px;
@@ -32,7 +40,15 @@ section {
   h1 {
     font-family: Merriweather;
     color: white;
-    text-shadow: 0 0 10px rgb(112, 112, 112);
+    text-shadow:
+      3px 0 0 #4b4b4b,
+      -3px 0 0 #4b4b4b,
+      0 3px 0 #4b4b4b,
+      0 -3px 0 #4b4b4b,
+      2px 2px 0 #4b4b4b,
+      -2px -2px 0 #4b4b4b,
+      2px -2px 0 #4b4b4b,
+      -2px 2px 0 #4b4b4b;
   }
 }
 
@@ -115,12 +131,5 @@ form {
       background-color: white;
       box-shadow: 0 0 2px black;
     }
-  }
-}
-
-@media (max-width: 600px) {
-  section {
-    margin-left: 0;
-    width: 100dvw;
   }
 }

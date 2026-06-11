@@ -7,6 +7,7 @@ import { Booking, NewBooking } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseService } from '@modules/firebase';
 import { FirebaseError } from 'firebase/app';
+import { PassStateService } from '../../core/services/pass-state/pass-state.service';
 import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
@@ -20,6 +21,9 @@ export class ContactComponent implements OnInit {
   private http = inject(HttpClient);
   private firebaseService = inject(FirebaseService);
   private toast = inject(ToastService);
+  private passStateService = inject(PassStateService);
+
+  usingPass = this.passStateService.usingPass$;
 
   private userProfile: UserProfile;
 
@@ -58,36 +62,36 @@ export class ContactComponent implements OnInit {
   serviceFormComponents = [
     {
       title: 'Personlig Træning',
-      price: 'Pris: 750kr',
-      time: 'Antal gange: 1 x 1 time',
+      price: 'Pris: 500kr',
+      time: 'Tid: 1 time',
       img: 'Priser_Billede_2.jpeg',
       check: 'service-checkmark.png',
     },
     {
       title: 'Kostvejledning',
-      price: 'Pris: 750kr',
-      time: 'Antal gange: 1 x 1 time',
+      price: 'Pris: 500kr',
+      time: 'Tid: 1 time',
       img: 'Priser_Billede_4.jpeg',
       check: 'service-checkmark.png',
     },
     {
-      title: 'Konsultation / PT Klippekort',
-      price: 'Pris: 2.400kr',
-      time: 'Antal Klip: 4',
+      title: 'Konsultations- & TræningsForløb',
+      price: 'Pris: 1.600kr',
+      time: 'Tid: 1 Måned',
       img: 'Priser_Billede_4.jpeg',
       check: 'service-checkmark.png',
     },
     {
-      title: 'Konsultation / PT Klippekort',
-      price: 'Pris: 6.000kr',
-      time: 'Antal Klip: 12',
+      title: 'Konsultations- & TræningsForløb',
+      price: 'Pris: 4.000kr',
+      time: 'Tid: 3 Måneder',
       img: 'Priser_Billede_4.jpeg',
       check: 'service-checkmark.png',
     },
     {
-      title: 'Konsultation / PT Klippekort',
-      price: 'Pris: 10.000kr',
-      time: 'Antal Klip: 24',
+      title: 'Konsultations- & TræningsForløb',
+      price: 'Pris: 7.400kr',
+      time: 'Tid: 6 Måneder',
       img: 'Priser_Billede_4.jpeg',
       check: 'service-checkmark.png',
     },
@@ -97,7 +101,7 @@ export class ContactComponent implements OnInit {
     {
       title: 'Ingen service',
       price: 'Pris: 0kr',
-      time: 'Antal gange: 0',
+      time: 'Tid: 0',
       img: 'Priser_Billede_2.jpeg',
       check: 'service-checkmark.png',
     },

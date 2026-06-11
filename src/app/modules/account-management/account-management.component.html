@@ -1,54 +1,61 @@
-<section>
-  <div class="account-info">
-    <h1>Konto Information</h1>
-    <form>
-      <div class="form-group">
-        <div class="form-element">
-          <label for="firstname">Fornavn</label>
-          <input id="firstname" name="firstname" type="text" [formControl]="firstNameControl" />
+<div class="body">
+  <section>
+    <div class="account-info">
+      <h1>Konto Information</h1>
+      <form>
+        <div class="form-group">
+          <div class="form-element">
+            <label for="firstname">Fornavn</label>
+            <input id="firstname" name="firstname" type="text" [formControl]="firstNameControl" />
+          </div>
+
+          <div class="form-element">
+            <label for="lastname">Efternavn</label>
+            <input id="lastname" name="lastname" type="text" [formControl]="lastNameControl" />
+          </div>
         </div>
 
-        <div class="form-element">
-          <label for="lastname">Efternavn</label>
-          <input id="lastname" name="lastname" type="text" [formControl]="lastNameControl" />
-        </div>
-      </div>
-
-      <div class="form-element full">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="text" [formControl]="emailControl" />
-      </div>
-
-      <div class="form-group">
-        <div class="form-element">
-          <label for="phonenumber">Telefonnummer</label>
-          <input
-            id="phonenumber"
-            name="phonenumber"
-            type="text"
-            [formControl]="phonenumberControl"
-          />
+        <div class="form-element full">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="text" [formControl]="emailControl" />
         </div>
 
-        <div class="form-element">
-          <label for="address">Addresse</label>
-          <input id="address" name="address" type="text" [formControl]="addressControl" />
-        </div>
-      </div>
+        <div class="form-group">
+          <div class="form-element">
+            <label for="phonenumber">Telefonnummer</label>
+            <input
+              id="phonenumber"
+              name="phonenumber"
+              type="text"
+              [formControl]="phonenumberControl"
+            />
+          </div>
 
-      <div class="form-group">
-        <div class="form-element">
-          <label for="postalCode">Postnummer</label>
-          <input id="postalCode" name="postalCode" type="text" [formControl]="postalCodeControl" />
+          <div class="form-element">
+            <label for="address">Addresse</label>
+            <input id="address" name="address" type="text" [formControl]="addressControl" />
+          </div>
         </div>
 
-        <div class="form-element">
-          <label for="city">By</label>
-          <input id="city" name="city" type="text" [formControl]="cityControl" />
-        </div>
-      </div>
+        <div class="form-group">
+          <div class="form-element">
+            <label for="postalCode">Postnummer</label>
+            <input
+              id="postalCode"
+              name="postalCode"
+              type="text"
+              [formControl]="postalCodeControl"
+            />
+          </div>
 
-      <button class="save-button" type="button" (click)="onSubmit()">Gem</button>
-    </form>
-  </div>
-</section>
+          <div class="form-element">
+            <label for="city">By</label>
+            <input id="city" name="city" type="text" [formControl]="cityControl" />
+          </div>
+        </div>
+
+        <button class="save-button" type="button" (click)="onSubmit()">Gem</button>
+      </form>
+    </div>
+  </section>
+</div>

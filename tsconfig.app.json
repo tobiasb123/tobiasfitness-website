@@ -6,6 +6,11 @@
     "outDir": "./out-tsc/app",
     "types": []
   },
-  "include": ["src/**/*.ts", "src/main.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/main.ts",
+    "src/app/pass-state/pass-state.service.spec.ts",
+    "src/app/pass-state/pass-state.service.ts"
+  ],
   "exclude": ["src/**/*.spec.ts"]
 }

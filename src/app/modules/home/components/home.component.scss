@@ -170,6 +170,9 @@ section {
   border-radius: 15px;
   box-shadow: 0 0 6px rgb(44, 44, 44);
 
+  opacity: 0;
+  transform: translateY(0);
+
   .prices {
     height: 150px;
 
