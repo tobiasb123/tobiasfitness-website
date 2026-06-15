@@ -29,6 +29,75 @@ h3 {
   margin-top: 60px;
 }
 
+.add-meal-button {
+  appearance: none;
+  border: none;
+  outline: none;
+  box-sizing: none;
+
+  position: fixed;
+  top: 110px;
+  left: 50px;
+
+  border-radius: 10px;
+  border: 2px solid black;
+
+  font-size: 20px;
+  font-weight: bold;
+
+  padding: 16px;
+
+  background-color: rgb(95, 196, 255);
+  color: white;
+  text-shadow:
+    3px 0 0 #313131,
+    -3px 0 0 #313131,
+    0 3px 0 #313131,
+    0 -3px 0 #313131,
+    2px 2px 0 #313131,
+    -2px -2px 0 #313131,
+    2px -2px 0 #313131,
+    -2px 2px 0 #313131;
+
+  cursor: pointer;
+
+  transition: 0.1s all ease;
+
+  &:hover {
+    background-color: rgb(44, 178, 255);
+  }
+
+  &:active {
+    background-color: rgb(108, 201, 255);
+    scale: 1.1;
+  }
+}
+
+.add-meal-page {
+  display: none;
+
+  position: fixed;
+  top: calc(50% - 300px);
+  left: calc(50% - 500px);
+
+  width: 1000px;
+  height: 600px;
+
+  border-radius: 10px;
+  border: 2px solid black;
+
+  overflow-y: hidden;
+  scrollbar-width: none;
+
+  background-color: #494949;
+
+  z-index: 1;
+
+  &.active {
+    display: flex;
+  }
+}
+
 .center {
   display: flex;
   flex-direction: column;
@@ -69,7 +138,8 @@ h3 {
   grid-auto-flow: column;
   grid-auto-columns: 100%;
 
-  width: 80%;
+  width: 25%;
+  min-width: 375px;
 
   gap: 50px;
 
@@ -191,5 +261,13 @@ h3 {
   &::scroll-button(left) {
     content: '⇠';
     position-area: center left;
+  }
+}
+
+@media (max-width: 600px) {
+  .carousel {
+    &::scroll-button(*) {
+      display: none;
+    }
   }
 }

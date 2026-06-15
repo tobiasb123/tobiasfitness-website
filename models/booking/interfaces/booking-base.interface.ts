@@ -1,6 +1,6 @@
 import { TimePeriod } from './time-period.interface';
 
-export interface NewBooking {
+export interface BookingBase {
   uid: string;
   firstName: string;
   lastName: string;
@@ -8,5 +8,5 @@ export interface NewBooking {
   phoneNumber: string;
   date: string;
   timePeriod: TimePeriod;
-  comment?: string;
+  service: string;
 }

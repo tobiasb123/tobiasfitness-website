@@ -74,6 +74,10 @@
 
 .Apointments {
   background-color: antiquewhite;
+
+  h2 {
+    align-self: center;
+  }
 }
 
 .view-options {
@@ -119,7 +123,7 @@ button {
   }
 }
 
-.profile {
+.element {
   display: flex;
 
   width: 90%;
@@ -140,5 +144,7 @@ button {
   p {
     font-family: Poppins;
     font-size: 16px;
+    width: 33%;
+    text-align: center;
   }
 }

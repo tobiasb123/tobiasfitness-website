@@ -1,4 +1,4 @@
-import { Component, effect, Input } from '@angular/core';
+import { Component, inject, Input, signal, WritableSignal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -8,6 +8,9 @@ import {
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
+import { Booking, TimePeriod } from '@models/booking/interfaces';
+import { ContactFunctionsService } from '../../contact';
+import { AdminFunctionsService } from '../services/admin-functions.service';
 
 @Component({
   selector: 'app-data-editer',
@@ -16,6 +19,10 @@ import { UserProfile } from '@models/auth/interfaces';
   styleUrl: './data-editer.component.scss',
 })
 export class DataEditerComponent {
+  private adminFunctions = inject(AdminFunctionsService);
+  private contactFunctions = inject(ContactFunctionsService);
+  private selectedUserValue: UserProfile;
+
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
@@ -41,24 +48,73 @@ export class DataEditerComponent {
   });
 
   @Input()
-  selectedUser: UserProfile;
+  set selectedUser(user: UserProfile) {
+    this.selectedUserValue = user;
+    this.updateSelectedUser(user);
+  }
 
-  constructor() {
-    effect(() => {
-      const user = this.selectedUser;
-      if (user) {
-        this.formGroup.patchValue({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phonenumber: user.phoneNumber,
-          address: user.address.street,
-          zipCode: user.address.postalCode,
-          town: user.address.city,
-        });
-      } else {
-        this.formGroup.reset();
-      }
+  get selectedUser(): UserProfile {
+    return this.selectedUserValue;
+  }
+
+  public bookings: WritableSignal<Booking[]> = signal([]);
+  public selectedBooking: WritableSignal<Booking> = signal(undefined);
+
+  updateSelectedBooking(bookingId: string): void {
+    this.contactFunctions.getBookings().then((bookings) => {
+      const booking = bookings.filter((booking) => booking.id === bookingId)[0];
+      this.selectedBooking.set(booking);
+    });
+  }
+
+  deleteBooking(id: string): void {
+    this.adminFunctions.deleteBooking(id).then(() => {
+      this.bookings.set(this.bookings().filter((b) => b.id !== id));
+      this.loadBookingsForUser(this.selectedUser);
+    });
+  }
+
+  editBooking(): void {
+    const date: string = this.dateControl.value;
+
+    // FIX TIMEPERIOD NOW!!!
+
+    const timePeriod: TimePeriod = null;
+    const editedBooking: Booking = {
+      ...this.selectedBooking(),
+      date,
+      timePeriod,
+    };
+    this.adminFunctions.editBooking(editedBooking).then(() => {
+      this.selectedBooking.set(editedBooking);
+      this.loadBookingsForUser(this.selectedUser);
+    });
+  }
+
+  private updateSelectedUser(user: UserProfile): void {
+    if (!user) {
+      this.formGroup.reset();
+      this.bookings.set([]);
+      return;
+    }
+
+    this.formGroup.patchValue({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phonenumber: user.phoneNumber,
+      address: user.address.street,
+      zipCode: user.address.postalCode,
+      town: user.address.city,
+    });
+
+    this.loadBookingsForUser(user);
+  }
+
+  private loadBookingsForUser(user: UserProfile): void {
+    this.contactFunctions.getBookings().then((bookings) => {
+      const userBookings = bookings.filter((booking) => booking.uid === user.uid);
+      this.bookings.set([...userBookings].sort((a, b) => a.date.localeCompare(b.date)));
     });
   }
 

@@ -5,7 +5,7 @@ import { getTimePeriods } from '../../../shared/config';
 const firestore = getFirestore();
 const bookingsCollection = firestore.collection('bookings');
 
-export const getBookings = async (): Promise<Booking[]> => {
+export const commonGetBookings = async (): Promise<Booking[]> => {
   return await bookingsCollection.get().then((bookingSnap) => {
     const bookings: Booking[] = [];
 

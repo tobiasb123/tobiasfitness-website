@@ -3,6 +3,6 @@ export interface Service {
   title: string;
   price: string;
   time: string;
-  place: string;
   image: string;
+  check: string;
 }

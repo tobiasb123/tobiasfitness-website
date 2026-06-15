@@ -1,14 +1,12 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
-import { Booking, NewBooking } from '@models/booking/interfaces';
+import { BookingBase, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
-import { FirebaseService } from '@modules/firebase';
 import { FirebaseError } from 'firebase/app';
-import { PassStateService } from '../../core/services/pass-state/pass-state.service';
 import { ToastService } from '../../core/services/toast/toast.service';
+import { ContactFunctionsService } from '../services/contact-functions/contact-functions.service';
 
 @Component({
   selector: 'app-contact',
@@ -18,12 +16,8 @@ import { ToastService } from '../../core/services/toast/toast.service';
 })
 export class ContactComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
-  private http = inject(HttpClient);
-  private firebaseService = inject(FirebaseService);
   private toast = inject(ToastService);
-  private passStateService = inject(PassStateService);
-
-  usingPass = this.passStateService.usingPass$;
+  private contactFunctions = inject(ContactFunctionsService);
 
   private userProfile: UserProfile;
 
@@ -33,7 +27,7 @@ export class ContactComponent implements OnInit {
   addressControl = new FormControl<string>('', [Validators.required]);
   zipCodeControl = new FormControl<number>(null, [Validators.required]);
   townControl = new FormControl<string>('', [Validators.required]);
-  dateControl = new FormControl<Date>(new Date(), [Validators.required]);
+  dateControl = new FormControl<string>('', [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
   serviceControl = new FormControl<string>('');
   priceControl = new FormControl<string>('');
@@ -65,35 +59,30 @@ export class ContactComponent implements OnInit {
       price: 'Pris: 500kr',
       time: 'Tid: 1 time',
       img: 'Priser_Billede_2.jpeg',
-      check: 'service-checkmark.png',
     },
     {
       title: 'Kostvejledning',
       price: 'Pris: 500kr',
       time: 'Tid: 1 time',
       img: 'Priser_Billede_4.jpeg',
-      check: 'service-checkmark.png',
     },
     {
-      title: 'Konsultations- & TræningsForløb',
-      price: 'Pris: 1.600kr',
+      title: 'Personligt Coachingforløb',
+      price: 'Pris: 1.500kr',
       time: 'Tid: 1 Måned',
       img: 'Priser_Billede_4.jpeg',
-      check: 'service-checkmark.png',
     },
     {
-      title: 'Konsultations- & TræningsForløb',
-      price: 'Pris: 4.000kr',
+      title: 'Personligt Coachingforløb',
+      price: 'Pris: 3.600kr',
       time: 'Tid: 3 Måneder',
       img: 'Priser_Billede_4.jpeg',
-      check: 'service-checkmark.png',
     },
     {
-      title: 'Konsultations- & TræningsForløb',
-      price: 'Pris: 7.400kr',
+      title: 'Personligt Coachingforløb',
+      price: 'Pris: 6.300kr',
       time: 'Tid: 6 Måneder',
       img: 'Priser_Billede_4.jpeg',
-      check: 'service-checkmark.png',
     },
   ];
 
@@ -103,18 +92,11 @@ export class ContactComponent implements OnInit {
       price: 'Pris: 0kr',
       time: 'Tid: 0',
       img: 'Priser_Billede_2.jpeg',
-      check: 'service-checkmark.png',
     },
   ];
 
   time_period = document.getElementsByClassName('time-period');
   service = document.getElementsByClassName('service');
-
-  currentStep: number = 1;
-
-  submitting: boolean = false;
-  submitted: boolean = false;
-  error: string | null = null;
 
   ngOnInit(): void {
     this.userProfile = this.authFunctions.currentUserProfile();
@@ -139,49 +121,49 @@ export class ContactComponent implements OnInit {
       return;
     }
 
-    this.submitting = true;
-    this.error = null;
+    const startAndEndTime = this.timeControl.value.split(' - ');
+    const startTime = startAndEndTime[0].split(':');
+    const endTime = startAndEndTime[1].split(':');
 
-    const newBooking: NewBooking = {
+    const formattedStartTime = this.formatTime(+startTime[0], +startTime[1]).split(':');
+    const formattedEndTime = this.formatTime(+endTime[0], +endTime[1]).split(':');
+
+    const timePeriod: TimePeriod = {
+      start: {
+        hour: formattedStartTime[0],
+        minute: formattedStartTime[1],
+      },
+      end: {
+        hour: formattedEndTime[0],
+        minute: formattedEndTime[1],
+      },
+    };
+
+    console.log(timePeriod);
+
+    const newBooking: BookingBase = {
       uid: this.userProfile.uid,
       firstName: this.firstNameControl.value,
       lastName: this.lastNameControl.value,
       email: this.emailControl.value,
       phoneNumber: this.userProfile.phoneNumber,
-      date: this.dateControl.value.toString(),
-      // FIX TIME PERIOD,
-      timePeriod: undefined,
-      // FIX TIME PERIOD
+      date: this.dateControl.value,
+      timePeriod: timePeriod,
+      service: this.serviceControl.value,
     };
 
-    this.firebaseService
-      .httpPost<NewBooking, Booking>('booking-newBooking', newBooking)
+    this.contactFunctions
+      .newBookings(newBooking)
       .then((booking) => {
-        this.http
-          .post('https://formspree.io/f/xkozqowa', this.formGroup.value, {
-            headers: { Accept: 'application/json' },
-          })
-          .subscribe({
-            next: () => {
-              this.submitting = false;
-              this.submitted = true;
-              // this.updateProgressBgColor();
-              this.toast.open('Din booking er registretet', 'success');
-            },
-            error: () => {
-              this.submitting = false;
-              this.error = 'Der skete en fejl. Prøv igen senere.';
-              // this.updateProgressBgColor();
-              this.toast.open(this.error, 'error');
-            },
-          });
-      })
-      .then(() => {
-        this.currentStep = 4;
+        this.toast.open('Din booking er registreret', 'success');
       })
       .catch((error: FirebaseError) => {
         this.toast.open(error.message, 'error');
       });
+  }
+
+  formatTime(hour: number, minute: number): string {
+    return `${(hour + '').padStart(2, '0')}:${(minute + '').padStart(2, '0')}`;
   }
 
   scrollToTop() {
@@ -235,10 +217,8 @@ export class ContactComponent implements OnInit {
             selectedServiceElement = event.target;
             event.target.classList.add('selected');
 
-            if (element.title === 'Personlig Træning Klippekort') {
-              var timeSplit = element.time.split(': ')[1];
-
-              this.serviceControl.setValue(element.title + ' x' + timeSplit);
+            if (element.title === 'Personligt Coachingforløb') {
+              this.serviceControl.setValue(element.title + ' - ' + element.time);
             } else {
               this.serviceControl.setValue(element.title);
             }

@@ -1,17 +1,25 @@
-import { Booking, NewBooking, Service } from '@models/booking/interfaces';
-import { getFirestore } from 'firebase-admin/firestore';
+import { Booking, BookingBase, Service } from '@models/booking/interfaces';
+import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { getBlockedDays, getTimePeriods } from '../../shared/config/config.shared';
 import { createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
-import { doesPeriodMatch, getBookings } from './common/booking.common';
+import { getUser } from '../auth/common/auth.common';
+import { sendMail } from '../mail/common/mail.common';
+import { commonGetBookings, doesPeriodMatch } from './common/booking.common';
 import moment = require('moment-timezone');
 
 const firestore = getFirestore();
 const bookingsCollection = firestore.collection('bookings');
 const servicesCollection = firestore.collection('services');
 
-export const newBooking = createAuthEndpoint(async (req, res) => {
-  const data = req.body as NewBooking;
+export const getBookings = createAuthEndpoint(async (req, res) => {
+  const bookings = await commonGetBookings();
+  res.json(bookings);
+});
+
+export const newBooking = createAuthEndpoint(async (req, res, user) => {
+  const userProfile = await getUser(user.uid);
+  const data = req.body as BookingBase;
   const currentDate = moment();
   const chosenDate = moment(data.date);
 
@@ -41,7 +49,7 @@ export const newBooking = createAuthEndpoint(async (req, res) => {
     throw new HttpsError('unavailable', 'Den valgte dag er ikke tilladt');
   }
 
-  const bookings = await getBookings();
+  const bookings = await commonGetBookings();
   const bookingExists = bookings.some((booking) => {
     const bookingDate = moment(booking.date);
     const periodMatches = doesPeriodMatch(chosenTimePeriod, booking.timePeriod);
@@ -52,13 +60,71 @@ export const newBooking = createAuthEndpoint(async (req, res) => {
     throw new HttpsError('already-exists', 'Dette tidsrum er ikke tilgængeligt');
   }
 
-  const booking = await bookingsCollection.add(data).then(async (bookingDoc) => {
-    const bookingSnap = await bookingDoc.get();
-    return <Booking>{
-      ...bookingSnap.data(),
-      id: bookingDoc.id,
-    };
-  });
+  const abortBooking = async (booking: DocumentReference): Promise<void> => {
+    await booking.delete();
+    throw new HttpsError('aborted', 'Der skete en fejl. Din booking blev ikke oprettet');
+  };
+
+  const booking = await bookingsCollection
+    .add(data)
+    .then(async (bookingDoc) => {
+      return sendMail(
+        data.email,
+        'Bekræftelse af Booking',
+        `Hej ${data.firstName} ${data.lastName}<br />
+        din booking
+        <br />
+        D.${data.date}
+        <br />
+        kl.${data.timePeriod.start.hour}:${data.timePeriod.start.minute}-${data.timePeriod.end.hour}:${data.timePeriod.end.minute} 
+        er blevet godkendt.
+        <br /> 
+        <br /> 
+        Hvis du har yderligere spørgsmål er du meget velkommen til at besvare denne mail. 
+        <br /> 
+        <br /> 
+        Venlig Hilsen<br />
+        Tobias Bastholm
+        <br /> 
+        <br /> 
+        <br /> 
+        <br />
+        <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" />`,
+      )
+        .then(async () => {
+          return sendMail(
+            'tobiasbastholmfitness@gmail.com',
+            'Booking',
+            `
+            Navn: ${userProfile.firstName} ${userProfile.lastName}
+            <br /> 
+            Dato: ${data.date}.
+            <br /> 
+            Tid: kl.${data.timePeriod.start.hour}:${data.timePeriod.start.minute}-${data.timePeriod.end.hour}:${data.timePeriod.end.minute}.
+            <br /> 
+            Service: ${data.service}. 
+            <br /> <br /> <br /> <br /> 
+            <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" />
+            `,
+          )
+            .then(async () => {
+              const bookingSnap = await bookingDoc.get();
+              return <Booking>{
+                ...bookingSnap.data(),
+                id: bookingDoc.id,
+              };
+            })
+            .catch(async () => {
+              await abortBooking(bookingDoc);
+            });
+        })
+        .catch(async () => {
+          await abortBooking(bookingDoc);
+        });
+    })
+    .catch(() => {
+      throw new HttpsError('aborted', 'Der skete en fejl. Din booking blev ikke oprettet');
+    });
 
   res.json(booking);
 });

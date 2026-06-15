@@ -1,6 +1,6 @@
 interface Time {
-  hour: number;
-  minute: number;
+  hour: string;
+  minute: string;
 }
 
 export interface TimePeriod {

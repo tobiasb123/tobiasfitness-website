@@ -1,13 +1,5 @@
-import { TimePeriod } from './time-period.interface';
+import { BookingBase } from './booking-base.interface';
 
-export interface Booking {
+export interface Booking extends BookingBase {
   id: string;
-  uid: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  date: string;
-  timePeriod: TimePeriod;
-  comment?: string;
 }

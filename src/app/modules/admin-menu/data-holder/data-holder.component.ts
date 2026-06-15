@@ -1,7 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
+import { Booking } from '@models/booking/interfaces';
 import { FirebaseService } from '@modules/firebase';
+import { ContactFunctionsService } from '../../contact';
 import { DataEditerComponent } from '../data-editer/data-editer.component';
 
 @Component({
@@ -12,13 +14,20 @@ import { DataEditerComponent } from '../data-editer/data-editer.component';
 })
 export class DataHolderComponent implements OnInit {
   private firebaseService = inject(FirebaseService);
+  private contactFunctions = inject(ContactFunctionsService);
 
   allUsers = signal<UserProfile[]>([]);
   selectedUser = signal<UserProfile>(undefined);
 
+  public bookings: WritableSignal<Booking[]> = signal([]);
+
   ngOnInit(): void {
     this.firebaseService.httpGet<UserProfile[]>('admin-getUsers').then((users) => {
       this.allUsers.set(users);
+    });
+
+    this.contactFunctions.getBookings().then((bookings) => {
+      this.bookings.set([...bookings].sort((a, b) => a.date.localeCompare(b.date)));
     });
   }
 

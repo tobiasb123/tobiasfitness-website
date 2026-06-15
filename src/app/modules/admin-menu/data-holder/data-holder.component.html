@@ -2,14 +2,31 @@
   <div class="list-container">
     <div class="Profiles view active">
       @for (profile of allUsers(); track profile.uid) {
-        <div class="profile" (click)="selectUser(profile.uid)">
+        <div class="profile element" (click)="selectUser(profile.uid)">
           <p>uid: {{ profile.uid }}</p>
           <p>Navn: {{ profile.firstName }} {{ profile.lastName }}</p>
           <p>Email: {{ profile.email }}</p>
         </div>
       }
     </div>
-    <div class="Apointments view"></div>
+    <div class="Apointments view">
+      @if (!bookings().at(0)) {
+        <h2>Ingen Bookinger</h2>
+      } @else {
+        @for (booking of bookings(); track booking.id) {
+          <div class="apointment element" (click)="selectUser(booking.uid)">
+            <p>Navn: {{ booking.firstName }} {{ booking.lastName }}</p>
+            <p>
+              Dato: {{ booking.date }} <br />
+              Tid: {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }}
+              -
+              {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
+            </p>
+            <p>Service: {{ booking.service }}</p>
+          </div>
+        }
+      }
+    </div>
   </div>
   <div class="options">
     <div class="view-options">
