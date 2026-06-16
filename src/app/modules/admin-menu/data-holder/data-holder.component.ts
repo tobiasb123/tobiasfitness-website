@@ -22,6 +22,10 @@ export class DataHolderComponent implements OnInit {
   public bookings: WritableSignal<Booking[]> = signal([]);
 
   ngOnInit(): void {
+    this.loadUsersAndBookings();
+  }
+
+  loadUsersAndBookings(): void {
     this.firebaseService.httpGet<UserProfile[]>('admin-getUsers').then((users) => {
       this.allUsers.set(users);
     });
@@ -78,5 +82,9 @@ export class DataHolderComponent implements OnInit {
         }
       }
     }
+  }
+
+  refresh() {
+    this.loadUsersAndBookings();
   }
 }

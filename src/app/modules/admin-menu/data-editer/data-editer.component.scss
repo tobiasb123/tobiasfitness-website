@@ -131,8 +131,28 @@
 
       background-color: rgb(92, 92, 92);
 
+      label {
+        width: 100%;
+        text-align: center;
+      }
+
       h2 {
         text-decoration: underline;
+      }
+
+      .button-holder {
+        display: flex;
+        flex-direction: row;
+
+        align-items: center;
+        justify-content: space-between;
+
+        width: 80%;
+      }
+
+      button {
+        height: 50px;
+        width: 180px;
       }
     }
 

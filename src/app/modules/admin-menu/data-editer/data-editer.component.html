@@ -46,9 +46,7 @@
           {{ selectedBooking().timePeriod.start.hour }}:{{
             selectedBooking().timePeriod.start.minute
           }}
-          <br />
           -
-          <br />
           {{ selectedBooking().timePeriod.end.hour }}:{{ selectedBooking().timePeriod.end.minute }}
         } @else {
           Tid
@@ -171,6 +169,15 @@
       <form>
         <h2 class="form-element">Ændre Tid</h2>
         <div class="form-element">
+          <label for="service">Service</label>
+          <select id="service" class="input" [formControl]="serviceControl">
+            @for (service of serviceOptions; track $index) {
+              <option value="{{ service }}">{{ service }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-element">
           <label for="time">Tid</label>
           <select id="time" class="input" [formControl]="timeControl">
             @for (hour of hourOptions; track $index) {
@@ -184,7 +191,10 @@
           <input id="date" class="input" name="date" type="date" [formControl]="dateControl" />
         </div>
       </form>
-      <button class="confirm" (click)="editBooking()">Gem</button>
+      <div class="button-holder">
+        <button class="confirm" (click)="editBooking()">Gem</button>
+        <button class="cancel" (click)="openTab('Tider')">Tilbage</button>
+      </div>
     </div>
   </div>
 

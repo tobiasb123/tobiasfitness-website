@@ -70,12 +70,22 @@
 
 .Profiles {
   background-color: antiquewhite;
+
+  h2 {
+    align-self: center;
+  }
+  p {
+    align-self: center;
+  }
 }
 
 .Apointments {
   background-color: antiquewhite;
 
   h2 {
+    align-self: center;
+  }
+  p {
     align-self: center;
   }
 }
@@ -90,6 +100,15 @@
   gap: 10px;
 
   align-items: center;
+
+  .refresh-button {
+    &:hover {
+      scale: 1.05;
+    }
+    &:active {
+      scale: 0.95;
+    }
+  }
 }
 
 .view-option {

@@ -10,6 +10,8 @@ import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking, TimePeriod } from '@models/booking/interfaces';
 import { ContactFunctionsService } from '../../contact';
+import { ToastService } from '../../core/services/toast/toast.service';
+import { DataHolderComponent } from '../data-holder/data-holder.component';
 import { AdminFunctionsService } from '../services/admin-functions.service';
 
 @Component({
@@ -21,6 +23,8 @@ import { AdminFunctionsService } from '../services/admin-functions.service';
 export class DataEditerComponent {
   private adminFunctions = inject(AdminFunctionsService);
   private contactFunctions = inject(ContactFunctionsService);
+  private dataHolder = inject(DataHolderComponent);
+  private toast = inject(ToastService);
   private selectedUserValue: UserProfile;
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
@@ -31,6 +35,7 @@ export class DataEditerComponent {
   zipCodeControl = new FormControl<number>(null, [Validators.required]);
   townControl = new FormControl<string>('', [Validators.required]);
   commentControl = new FormControl<string>('');
+  serviceControl = new FormControl<string>('');
   timeControl = new FormControl<string>('');
   dateControl = new FormControl<string>('');
 
@@ -43,6 +48,7 @@ export class DataEditerComponent {
     zipCode: this.zipCodeControl,
     town: this.townControl,
     comment: this.commentControl,
+    service: this.serviceControl,
     time: this.timeControl,
     date: this.dateControl,
   });
@@ -64,31 +70,66 @@ export class DataEditerComponent {
     this.contactFunctions.getBookings().then((bookings) => {
       const booking = bookings.filter((booking) => booking.id === bookingId)[0];
       this.selectedBooking.set(booking);
+
+      const startTime = booking.timePeriod.start.hour + ':' + booking.timePeriod.start.minute;
+      const endTime = booking.timePeriod.end.hour + ':' + booking.timePeriod.end.minute;
+      const startAndEndTime = startTime + ' - ' + endTime;
+
+      this.serviceControl.setValue(booking.service);
+      this.dateControl.setValue(booking.date);
+      this.timeControl.setValue(startAndEndTime);
     });
   }
 
   deleteBooking(id: string): void {
-    this.adminFunctions.deleteBooking(id).then(() => {
-      this.bookings.set(this.bookings().filter((b) => b.id !== id));
-      this.loadBookingsForUser(this.selectedUser);
-    });
+    this.adminFunctions
+      .deleteBooking(id)
+      .then(() => {
+        this.bookings.set(this.bookings().filter((b) => b.id !== id));
+        this.loadBookingsForUser(this.selectedUser);
+        this.openTab('Tider');
+        this.toast.open('Booking Aflyst', 'success');
+      })
+      .catch(() => {
+        this.toast.open('Noget gik galt', 'error');
+      });
   }
 
   editBooking(): void {
+    const service: string = this.serviceControl.value;
     const date: string = this.dateControl.value;
 
-    // FIX TIMEPERIOD NOW!!!
+    const startAndEndTime = this.timeControl.value.split(' - ');
+    const startTime = startAndEndTime[0].split(':');
+    const endTime = startAndEndTime[1].split(':');
 
-    const timePeriod: TimePeriod = null;
+    const timePeriod: TimePeriod = {
+      start: {
+        hour: startTime[0],
+        minute: startTime[1],
+      },
+      end: {
+        hour: endTime[0],
+        minute: endTime[1],
+      },
+    };
     const editedBooking: Booking = {
       ...this.selectedBooking(),
+      service,
       date,
       timePeriod,
     };
-    this.adminFunctions.editBooking(editedBooking).then(() => {
-      this.selectedBooking.set(editedBooking);
-      this.loadBookingsForUser(this.selectedUser);
-    });
+    this.adminFunctions
+      .editBooking(editedBooking)
+      .then(() => {
+        this.selectedBooking.set(editedBooking);
+        this.loadBookingsForUser(this.selectedUser);
+        this.openTab('Tider');
+        this.toast.open('Booking Ændret', 'success');
+      })
+      .catch(() => {
+        this.toast.open('Noget gik galt', 'error');
+      });
   }
 
   private updateSelectedUser(user: UserProfile): void {
@@ -125,6 +166,13 @@ export class DataEditerComponent {
     '15:00 - 16:00',
     '17:00 - 18:00',
   ];
+  serviceOptions: Array<string> = [
+    'Personlig Træning',
+    'Kostvejledning',
+    'Personligt Coachingforløb - 1 Måned',
+    'Personligt Coachingforløb - 3 Måneder',
+    'Personligt Coachingforløb - 6 Måneder',
+  ];
 
   allButtons = document.getElementsByClassName('ebn');
   setActiveEditerTabbn(event: any) {
@@ -155,6 +203,9 @@ export class DataEditerComponent {
         }
       }
     }
+
+    this.selectedBooking.set(null);
+    this.dataHolder.loadUsersAndBookings();
   }
 
   resetTabs() {
@@ -177,6 +228,26 @@ export class DataEditerComponent {
 
     this.allTabs[0].classList.add('active');
     this.allButtons[0].classList.add('active');
+
+    this.selectedBooking.set(null);
+    this.dataHolder.loadUsersAndBookings();
+  }
+
+  openTab(tabName: string) {
+    for (let index = 0; index < this.allTabs.length; index++) {
+      const element = this.allTabs[index];
+      if (element) {
+        if (element.classList.contains('active')) {
+          element.classList.remove('active');
+        }
+      }
+      if (element && element.classList.contains(tabName)) {
+        element.classList.add('active');
+      }
+    }
+
+    this.selectedBooking.set(null);
+    this.dataHolder.loadUsersAndBookings();
   }
 
   openEditTab() {

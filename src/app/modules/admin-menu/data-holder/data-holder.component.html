@@ -1,17 +1,23 @@
 <div class="body">
   <div class="list-container">
     <div class="Profiles view active">
-      @for (profile of allUsers(); track profile.uid) {
-        <div class="profile element" (click)="selectUser(profile.uid)">
-          <p>uid: {{ profile.uid }}</p>
-          <p>Navn: {{ profile.firstName }} {{ profile.lastName }}</p>
-          <p>Email: {{ profile.email }}</p>
-        </div>
+      @if (!allUsers().at(0)) {
+        <h2>Ingen Brugere</h2>
+        <p>Refresh to load</p>
+      } @else {
+        @for (profile of allUsers(); track profile.uid) {
+          <div class="profile element" (click)="selectUser(profile.uid)">
+            <p>uid: {{ profile.uid }}</p>
+            <p>Navn: {{ profile.firstName }} {{ profile.lastName }}</p>
+            <p>Email: {{ profile.email }}</p>
+          </div>
+        }
       }
     </div>
     <div class="Apointments view">
       @if (!bookings().at(0)) {
         <h2>Ingen Bookinger</h2>
+        <p>Refresh to load</p>
       } @else {
         @for (booking of bookings(); track booking.id) {
           <div class="apointment element" (click)="selectUser(booking.uid)">
@@ -30,6 +36,7 @@
   </div>
   <div class="options">
     <div class="view-options">
+      <button class="refresh-button" (click)="refresh()">Refresh</button>
       <button class="view-option active" (click)="selectView($event)">Profiles</button>
       <button class="view-option" (click)="selectView($event)">Apointments</button>
     </div>
