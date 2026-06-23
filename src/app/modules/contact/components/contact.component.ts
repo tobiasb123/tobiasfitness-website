@@ -21,24 +21,12 @@ export class ContactComponent implements OnInit {
 
   private userProfile: UserProfile;
 
-  firstNameControl = new FormControl<string>('', [Validators.required]);
-  lastNameControl = new FormControl<string>('', [Validators.required]);
-  emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
-  addressControl = new FormControl<string>('', [Validators.required]);
-  zipCodeControl = new FormControl<number>(null, [Validators.required]);
-  townControl = new FormControl<string>('', [Validators.required]);
   dateControl = new FormControl<string>('', [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
-  serviceControl = new FormControl<string>('');
+  serviceControl = new FormControl<string>('', [Validators.required]);
   priceControl = new FormControl<string>('');
 
   formGroup = new FormGroup({
-    firstName: this.firstNameControl,
-    lastName: this.lastNameControl,
-    email: this.emailControl,
-    address: this.addressControl,
-    zipCode: this.zipCodeControl,
-    town: this.townControl,
     date: this.dateControl,
     time: this.timeControl,
     service: this.serviceControl,
@@ -101,22 +89,13 @@ export class ContactComponent implements OnInit {
   ngOnInit(): void {
     this.userProfile = this.authFunctions.currentUserProfile();
 
-    if (this.userProfile) {
-      this.firstNameControl.setValue(this.userProfile.firstName);
-      this.lastNameControl.setValue(this.userProfile.lastName);
-      this.emailControl.setValue(this.userProfile.email);
-      this.addressControl.setValue(this.userProfile.address.street);
-      this.zipCodeControl.setValue(this.userProfile.address.postalCode);
-      this.townControl.setValue(this.userProfile.address.city);
-    }
-
     this.scrollToTop();
   }
 
   onSubmit(event: SubmitEvent) {
     event.preventDefault();
 
-    if (!this.emailControl.valid) {
+    if (!this.userProfile.email) {
       console.log('No Valid Email.');
       return;
     }
@@ -139,13 +118,11 @@ export class ContactComponent implements OnInit {
       },
     };
 
-    console.log(timePeriod);
-
     const newBooking: BookingBase = {
       uid: this.userProfile.uid,
-      firstName: this.firstNameControl.value,
-      lastName: this.lastNameControl.value,
-      email: this.emailControl.value,
+      firstName: this.userProfile.firstName,
+      lastName: this.userProfile.lastName,
+      email: this.userProfile.email,
       phoneNumber: this.userProfile.phoneNumber,
       date: this.dateControl.value,
       timePeriod: timePeriod,
@@ -171,36 +148,28 @@ export class ContactComponent implements OnInit {
   }
 
   open_Service_Options() {
-    if (this.dateControl.valid && this.timeControl.valid) {
-      if (this.time_period[0]) {
-        this.time_period[0].classList.remove('focus');
-        this.time_period[0].parentElement.classList.add('inside');
-      }
-      if (this.service[0]) {
-        this.service[0].classList.add('focus');
-      }
-    } else {
-      this.toast.open('Dato & Tid er ikke udfyldt', 'error');
+    if (this.time_period[0]) {
+      this.time_period[0].classList.remove('focus');
+      this.time_period[0].parentElement.classList.add('inside');
+    }
+    if (this.service[0]) {
+      this.service[0].classList.add('focus');
+      this.scrollToTop();
     }
   }
 
   open_Time_Period() {
-    if (this.time_period[0]) {
-      this.time_period[0].classList.add('focus');
-      this.time_period[0].parentElement.classList.add('inside');
-    }
-    if (this.service[0]) {
-      this.service[0].classList.remove('focus');
-    }
-  }
-
-  to_Booking() {
-    if (this.time_period[0]) {
-      this.time_period[0].classList.remove('focus');
-      this.time_period[0].parentElement.classList.remove('inside');
-    }
-    if (this.service[0]) {
-      this.service[0].classList.remove('focus');
+    if (this.serviceControl.valid) {
+      if (this.time_period[0]) {
+        this.time_period[0].classList.add('focus');
+        this.time_period[0].parentElement.classList.add('inside');
+        this.scrollToTop();
+      }
+      if (this.service[0]) {
+        this.service[0].classList.remove('focus');
+      }
+    } else {
+      this.toast.open('Vælg en service', 'error');
     }
   }
 

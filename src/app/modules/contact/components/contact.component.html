@@ -1,7 +1,35 @@
 <div class="form-container">
   <h1>Book din tid</h1>
   <form [formGroup]="formGroup" (submit)="onSubmit($event)">
-    <div id="time-period" class="time-period focus">
+    <div id="service" class="service focus">
+      <div class="container">
+        @for (service of serviceFormComponents; track $index) {
+          <div class="service-element service-options" (click)="select_service($event)">
+            <img src="{{ service.img }}" />
+            <label class="service-label">{{ service.title }}</label>
+            <label class="service-label">{{ service.time }}</label>
+            <label class="service-label">{{ service.price }}</label>
+            <img class="check-mark" src="service-checkmark.png" />
+          </div>
+        }
+
+        <button type="button" (click)="open_Time_Period()">Næste</button>
+      </div>
+
+      @for (service of serviceOverview; track $index) {
+        <div class="service-element service-overview">
+          @if (service.title !== 'Ingen service') {
+            <label>{{ service.title }}</label>
+            <label>{{ service.time }}</label>
+            <label>{{ service.price }}</label>
+          } @else {
+            <label>{{ service.title }}</label>
+          }
+        </div>
+      }
+    </div>
+
+    <div id="time-period" class="time-period">
       <h2>Dato & Tid</h2>
       <div class="form-element">
         <label for="date">Start Dato*</label>
@@ -25,47 +53,17 @@
         }
       </div>
 
-      <button type="button" (click)="open_Service_Options()" (click)="scrollToTop()">Næste</button>
+      <div class="button-group">
+        <button id="submit-button" type="submit">Book Tid</button>
+        <button type="button" (click)="scrollToTop()" (click)="open_Service_Options()">
+          Tilbage
+        </button>
+      </div>
 
-      <div class="time-period-overview" (click)="open_Time_Period()" (click)="scrollToTop()">
+      <div class="time-period-overview">
         <label>Start Dato: {{ dateControl.value }}</label>
         <label>Ønsket Tid: {{ timeControl.value }}</label>
       </div>
     </div>
-
-    <div id="service" class="service">
-      <div class="container">
-        @for (service of serviceFormComponents; track $index) {
-          <div class="service-element service-options" (click)="select_service($event)">
-            <img src="{{ service.img }}" />
-            <label class="service-label">{{ service.title }}</label>
-            <label class="service-label">{{ service.time }}</label>
-            <label class="service-label">{{ service.price }}</label>
-            <img class="check-mark" src="service-checkmark.png" />
-          </div>
-        }
-
-        <!-- this is only one -->
-        <button type="button" (click)="to_Booking()" (click)="scrollToTop()">Næste</button>
-        <button type="button" (click)="scrollToTop()" (click)="open_Time_Period()">Tilbage</button>
-      </div>
-
-      @for (service of serviceOverview; track $index) {
-        <div
-          class="service-element service-overview"
-          (click)="open_Service_Options()"
-          (click)="scrollToTop()"
-        >
-          @if (service.title !== 'Ingen service') {
-            <label>{{ service.title }}</label>
-            <label>{{ service.time }}</label>
-            <label>{{ service.price }}</label>
-          } @else {
-            <label>{{ service.title }}</label>
-          }
-        </div>
-      }
-    </div>
-    <button id="submit-button" type="submit">Book Tid</button>
   </form>
 </div>

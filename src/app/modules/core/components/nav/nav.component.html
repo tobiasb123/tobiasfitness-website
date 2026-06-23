@@ -35,9 +35,7 @@
           </div>
         }
         @if (route.displayName === 'Bestil Tid') {
-          <a [routerLink]="route.path" (click)="openCloseNav()" (click)="setPassState(false)">{{
-            route.displayName
-          }}</a>
+          <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
         }
       }
     }

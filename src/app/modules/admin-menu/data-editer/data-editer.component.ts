@@ -9,6 +9,7 @@ import {
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking, TimePeriod } from '@models/booking/interfaces';
+import { AuthFunctionsService } from '@modules/auth';
 import { ContactFunctionsService } from '../../contact';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { DataHolderComponent } from '../data-holder/data-holder.component';
@@ -23,6 +24,7 @@ import { AdminFunctionsService } from '../services/admin-functions.service';
 export class DataEditerComponent {
   private adminFunctions = inject(AdminFunctionsService);
   private contactFunctions = inject(ContactFunctionsService);
+  private authfunctions = inject(AuthFunctionsService);
   private dataHolder = inject(DataHolderComponent);
   private toast = inject(ToastService);
   private selectedUserValue: UserProfile;
@@ -152,10 +154,37 @@ export class DataEditerComponent {
     this.loadBookingsForUser(user);
   }
 
+  private setSelectedUser(): UserProfile {
+    const uid = this.selectedUser.uid;
+
+    const address = {
+      street: this.addressControl.value,
+      postalCode: this.zipCodeControl.value,
+      city: this.townControl.value,
+    };
+
+    const newUser: UserProfile = {
+      uid,
+      firstName: this.firstNameControl.value,
+      lastName: this.lastNameControl.value,
+      email: this.emailControl.value,
+      phoneNumber: this.phonenumberControl.value,
+      address,
+    };
+
+    return newUser;
+  }
+
   private loadBookingsForUser(user: UserProfile): void {
     this.contactFunctions.getBookings().then((bookings) => {
       const userBookings = bookings.filter((booking) => booking.uid === user.uid);
       this.bookings.set([...userBookings].sort((a, b) => a.date.localeCompare(b.date)));
+    });
+  }
+
+  private saveUserSettings(): void {
+    this.authfunctions.updateDetails(this.setSelectedUser()).then((user) => {
+      this.toast.open('Bruger Gemt', 'success');
     });
   }
 
@@ -274,5 +303,7 @@ export class DataEditerComponent {
     this.resetTabs();
   }
 
-  save() {}
+  save() {
+    this.saveUserSettings();
+  }
 }

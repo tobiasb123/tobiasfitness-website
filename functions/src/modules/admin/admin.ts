@@ -7,6 +7,7 @@ import { sendMail } from '../mail/common/mail.common';
 
 const firestore = getFirestore();
 const bookingsCollection = firestore.collection('bookings');
+const usersCollection = firestore.collection('users');
 
 export const getUsers = createAdminEndpoint(async (req, res, user) => {
   const users = await getAllUsers();

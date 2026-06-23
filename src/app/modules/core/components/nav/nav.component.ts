@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthFunctionsService } from '@modules/auth';
 import { Observable } from 'rxjs';
 import { RouteExt, routes } from '../../../../app.routes';
-import { PassStateService } from '../../services/pass-state/pass-state.service';
+
 import { ToastService } from '../../services/toast/toast.service';
 
 @Component({
@@ -19,16 +19,10 @@ export class NavComponent implements OnInit {
   private toast = inject(ToastService);
 
   private authFunctions = inject(AuthFunctionsService);
-  private passStateService = inject(PassStateService);
   private router = inject(Router);
 
   loggedIn: Observable<boolean> = this.authFunctions.isLoggedIn();
   currentUser = this.authFunctions.currentUserProfile;
-
-  setPassState(value: boolean): void {
-    this.passStateService.setUsingPass(value);
-    console.log(this.passStateService.usingPass$);
-  }
 
   ngOnInit(): void {
     this.routes = routes;

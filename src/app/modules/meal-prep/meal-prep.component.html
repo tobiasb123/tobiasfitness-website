@@ -3,8 +3,57 @@
     <h1>Opskrifter</h1>
   </section>
 
-  <button class="add-meal-button" (click)="toggle_meal_add_page($event)">Opret</button>
-  <div class="add-meal-page"></div>
+  <button class="meal-button" (click)="toggleMealAddPage()" [disabled]="addMealPageActive">
+    Opret
+  </button>
+  <div class="add-meal-page" [class.active]="addMealPageActive">
+    <button class="meal-button" (click)="toggleMealAddPage()">Luk</button>
+
+    <select name="reciever" id="reciever" class="reciever">
+      <option value="alle">Alle</option>
+      @for (reciever of recieverOptions(); track $index) {
+        <option value="{{ reciever.firstName }} {{ reciever.lastName }}">
+          {{ reciever.firstName }} {{ reciever.lastName }}
+        </option>
+      }
+    </select>
+
+    <input type="file" class="fileInput" />
+
+    <div class="listContainer">
+      <h2>ingredienser</h2>
+      <div class="inputs">
+        <input #IitemNameInput type="text" />
+        <button (click)="addItem(IitemNameInput.value, 'I-list', IitemNameInput)">Tilføj</button>
+      </div>
+      <div class="list">
+        @for (item of ingriedentList(); track $index) {
+          <div class="element">
+            <label>{{ item }}</label>
+            <button (click)="removeItem(item, 'I-list')">Fjern</button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="listContainer">
+      <h2>Fremgangsmåde</h2>
+      <div class="inputs">
+        <input #PitemNameInput type="text" />
+        <button (click)="addItem(PitemNameInput.value, 'P-list', PitemNameInput)">Tilføj</button>
+      </div>
+      <div class="list">
+        @for (item of progressList(); track $index) {
+          <div class="element">
+            <label>{{ item }}</label>
+            <button (click)="removeItem(item, 'P-list')">Fjern</button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <button class="saveButton">Gem</button>
+  </div>
 
   <section class="free-meals center">
     <h2>Gratis Opskrifter</h2>

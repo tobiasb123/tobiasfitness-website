@@ -43,7 +43,7 @@ export const getUserProfile = createAuthEndpoint(async (req, res, user) => {
 
 export const updateDetails = createAuthEndpoint(async (req, res, user) => {
   const data = req.body as Partial<UserProfile>;
-  const emailChanged = !!data.email && data.email !== user.email;
+  const emailChanged = data.email !== user.email;
 
   if (emailChanged) {
     await getAuth()
@@ -55,9 +55,10 @@ export const updateDetails = createAuthEndpoint(async (req, res, user) => {
       });
   }
 
-  const userProfileUpdate: Partial<BaseProfile> = {
+  const userProfileUpdate: Partial<UserProfile> = {
     firstName: data.firstName,
     lastName: data.lastName,
+    email: data.email,
     phoneNumber: data.phoneNumber,
     address: data.address,
   };

@@ -29,18 +29,13 @@ h3 {
   margin-top: 60px;
 }
 
-.add-meal-button {
+button {
   appearance: none;
   border: none;
   outline: none;
   box-sizing: none;
 
-  position: fixed;
-  top: 110px;
-  left: 50px;
-
   border-radius: 10px;
-  border: 2px solid black;
 
   font-size: 20px;
   font-weight: bold;
@@ -49,6 +44,7 @@ h3 {
 
   background-color: rgb(95, 196, 255);
   color: white;
+
   text-shadow:
     3px 0 0 #313131,
     -3px 0 0 #313131,
@@ -65,16 +61,34 @@ h3 {
 
   &:hover {
     background-color: rgb(44, 178, 255);
+    scale: 1.05;
   }
+  &:disabled {
+    background-color: rgb(105, 127, 139);
+    text-shadow: none;
 
-  &:active {
-    background-color: rgb(108, 201, 255);
-    scale: 1.1;
+    cursor: default;
+
+    &:hover {
+      scale: 1;
+    }
   }
+}
+
+.meal-button {
+  position: fixed;
+  top: 110px;
+  left: 50px;
 }
 
 .add-meal-page {
   display: none;
+  flex-direction: column;
+
+  align-items: center;
+
+  padding: 75px 0 25px 0;
+  gap: 50px;
 
   position: fixed;
   top: calc(50% - 300px);
@@ -84,10 +98,10 @@ h3 {
   height: 600px;
 
   border-radius: 10px;
-  border: 2px solid black;
 
-  overflow-y: hidden;
+  overflow-y: auto;
   scrollbar-width: none;
+  box-sizing: border-box;
 
   background-color: #494949;
 
@@ -96,6 +110,158 @@ h3 {
   &.active {
     display: flex;
   }
+
+  h2 {
+    margin: 0;
+  }
+
+  .meal-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    left: unset;
+  }
+
+  .reciever {
+    appearance: none;
+    border: none;
+    outline: none;
+    box-sizing: none;
+
+    display: block;
+
+    text-align: center;
+
+    width: 30%;
+    min-width: 200px;
+    height: auto;
+
+    padding: 10px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 0 3px rgb(122, 122, 122);
+  }
+
+  .fileInput {
+    appearance: none;
+    border: none;
+    outline: none;
+    box-sizing: none;
+
+    display: block;
+
+    text-align: center;
+
+    width: 30%;
+    min-width: 200px;
+    height: auto;
+
+    padding: 10px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 0 3px rgb(122, 122, 122);
+    background-color: white;
+  }
+
+  .listContainer {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 25px;
+
+    .inputs {
+      display: flex;
+      flex-direction: row;
+
+      gap: 10px;
+    }
+    input {
+      appearance: none;
+      border: none;
+      outline: none;
+
+      display: flex;
+
+      width: 170px;
+
+      padding: 10px;
+
+      border-radius: 15px;
+
+      box-shadow: 0 0 3px rgb(122, 122, 122);
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      outline: none;
+
+      color: black;
+
+      display: flex;
+
+      width: auto;
+
+      padding: 10px;
+
+      border-radius: 15px;
+
+      box-shadow: 0 0 3px rgb(122, 122, 122);
+      background-color: rgb(221, 221, 221);
+      text-shadow: none;
+
+      cursor: pointer;
+    }
+
+    label {
+      color: white;
+
+      /* allow label text to wrap when space is limited */
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-break: break-word;
+
+      /* allow the label to shrink inside a flex row */
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 70%;
+
+      padding: 0 10px;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+
+      gap: 15px;
+
+      width: 270px;
+
+      .element {
+        position: relative;
+
+        display: flex;
+        flex-direction: row;
+
+        width: 100%;
+
+        gap: 10px;
+
+        button {
+          position: absolute;
+          right: 0;
+        }
+      }
+    }
+  }
+}
+
+.saveButton {
+  width: 200px;
 }
 
 .center {

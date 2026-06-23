@@ -58,4 +58,24 @@
       </form>
     </div>
   </section>
+
+  <section>
+    <h1>Dine Tider</h1>
+    <div class="bookings">
+      @if (bookings().at(0)) {
+        @for (booking of bookings(); track booking.id) {
+          <div class="booking">
+            <h2 id="service">{{ booking.service }}</h2>
+            <label id="date">{{ booking.date }}</label>
+            <label id="time"
+              >{{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }} -
+              {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}</label
+            >
+          </div>
+        }
+      } @else {
+        <h3>Ingen nuværende tider</h3>
+      }
+    </div>
+  </section>
 </div>
