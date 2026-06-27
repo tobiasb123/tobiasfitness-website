@@ -1,10 +1,12 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking } from '@models/booking/interfaces';
 import { FirebaseService } from '@modules/firebase';
+import { Subscription } from 'rxjs';
 import { ContactFunctionsService } from '../../contact';
 import { DataEditerComponent } from '../data-editer/data-editer.component';
+import { AdminFacade } from '../store/admin.facade';
 
 @Component({
   selector: 'app-data-holder',
@@ -12,9 +14,12 @@ import { DataEditerComponent } from '../data-editer/data-editer.component';
   templateUrl: './data-holder.component.html',
   styleUrl: './data-holder.component.scss',
 })
-export class DataHolderComponent implements OnInit {
+export class DataHolderComponent implements OnInit, OnDestroy {
+  private subs: Subscription[] = [];
+
   private firebaseService = inject(FirebaseService);
   private contactFunctions = inject(ContactFunctionsService);
+  private adminFacade = inject(AdminFacade);
 
   allUsers = signal<UserProfile[]>([]);
   selectedUser = signal<UserProfile>(undefined);
@@ -26,9 +31,11 @@ export class DataHolderComponent implements OnInit {
   }
 
   loadUsersAndBookings(): void {
-    this.firebaseService.httpGet<UserProfile[]>('admin-getUsers').then((users) => {
-      this.allUsers.set(users);
-    });
+    this.subs.push(
+      this.adminFacade.getUsers().subscribe((users) => {
+        this.allUsers.set(users);
+      }),
+    );
 
     this.contactFunctions.getBookings().then((bookings) => {
       this.bookings.set([...bookings].sort((a, b) => a.date.localeCompare(b.date)));
@@ -86,5 +93,11 @@ export class DataHolderComponent implements OnInit {
 
   refresh() {
     this.loadUsersAndBookings();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach((sub) => {
+      sub.unsubscribe();
+    });
   }
 }

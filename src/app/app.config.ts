@@ -1,14 +1,23 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, signal } from '@angular/core';
+import {
+  ApplicationConfig,
+  isDevMode,
+  provideBrowserGlobalErrorListeners,
+  signal,
+} from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
-import { AUTH_STATE, AuthState } from '@modules/auth';
+import { AUTH_STATE, AuthState, logoutReducer } from '@modules/auth';
 import {
   provideFirebaseApp,
   provideFirebaseAuth,
   provideFirebaseFunctions,
 } from '@modules/firebase';
+import { provideEffects } from '@ngrx/effects';
+import { provideStore } from '@ngrx/store';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideHotToastConfig } from '@ngxpert/hot-toast';
 import { routes } from './app.routes';
+import { AdminEffects, adminFeature, adminReducer } from './modules/admin-menu';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,5 +39,15 @@ export const appConfig: ApplicationConfig = {
       useValue: signal<AuthState>('loading'),
     },
     provideHotToastConfig(),
+    provideStore(
+      {
+        [adminFeature]: adminReducer,
+      },
+      {
+        metaReducers: [logoutReducer],
+      },
+    ),
+    provideEffects(AdminEffects),
+    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
 };

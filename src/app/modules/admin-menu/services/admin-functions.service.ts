@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { UserProfile } from '@models/auth/interfaces';
 import { Booking } from '@models/booking/interfaces';
 import { FirebaseService } from '@modules/firebase';
 
@@ -7,6 +8,10 @@ import { FirebaseService } from '@modules/firebase';
 })
 export class AdminFunctionsService {
   private firbaseService = inject(FirebaseService);
+
+  public async getUsers(): Promise<UserProfile[]> {
+    return this.firbaseService.httpGet<UserProfile[]>('admin-getUsers');
+  }
 
   public async deleteBooking(id: string): Promise<{ success: boolean }> {
     return this.firbaseService.httpPost<string, { success: boolean }>('admin-deleteBooking', id);

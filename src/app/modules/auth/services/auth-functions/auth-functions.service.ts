@@ -3,7 +3,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { BaseProfile, UserProfile } from '@models/auth/interfaces';
 import { Address } from '@models/auth/interfaces/address.interface';
-import { getFirebaseError } from '@modules/core';
+import { getFirebaseError, ToastService } from '@modules/core';
 import { FirebaseService } from '@modules/firebase';
 import {
   browserLocalPersistence,
@@ -16,6 +16,7 @@ import {
   User,
 } from 'firebase/auth';
 import { map, Observable } from 'rxjs';
+import { AuthFacade } from '../../store/auth.facade';
 import { AUTH_STATE } from '../../tokens/auth-state.token';
 
 @Injectable({
@@ -27,6 +28,8 @@ export class AuthFunctionsService {
   private auth = this.firebaseService.getAuth();
   private router = inject(Router);
   private injector = inject(Injector);
+  private authFacade = inject(AuthFacade);
+  private toastService = inject(ToastService);
   private idTokenListener: Unsubscribe;
 
   public currentUserProfile = signal<UserProfile>(undefined);
@@ -111,9 +114,15 @@ export class AuthFunctionsService {
   public async logout(): Promise<void> {
     this.router.navigate(['']);
 
-    return await this.auth.signOut().catch((error) => {
-      throw getFirebaseError(error);
-    });
+    return await this.auth
+      .signOut()
+      .then(() => {
+        this.authFacade.logout();
+        this.toastService.open('Du er blevet logged ud', 'info');
+      })
+      .catch((error) => {
+        throw getFirebaseError(error);
+      });
   }
 
   public isLoggedIn(): Observable<boolean> {
