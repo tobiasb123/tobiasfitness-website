@@ -10,7 +10,9 @@ moment.tz.setDefault('Europe/Copenhagen');
 import * as admin from './modules/admin';
 import * as auth from './modules/auth';
 import * as booking from './modules/booking';
+import * as storage from './modules/storage';
 
 exports.admin = admin;
 exports.auth = auth;
 exports.booking = booking;
+exports.storage = storage;

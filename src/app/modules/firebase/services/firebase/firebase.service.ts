@@ -51,7 +51,6 @@ export class FirebaseService {
       return {};
     }
     const token = await this.auth.currentUser.getIdToken();
-    console.log(token);
     return { Authorization: `Bearer ${token}` };
   }
 }

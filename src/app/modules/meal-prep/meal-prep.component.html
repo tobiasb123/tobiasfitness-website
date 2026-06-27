@@ -3,56 +3,97 @@
     <h1>Opskrifter</h1>
   </section>
 
-  <button class="meal-button" (click)="toggleMealAddPage()" [disabled]="addMealPageActive">
-    Opret
-  </button>
+  @if (userProfile.admin) {
+    <button class="meal-button" (click)="toggleMealAddPage()" [disabled]="addMealPageActive">
+      Opret
+    </button>
+  }
+
   <div class="add-meal-page" [class.active]="addMealPageActive">
     <button class="meal-button" (click)="toggleMealAddPage()">Luk</button>
 
-    <select name="reciever" id="reciever" class="reciever">
-      <option value="alle">Alle</option>
-      @for (reciever of recieverOptions(); track $index) {
-        <option value="{{ reciever.firstName }} {{ reciever.lastName }}">
-          {{ reciever.firstName }} {{ reciever.lastName }}
-        </option>
-      }
-    </select>
-
-    <input type="file" class="fileInput" />
-
-    <div class="listContainer">
-      <h2>ingredienser</h2>
-      <div class="inputs">
-        <input #IitemNameInput type="text" />
-        <button (click)="addItem(IitemNameInput.value, 'I-list', IitemNameInput)">Tilføj</button>
-      </div>
-      <div class="list">
-        @for (item of ingriedentList(); track $index) {
-          <div class="element">
-            <label>{{ item }}</label>
-            <button (click)="removeItem(item, 'I-list')">Fjern</button>
-          </div>
+    <div class="h2input">
+      <h2>Modtager</h2>
+      <select name="reciever" id="reciever" class="reciever" (input)="selectUser($event)">
+        <option value="alle">Alle</option>
+        @for (reciever of recieverOptions(); track $index) {
+          <option value="{{ reciever.uid }}">
+            {{ reciever.firstName }} {{ reciever.lastName }}
+          </option>
         }
+      </select>
+    </div>
+
+    <div class="h2input">
+      <h2>Billede</h2>
+      <input #file type="file" class="fileInput" />
+    </div>
+
+    <div class="lists">
+      <div class="listContainer">
+        <h2>ingredienser</h2>
+        <div class="inputs">
+          <input #IitemNameInput type="text" />
+          <button (click)="addItem(IitemNameInput.value, 'I-list', IitemNameInput)">Tilføj</button>
+        </div>
+        <div class="list">
+          @for (item of ingredientList(); track $index) {
+            <div class="element">
+              <label>{{ item }}</label>
+              <button (click)="removeItem(item, 'I-list')">Fjern</button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="listContainer">
+        <h2>Fremgangsmåde</h2>
+        <div class="inputs">
+          <input #PitemNameInput type="text" />
+          <button (click)="addItem(PitemNameInput.value, 'P-list', PitemNameInput)">Tilføj</button>
+        </div>
+        <div class="list">
+          @for (item of progressList(); track $index) {
+            <div class="element">
+              <label>{{ item }}</label>
+              <button (click)="removeItem(item, 'P-list')">Fjern</button>
+            </div>
+          }
+        </div>
       </div>
     </div>
 
-    <div class="listContainer">
-      <h2>Fremgangsmåde</h2>
-      <div class="inputs">
-        <input #PitemNameInput type="text" />
-        <button (click)="addItem(PitemNameInput.value, 'P-list', PitemNameInput)">Tilføj</button>
+    <div class="macros">
+      <h2>Macroer</h2>
+      <div class="macro">
+        <label>Kcal:</label>
+        <input #MacroInput1 type="text" />
       </div>
-      <div class="list">
-        @for (item of progressList(); track $index) {
-          <div class="element">
-            <label>{{ item }}</label>
-            <button (click)="removeItem(item, 'P-list')">Fjern</button>
-          </div>
-        }
+
+      <div class="macro">
+        <label>Protein:</label>
+        <input #MacroInput2 type="text" />
+      </div>
+
+      <div class="macro">
+        <label>Kulhydrater:</label>
+        <input #MacroInput3 type="text" />
+      </div>
+
+      <div class="macro">
+        <label>Fedt:</label>
+        <input #MacroInput4 type="text" />
       </div>
     </div>
 
-    <button class="saveButton">Gem</button>
+    <button
+      class="saveButton"
+      (click)="
+        save([MacroInput1.value, MacroInput2.value, MacroInput3.value, MacroInput4.value], file)
+      "
+    >
+      Gem
+    </button>
   </div>
 
   <section class="free-meals center">

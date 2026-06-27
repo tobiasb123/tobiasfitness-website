@@ -122,47 +122,51 @@ button {
     left: unset;
   }
 
-  .reciever {
-    appearance: none;
-    border: none;
-    outline: none;
-    box-sizing: none;
+  .h2input {
+    display: flex;
+    flex-direction: column;
 
-    display: block;
+    align-items: center;
+    justify-content: center;
 
-    text-align: center;
+    gap: 10px;
 
-    width: 30%;
-    min-width: 200px;
-    height: auto;
+    select,
+    input {
+      appearance: none;
+      border: none;
+      outline: none;
+      box-sizing: none;
 
-    padding: 10px;
+      display: block;
 
-    border-radius: 15px;
+      text-align: center;
 
-    box-shadow: 0 0 3px rgb(122, 122, 122);
+      width: 30%;
+      min-width: 300px;
+      height: auto;
+
+      padding: 10px;
+
+      border-radius: 15px;
+
+      box-shadow: 0 0 3px rgb(122, 122, 122);
+      background-color: white;
+    }
+
+    input {
+      width: calc(30% - 20px);
+      min-width: calc(300px - 20px);
+    }
   }
 
-  .fileInput {
-    appearance: none;
-    border: none;
-    outline: none;
-    box-sizing: none;
+  .lists {
+    display: flex;
+    flex-direction: row;
 
-    display: block;
+    justify-content: center;
 
-    text-align: center;
-
-    width: 30%;
-    min-width: 200px;
-    height: auto;
-
-    padding: 10px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 0 3px rgb(122, 122, 122);
-    background-color: white;
+    gap: 50px;
   }
 
   .listContainer {
@@ -171,7 +175,7 @@ button {
 
     align-items: center;
 
-    gap: 25px;
+    gap: 10px;
 
     .inputs {
       display: flex;
@@ -237,7 +241,7 @@ button {
       display: flex;
       flex-direction: column;
 
-      gap: 15px;
+      gap: 25px;
 
       width: 270px;
 
@@ -256,6 +260,45 @@ button {
           right: 0;
         }
       }
+    }
+  }
+}
+
+.macros {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  .macro {
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+
+    gap: 10px;
+
+    label {
+      color: white;
+    }
+
+    input {
+      appearance: none;
+      border: none;
+      outline: none;
+
+      display: flex;
+
+      width: 170px;
+
+      padding: 10px;
+
+      border-radius: 15px;
+
+      box-shadow: 0 0 3px rgb(122, 122, 122);
     }
   }
 }
