@@ -1,9 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthFunctionsService } from '@modules/auth';
+import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
-import { Observable } from 'rxjs';
 import { Address } from '../../../../../models/auth/interfaces/address.interface';
 import { ToastService } from '../../core/services/toast/toast.service';
 
@@ -15,6 +14,9 @@ import { ToastService } from '../../core/services/toast/toast.service';
 })
 export class SignupComponent implements OnInit {
   private toast = inject(ToastService);
+  private authFunctions = inject(AuthFunctionsService);
+  private router = inject(Router);
+  private authState = inject(AUTH_STATE);
 
   firstnameControl = new FormControl<string>('', [Validators.required]);
   lastnameControl = new FormControl<string>('', [Validators.required]);
@@ -36,20 +38,18 @@ export class SignupComponent implements OnInit {
     password: this.passwordControl,
   });
 
-  private authFunctions = inject(AuthFunctionsService);
-
   address: Address = {
     city: this.cityControl.value,
     postalCode: this.postalCodeControl.value,
     street: this.streetControl.value,
   };
 
-  loggedIn: Observable<boolean> = this.authFunctions.isLoggedIn();
-
-  private router = inject(Router);
-
   ngOnInit(): void {
     this.scrollToTop();
+  }
+
+  isLoggedIn(): boolean {
+    return this.authState() === 'loggedIn';
   }
 
   onSubmit(event: SubmitEvent) {

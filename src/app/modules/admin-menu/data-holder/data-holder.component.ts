@@ -2,9 +2,8 @@ import { Component, inject, OnDestroy, OnInit, signal, WritableSignal } from '@a
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking } from '@models/booking/interfaces';
-import { FirebaseService } from '@modules/firebase';
+import { BookingFacade } from '@modules/booking';
 import { Subscription } from 'rxjs';
-import { ContactFunctionsService } from '../../contact';
 import { DataEditerComponent } from '../data-editer/data-editer.component';
 import { AdminFacade } from '../store/admin.facade';
 
@@ -17,9 +16,8 @@ import { AdminFacade } from '../store/admin.facade';
 export class DataHolderComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
 
-  private firebaseService = inject(FirebaseService);
-  private contactFunctions = inject(ContactFunctionsService);
   private adminFacade = inject(AdminFacade);
+  private bookingFacade = inject(BookingFacade);
 
   allUsers = signal<UserProfile[]>([]);
   selectedUser = signal<UserProfile>(undefined);
@@ -27,19 +25,17 @@ export class DataHolderComponent implements OnInit, OnDestroy {
   public bookings: WritableSignal<Booking[]> = signal([]);
 
   ngOnInit(): void {
-    this.loadUsersAndBookings();
-  }
-
-  loadUsersAndBookings(): void {
     this.subs.push(
       this.adminFacade.getUsers().subscribe((users) => {
         this.allUsers.set(users);
       }),
     );
 
-    this.contactFunctions.getBookings().then((bookings) => {
-      this.bookings.set([...bookings].sort((a, b) => a.date.localeCompare(b.date)));
-    });
+    this.subs.push(
+      this.bookingFacade.getBookings().subscribe((bookings) => {
+        this.bookings.set([...bookings].sort((a, b) => a.date.localeCompare(b.date)));
+      }),
+    );
   }
 
   selectUser(uid: string) {
@@ -89,10 +85,6 @@ export class DataHolderComponent implements OnInit, OnDestroy {
         }
       }
     }
-  }
-
-  refresh() {
-    this.loadUsersAndBookings();
   }
 
   ngOnDestroy(): void {

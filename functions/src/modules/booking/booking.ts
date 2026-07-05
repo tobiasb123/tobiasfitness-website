@@ -74,7 +74,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
         `Hej ${data.firstName} ${data.lastName}<br />
         din booking
         <br />
-        D.${data.date}
+        D.${moment(data.date).format('DD-MM-YYYY')}
         <br />
         kl.${data.timePeriod.start.hour}:${data.timePeriod.start.minute}-${data.timePeriod.end.hour}:${data.timePeriod.end.minute} 
         er blevet godkendt.
@@ -98,7 +98,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
             `
             Navn: ${userProfile.firstName} ${userProfile.lastName}
             <br /> 
-            Dato: ${data.date}.
+            Dato: ${moment(data.date).format('DD-MM-YYYY')}.
             <br /> 
             Tid: kl.${data.timePeriod.start.hour}:${data.timePeriod.start.minute}-${data.timePeriod.end.hour}:${data.timePeriod.end.minute}.
             <br /> 
@@ -130,20 +130,22 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
 });
 
 export const getServices = createPublicEndpoint(async (req, res) => {
-  const services = await servicesCollection.get().then((servicesSnap) => {
-    const services: Service[] = [];
+  const servicesSnap = await servicesCollection.get();
+  const services: Service[] = [];
 
-    for (const serviceDoc of servicesSnap.docs) {
-      const service = serviceDoc.data() as Service;
+  for (const serviceDoc of servicesSnap.docs) {
+    const rawData = serviceDoc.data();
 
-      services.push({
-        ...service,
-        id: serviceDoc.id,
-      });
+    if (Array.isArray((rawData as { data?: Service[] }).data)) {
+      services.push(...(rawData as { data: Service[] }).data);
+      continue;
     }
 
-    return services;
-  });
+    services.push({
+      ...(rawData as Service),
+      id: serviceDoc.id,
+    });
+  }
 
   res.json(services);
 });

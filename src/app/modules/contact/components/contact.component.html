@@ -3,9 +3,9 @@
   <form [formGroup]="formGroup" (submit)="onSubmit($event)">
     <div id="service" class="service focus">
       <div class="container">
-        @for (service of serviceFormComponents; track $index) {
+        @for (service of serviceFormComponents(); track $index) {
           <div class="service-element service-options" (click)="select_service($event)">
-            <img src="{{ service.img }}" />
+            <img src="{{ service.image }}" />
             <label class="service-label">{{ service.title }}</label>
             <label class="service-label">{{ service.time }}</label>
             <label class="service-label">{{ service.price }}</label>

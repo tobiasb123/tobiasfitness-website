@@ -1,12 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
-import { BookingBase, TimePeriod } from '@models/booking/interfaces';
+import { BookingBase, Service, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { ContactFunctionsService } from '../services/contact-functions/contact-functions.service';
+import { BookingFacade } from '../store/booking.facade';
 
 @Component({
   selector: 'app-contact',
@@ -18,6 +19,7 @@ export class ContactComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
   private toast = inject(ToastService);
   private contactFunctions = inject(ContactFunctionsService);
+  private bookingFacade = inject(BookingFacade);
 
   private userProfile: UserProfile;
 
@@ -41,55 +43,29 @@ export class ContactComponent implements OnInit {
     '17:00 - 18:00',
   ];
 
-  serviceFormComponents = [
-    {
-      title: 'Personlig Træning',
-      price: 'Pris: 500kr',
-      time: 'Tid: 1 time',
-      img: 'Priser_Billede_2.jpeg',
-    },
-    {
-      title: 'Kostvejledning',
-      price: 'Pris: 500kr',
-      time: 'Tid: 1 time',
-      img: 'Priser_Billede_4.jpeg',
-    },
-    {
-      title: 'Personligt Coachingforløb',
-      price: 'Pris: 1.500kr',
-      time: 'Tid: 1 Måned',
-      img: 'Priser_Billede_4.jpeg',
-    },
-    {
-      title: 'Personligt Coachingforløb',
-      price: 'Pris: 3.600kr',
-      time: 'Tid: 3 Måneder',
-      img: 'Priser_Billede_4.jpeg',
-    },
-    {
-      title: 'Personligt Coachingforløb',
-      price: 'Pris: 6.300kr',
-      time: 'Tid: 6 Måneder',
-      img: 'Priser_Billede_4.jpeg',
-    },
-  ];
+  serviceFormComponents: WritableSignal<Service[]> = signal([]);
 
-  serviceOverview = [
+  serviceOverview: Service[] = [
     {
+      id: '',
       title: 'Ingen service',
       price: 'Pris: 0kr',
       time: 'Tid: 0',
-      img: 'Priser_Billede_2.jpeg',
+      description: '',
+      image: 'Priser_Billede_2.jpeg',
     },
   ];
 
   time_period = document.getElementsByClassName('time-period');
   service = document.getElementsByClassName('service');
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.userProfile = this.authFunctions.currentUserProfile();
 
     this.scrollToTop();
+
+    const services = await this.contactFunctions.getServices();
+    this.serviceFormComponents.set(services);
   }
 
   onSubmit(event: SubmitEvent) {
@@ -130,8 +106,9 @@ export class ContactComponent implements OnInit {
     };
 
     this.contactFunctions
-      .newBookings(newBooking)
+      .newBooking(newBooking)
       .then((booking) => {
+        this.bookingFacade.newBooking(booking);
         this.toast.open('Din booking er registreret', 'success');
       })
       .catch((error: FirebaseError) => {
@@ -175,10 +152,13 @@ export class ContactComponent implements OnInit {
 
   select_service(event: any) {
     var selectedServiceElement;
+
     var serviceElements = this.service[0].children[0].children;
-    for (let index = 0; index < this.serviceFormComponents.length; index++) {
-      const element = this.serviceFormComponents[index];
+
+    for (let index = 0; index < this.serviceFormComponents().length; index++) {
+      const element = this.serviceFormComponents()[index];
       var children = event.target.children;
+
       if (children) {
         if (children[1].innerHTML === element.title) {
           if (children[2].innerHTML === element.time) {
@@ -197,6 +177,7 @@ export class ContactComponent implements OnInit {
     }
     for (let index = 0; index < serviceElements.length; index++) {
       const element = serviceElements[index];
+
       if (element !== selectedServiceElement) {
         if (element.classList.contains('selected')) {
           element.classList.remove('selected');

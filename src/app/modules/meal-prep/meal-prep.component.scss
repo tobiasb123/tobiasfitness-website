@@ -13,6 +13,10 @@ h3 {
     -2px 2px 0 #313131;
 }
 
+p {
+  margin: 0;
+}
+
 .body {
   background-image: url('../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
@@ -81,7 +85,7 @@ button {
   left: 50px;
 }
 
-.add-meal-page {
+.meal-page {
   display: none;
   flex-direction: column;
 
@@ -100,8 +104,10 @@ button {
   border-radius: 10px;
 
   overflow-y: auto;
-  scrollbar-width: none;
   box-sizing: border-box;
+
+  color-scheme: dark;
+  color: white;
 
   background-color: #494949;
 
@@ -116,10 +122,33 @@ button {
   }
 
   .meal-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    left: unset;
+    &.left {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: unset;
+    }
+
+    &.right {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      left: unset;
+    }
+  }
+
+  img {
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    object-fit: cover;
+    object-position: center;
+
+    height: 600px;
+    width: 600px;
+
+    border: 2px solid black;
+    border-radius: 15px;
   }
 
   .h2input {
@@ -151,7 +180,6 @@ button {
       border-radius: 15px;
 
       box-shadow: 0 0 3px rgb(122, 122, 122);
-      background-color: white;
     }
 
     input {
@@ -167,6 +195,34 @@ button {
     justify-content: center;
 
     gap: 50px;
+  }
+
+  .noncenter {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    width: 50%;
+
+    color: white;
+
+    label {
+      align-self: start;
+    }
+
+    h2 {
+      align-self: center;
+    }
+
+    &.macros {
+      width: auto;
+      label {
+        width: 100%;
+        align-self: center;
+        text-align: start;
+      }
+    }
   }
 
   .listContainer {
@@ -262,6 +318,10 @@ button {
       }
     }
   }
+
+  .saveButton {
+    width: 200px;
+  }
 }
 
 .macros {
@@ -303,11 +363,29 @@ button {
   }
 }
 
-.saveButton {
-  width: 200px;
+.time-created {
+  position: absolute;
+  top: 10px;
+
+  align-self: center;
+  text-align: center;
+
+  width: 100%;
+
+  font-size: 13px;
+  color: white;
+  text-shadow:
+    3px 0 0 #313131,
+    -3px 0 0 #313131,
+    0 3px 0 #313131,
+    0 -3px 0 #313131,
+    2px 2px 0 #313131,
+    -2px -2px 0 #313131,
+    2px -2px 0 #313131,
+    -2px 2px 0 #313131;
 }
 
-.center {
+.carousel-section {
   display: flex;
   flex-direction: column;
 
@@ -316,70 +394,137 @@ button {
   padding: 10px 20px;
 
   color-scheme: dark;
-}
 
-.free-meals {
-  .carousel {
-    anchor-name: --carousel-free;
+  &.free {
+    .carousel {
+      anchor-name: --carousel-free;
 
-    &::scroll-button(*) {
-      position-anchor: --carousel-free;
+      &::scroll-button(*) {
+        position-anchor: --carousel-free;
+      }
     }
   }
-}
 
-.your-meals {
-  .carousel {
-    anchor-name: --carousel-yours;
+  &.your {
+    .carousel {
+      anchor-name: --carousel-yours;
 
-    &::scroll-button(*) {
-      position-anchor: --carousel-yours;
+      &::scroll-button(*) {
+        position-anchor: --carousel-yours;
+      }
     }
   }
-}
 
-.carousel {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  .carousel {
+    position: relative;
 
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
-  width: 25%;
-  min-width: 375px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
 
-  gap: 50px;
+    width: 25%;
+    min-width: 375px;
 
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
+    gap: 50px;
 
-  scroll-marker-group: after;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
 
-  @media (prefers-reduced-motion: no-preference) {
-    scroll-behavior: smooth;
-  }
+    scroll-marker-group: after;
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+    @media (prefers-reduced-motion: no-preference) {
+      scroll-behavior: smooth;
+    }
 
-  &::scroll-marker-group {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 2rem 0;
-  }
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
-  > li {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    scroll-snap-align: center;
-    text-align: center;
+    > li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      text-align: center;
+    }
+
+    .carousel-element {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+
+      margin-bottom: 15px;
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+      justify-content: end;
+
+      border: 2px solid black;
+      border-radius: 15px;
+
+      background-color: rgb(110, 110, 110);
+
+      width: 400px;
+      height: 400px;
+
+      cursor: pointer;
+
+      &.empty {
+        justify-content: center;
+
+        color: white;
+        text-shadow:
+          3px 0 0 #313131,
+          -3px 0 0 #313131,
+          0 3px 0 #313131,
+          0 -3px 0 #313131,
+          2px 2px 0 #313131,
+          -2px -2px 0 #313131,
+          2px -2px 0 #313131,
+          -2px 2px 0 #313131;
+
+        cursor: default;
+      }
+
+      .info {
+        display: flex;
+        flex-direction: column;
+
+        justify-content: end;
+        align-items: start;
+
+        padding: 20px;
+
+        gap: 10px;
+
+        color: white;
+
+        background: linear-gradient(to bottom, transparent, #1a1a1a);
+
+        width: 90%;
+        height: 65%;
+
+        border-radius: 15px;
+
+        pointer-events: none;
+        user-select: none;
+      }
+    }
+
+    &::scroll-marker-group {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 2rem 0;
+    }
 
     &::scroll-marker {
       content: ' ';
@@ -394,82 +539,29 @@ button {
       }
     }
 
-    .image {
-      background-image: url('../../../../public/Forbillede.jpeg');
-      background-repeat: no-repeat;
-      background-size: cover;
-
-      margin-bottom: 15px;
-
-      display: flex;
-      flex-direction: column;
-
-      align-items: center;
-      justify-content: end;
-
-      width: 400px;
-      height: 400px;
-
-      border-radius: 15px;
-
+    &::scroll-button(*) {
+      position: fixed;
+      margin: 1rem;
+      font: inherit;
+      background-color: rgb(49, 49, 49);
+      color-scheme: dark;
+      border: 0;
+      border-radius: 100%;
+      font-weight: bold;
+      height: 50px;
+      width: 50px;
       cursor: pointer;
     }
 
-    .info {
-      display: flex;
-      flex-direction: column;
-
-      justify-content: end;
-      align-items: start;
-
-      padding: 20px;
-
-      gap: 10px;
-
-      color: white;
-
-      background: linear-gradient(to bottom, transparent, #1a1a1a);
-
-      width: 90%;
-      height: 65%;
-
-      border-radius: 15px;
-
-      pointer-events: none;
-      user-select: none;
-
-      h3 {
-        margin: 0;
-      }
-
-      p {
-        margin: 0;
-      }
+    &::scroll-button(right) {
+      content: '⇢';
+      position-area: center right;
     }
-  }
 
-  &::scroll-button(*) {
-    position: fixed;
-    margin: 1rem;
-    font: inherit;
-    background-color: rgb(49, 49, 49);
-    color-scheme: dark;
-    border: 0;
-    border-radius: 100%;
-    font-weight: bold;
-    height: 50px;
-    width: 50px;
-    cursor: pointer;
-  }
-
-  &::scroll-button(right) {
-    content: '⇢';
-    position-area: center right;
-  }
-
-  &::scroll-button(left) {
-    content: '⇠';
-    position-area: center left;
+    &::scroll-button(left) {
+      content: '⇠';
+      position-area: center left;
+    }
   }
 }
 

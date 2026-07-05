@@ -1,11 +1,48 @@
 <div class="prices-page">
+  @if (userProfile?.admin) {
+    <button
+      class="administator-button"
+      (click)="adminitrateOptions()"
+      [disabled]="adminitrateEnabled"
+    >
+      adminstrer tilbud
+    </button>
+
+    <div class="adminitrative-options" [class.active]="adminitrateEnabled">
+      <button class="administator-button inside" (click)="adminitrateOptions()">Luk</button>
+
+      <h1>Adminstrer Tilbud</h1>
+      <div class="option-container">
+        @for (service of generalServices(); track service.id) {
+          <div class="option">
+            <div class="info-nondesc">
+              <h2>{{ service.title }}</h2>
+              <p>
+                <strong>{{ service.time }}</strong>
+              </p>
+              <p>
+                <strong>{{ service.price }}</strong>
+              </p>
+            </div>
+            <p id="discription">{{ service.description }}</p>
+
+            <div class="button-container">
+              <button class="delete deafault-button">Fjern</button>
+              <button class="delete deafault-button">Ændre</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <h1>Ydelser</h1>
   <div class="services">
-    @for (service of generalServices; track $index) {
+    @for (service of generalServices(); track service.id) {
       <div class="service">
-        <img src="{{ service.icon }}" />
+        <img [src]="service.image" />
         <div class="disc">
-          <h2>{{ service.name }}</h2>
+          <h2>{{ service.title }}</h2>
           <p>
             <strong>{{ service.price }}</strong>
           </p>

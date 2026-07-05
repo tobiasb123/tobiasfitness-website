@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Booking, BookingBase } from '@models/booking/interfaces';
+import { Booking, BookingBase, Service } from '@models/booking/interfaces';
 import { FirebaseService } from '@modules/firebase';
 
 @Injectable({
@@ -12,7 +12,11 @@ export class ContactFunctionsService {
     return this.firbaseService.httpGet<Booking[]>('booking-getBookings');
   }
 
-  public async newBookings(booking: BookingBase): Promise<Booking> {
+  public async newBooking(booking: BookingBase): Promise<Booking> {
     return this.firbaseService.httpPost<BookingBase, Booking>('booking-newBooking', booking);
+  }
+
+  public async getServices(): Promise<Service[]> {
+    return this.firbaseService.httpGet<Service[]>('booking-getServices');
   }
 }

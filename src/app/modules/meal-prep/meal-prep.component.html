@@ -9,12 +9,19 @@
     </button>
   }
 
-  <div class="add-meal-page" [class.active]="addMealPageActive">
-    <button class="meal-button" (click)="toggleMealAddPage()">Luk</button>
+  <form
+    [formGroup]="formGroup"
+    (submit)="
+      save([MacroInput1.value, MacroInput2.value, MacroInput3.value, MacroInput4.value], file)
+    "
+    class="meal-page"
+    [class.active]="addMealPageActive"
+  >
+    <button class="meal-button right" (click)="toggleMealAddPage()">Luk</button>
 
     <div class="h2input">
       <h2>Modtager</h2>
-      <select name="reciever" id="reciever" class="reciever" (input)="selectUser($event)">
+      <select name="reciever" id="reciever" class="reciever" [formControl]="recieverControl">
         <option value="alle">Alle</option>
         @for (reciever of recieverOptions(); track $index) {
           <option value="{{ reciever.uid }}">
@@ -22,6 +29,9 @@
           </option>
         }
       </select>
+
+      <h2>Opskrift Navn</h2>
+      <input type="text" [formControl]="titleControl" [defaultValue]="title()" />
     </div>
 
     <div class="h2input">
@@ -53,7 +63,7 @@
           <button (click)="addItem(PitemNameInput.value, 'P-list', PitemNameInput)">Tilføj</button>
         </div>
         <div class="list">
-          @for (item of progressList(); track $index) {
+          @for (item of instructionList(); track $index) {
             <div class="element">
               <label>{{ item }}</label>
               <button (click)="removeItem(item, 'P-list')">Fjern</button>
@@ -66,89 +76,124 @@
     <div class="macros">
       <h2>Macroer</h2>
       <div class="macro">
-        <label>Kcal:</label>
-        <input #MacroInput1 type="text" />
+        <label>Kalorier:</label>
+        <input #MacroInput1 type="text" [defaultValue]="macroList()[0]" />
       </div>
 
       <div class="macro">
         <label>Protein:</label>
-        <input #MacroInput2 type="text" />
+        <input #MacroInput2 type="text" [defaultValue]="macroList()[1]" />
       </div>
 
       <div class="macro">
         <label>Kulhydrater:</label>
-        <input #MacroInput3 type="text" />
+        <input #MacroInput3 type="text" [defaultValue]="macroList()[2]" />
       </div>
 
       <div class="macro">
         <label>Fedt:</label>
-        <input #MacroInput4 type="text" />
+        <input #MacroInput4 type="text" [defaultValue]="macroList()[3]" />
       </div>
     </div>
+    @if (!editting) {
+      <button class="saveButton" type="submit">Gem</button>
+    } @else {
+      <button class="saveButton" (click)="edit()">Gem</button>
+    }
+  </form>
 
-    <button
-      class="saveButton"
-      (click)="
-        save([MacroInput1.value, MacroInput2.value, MacroInput3.value, MacroInput4.value], file)
-      "
-    >
-      Gem
-    </button>
+  <div class="meal-page" [class.active]="viewMealPageActive">
+    @if (selectedDocumentData()) {
+      <button class="meal-button right" (click)="toggleMealviewPage()">Luk</button>
+      <button class="meal-button left" (click)="editMeal()">Rediger</button>
+
+      <p class="time-created">{{ selectedDocumentData().timeCreated }}</p>
+
+      <h2>{{ selectedDocumentData().title }}</h2>
+      <img src="{{ selectedDocumentData().fileUrl }}" />
+
+      <div class="noncenter">
+        <h2>Ingredienser</h2>
+        @for (ingriedient of selectedDocumentData().recipe.ingredients; track $index) {
+          <label>- {{ ingriedient }}</label>
+        }
+      </div>
+
+      <div class="noncenter">
+        <h2>Instruktioner</h2>
+        @for (instruction of selectedDocumentData().recipe.instructions; track $index) {
+          <label
+            >{{ $index + 1 }}.
+            <br />
+            {{ instruction }}
+            <br />
+          </label>
+        }
+      </div>
+
+      <div class="noncenter macros">
+        <h2>Macroer</h2>
+        <label>Kaloier: {{ selectedDocumentData().recipe.macros[0] }}</label>
+        <label>Protein: {{ selectedDocumentData().recipe.macros[1] }}</label>
+        <label>Kulhydrater: {{ selectedDocumentData().recipe.macros[2] }}</label>
+        <label>Fedt: {{ selectedDocumentData().recipe.macros[3] }}</label>
+      </div>
+    }
   </div>
 
-  <section class="free-meals center">
+  <section class="free carousel-section">
     <h2>Gratis Opskrifter</h2>
     <ul class="carousel">
-      <li>
-        <div class="image">
-          <div class="info">
-            <h3>Opskrift Navn</h3>
-            <p>Kalorier</p>
-            <p>Protein</p>
-            <p>Kulhydrater</p>
-            <p>Fedt</p>
+      @for (recipe of recipies(); track $index) {
+        <li>
+          <div
+            class="carousel-element"
+            [style.backgroundImage]="'url(' + recipe.fileUrl"
+            (click)="openMeal(recipe.title)"
+          >
+            <div class="info">
+              <h3>{{ recipe.title }}</h3>
+              <p>Kalorier: {{ recipe.recipe.macros[0] }}</p>
+              <p>Protein: {{ recipe.recipe.macros[1] }}</p>
+              <p>Kulhydrater: {{ recipe.recipe.macros[2] }}</p>
+              <p>Fedt: {{ recipe.recipe.macros[3] }}</p>
+              <p class="time-created">{{ recipe.timeCreated }}</p>
+            </div>
           </div>
-        </div>
-      </li>
-      <li>
-        <div class="image">
-          <div class="info">
-            <h3>Opskrift Navn</h3>
-            <p>Kalorier</p>
-            <p>Protein</p>
-            <p>Kulhydrater</p>
-            <p>Fedt</p>
-          </div>
-        </div>
-      </li>
+        </li>
+      }
     </ul>
   </section>
 
-  <section class="your-meals center">
+  <section class="your carousel-section">
     <h2>Dine Opskrifter</h2>
     <ul class="carousel">
-      <li>
-        <div class="image">
-          <div class="info">
-            <h3>Opskrift Navn</h3>
-            <p>Kalorier</p>
-            <p>Protein</p>
-            <p>Kulhydrater</p>
-            <p>Fedt</p>
+      @if (yourRecipies() === []) {
+        @for (recipe of yourRecipies(); track $index) {
+          <li>
+            <div
+              class="carousel-element image"
+              [style.backgroundImage]="'url(' + recipe.fileUrl + ')'"
+              (click)="openMeal(recipe.title)"
+            >
+              <div class="info">
+                <h3>{{ recipe.title }}</h3>
+                <p>{{ recipe.recipe.macros[0] }}</p>
+                <p>{{ recipe.recipe.macros[1] }}</p>
+                <p>{{ recipe.recipe.macros[2] }}</p>
+                <p>{{ recipe.recipe.macros[3] }}</p>
+                <p class="time-created">{{ recipe.timeCreated }}</p>
+              </div>
+            </div>
+          </li>
+        }
+      } @else {
+        <li>
+          <div class="carousel-element empty">
+            <p>Du har ingen opskrifter</p>
           </div>
-        </div>
-      </li>
-      <li>
-        <div class="image">
-          <div class="info">
-            <h3>Opskrift Navn</h3>
-            <p>Kalorier</p>
-            <p>Protein</p>
-            <p>Kulhydrater</p>
-            <p>Fedt</p>
-          </div>
-        </div>
-      </li>
+        </li>
+      }
     </ul>
   </section>
 </div>

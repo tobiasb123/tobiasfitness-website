@@ -20,15 +20,15 @@ export const routes: RouteExt[] = [
     pathMatch: 'full',
   },
   {
-    path: 'account-management',
-    component: AccountManagementComponent,
-    displayName: 'account-management',
-    showInNavList: false,
-  },
-  {
     path: 'admin-menu',
     component: AdminMenuComponent,
     displayName: 'Admin-Menu',
+    showInNavList: true,
+  },
+  {
+    path: 'meal-prep',
+    component: MealPrepComponent,
+    displayName: 'Opskrifter',
     showInNavList: true,
   },
   {
@@ -56,9 +56,9 @@ export const routes: RouteExt[] = [
     showInNavList: false,
   },
   {
-    path: 'meal-prep',
-    component: MealPrepComponent,
-    displayName: 'Opskrifter',
+    path: 'account-management',
+    component: AccountManagementComponent,
+    displayName: 'account-management',
     showInNavList: false,
   },
 ];

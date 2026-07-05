@@ -2,7 +2,6 @@
   <button class="menuButton" (click)="openCloseNav()"></button>
   <div>
     <a class="home-link" routerLink="/" (click)="closeNav()">Tobiasbastholmfitness</a>
-    <a class="meal-prep-link" routerLink="/meal-prep">Opskrifter</a>
   </div>
 </div>
 
@@ -10,32 +9,41 @@
   <div class="otherNavComponents">
     @for (route of routes; track route) {
       @if (route.showInNavList) {
+        @if (currentUser()) {
+          @if (
+            (route.displayName === 'Opskrifter' && currentUser()?.admin) ||
+            (route.displayName === 'Admin-Menu' && currentUser()?.admin)
+          ) {
+            <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
+          }
+
+          @if (route.displayName === 'Bestil Tid') {
+            <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
+          }
+        }
+
         @if (
           route.displayName !== 'Konto' &&
           route.displayName !== 'Admin-Menu' &&
-          route.displayName !== 'Bestil Tid'
+          route.displayName !== 'Bestil Tid' &&
+          route.displayName !== 'Opskrifter'
         ) {
           <a class="accountButton" [routerLink]="route.path" (click)="openCloseNav()">{{
             route.displayName
           }}</a>
         }
-        @if (route.displayName === 'Admin-Menu' && currentUser()?.admin) {
-          <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
-        }
+
         @if (route.displayName === 'Konto') {
           <a (click)="accountAccess()">Konto</a>
           <div class="account-access">
-            @if (loggedIn | async) {
-              <a [routerLink]="routes[1].path" (click)="closeNav()">Adminster Konto</a>
+            @if (isLoggedIn()) {
+              <a [routerLink]="routes[7].path" (click)="closeNav()">Adminster Konto</a>
               <a (click)="logOut()">Log Out</a>
             } @else {
               <a (click)="signUp()">Opret Konto</a>
               <a (click)="logIn()">Log Ind</a>
             }
           </div>
-        }
-        @if (route.displayName === 'Bestil Tid') {
-          <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
         }
       }
     }

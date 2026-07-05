@@ -4,5 +4,5 @@ export interface Service {
   price: string;
   time: string;
   image: string;
-  check: string;
+  description: string;
 }

@@ -7,6 +7,7 @@ import {
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { AUTH_STATE, AuthState, logoutReducer } from '@modules/auth';
+import { BookingEffects, bookingFeature, bookingReducer } from '@modules/booking';
 import {
   provideFirebaseApp,
   provideFirebaseAuth,
@@ -42,12 +43,13 @@ export const appConfig: ApplicationConfig = {
     provideStore(
       {
         [adminFeature]: adminReducer,
+        [bookingFeature]: bookingReducer,
       },
       {
         metaReducers: [logoutReducer],
       },
     ),
-    provideEffects(AdminEffects),
+    provideEffects(AdminEffects, BookingEffects),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
 };

@@ -63,7 +63,11 @@ export const updateDetails = createAuthEndpoint(async (req, res, user) => {
     address: data.address,
   };
 
-  const hasProfileChanges = Object.values(userProfileUpdate).some((value) => value !== undefined);
+  const definedProfileChanges = Object.fromEntries(
+    Object.entries(userProfileUpdate).filter(([, value]) => value !== undefined),
+  ) as Partial<UserProfile>;
+
+  const hasProfileChanges = Object.keys(definedProfileChanges).length > 0;
 
   if (hasProfileChanges) {
     const userProfileDoc = await usersCollection.doc(user.uid).get();
@@ -72,10 +76,21 @@ export const updateDetails = createAuthEndpoint(async (req, res, user) => {
       throw new HttpsError('not-found', 'Dine oplysninger kunne ikke opdateres');
     }
 
-    await userProfileDoc.ref.update(userProfileUpdate).catch(() => {
+    await userProfileDoc.ref.update(definedProfileChanges).catch(() => {
       throw new HttpsError('internal', 'Dine oplysninger kunne ikke opdateres');
     });
   }
 
-  res.json();
+  const refreshedUserProfileDoc = await usersCollection.doc(user.uid).get();
+  const refreshedProfile =
+    (refreshedUserProfileDoc.data() as Partial<UserProfile> | undefined) ?? {};
+
+  res.json({
+    uid: user.uid,
+    firstName: refreshedProfile.firstName ?? data.firstName ?? '',
+    lastName: refreshedProfile.lastName ?? data.lastName ?? '',
+    email: refreshedProfile.email ?? data.email ?? user.email ?? '',
+    phoneNumber: refreshedProfile.phoneNumber ?? data.phoneNumber ?? '',
+    address: refreshedProfile.address ?? data.address ?? { city: '', postalCode: 0, street: '' },
+  });
 });

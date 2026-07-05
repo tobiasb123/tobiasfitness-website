@@ -2,7 +2,7 @@
   <section>
     <div class="account-info">
       <h1>Konto Information</h1>
-      <form>
+      <form [formGroup]="formGroup" (submit)="onSubmit()">
         <div class="form-group">
           <div class="form-element">
             <label for="firstname">Fornavn</label>
@@ -54,7 +54,7 @@
           </div>
         </div>
 
-        <button class="save-button" type="button" (click)="onSubmit()">Gem</button>
+        <button class="save-button" type="submit">Gem</button>
       </form>
     </div>
   </section>
@@ -74,7 +74,7 @@
           </div>
         }
       } @else {
-        <h3>Ingen nuværende tider</h3>
+        <h3>Ingen kommende tider</h3>
       }
     </div>
   </section>

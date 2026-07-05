@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal, WritableSignal } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -10,9 +10,10 @@ import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
+import { BookingFacade } from '@modules/booking';
+import { Subscription } from 'rxjs';
 import { ContactFunctionsService } from '../../contact';
 import { ToastService } from '../../core/services/toast/toast.service';
-import { DataHolderComponent } from '../data-holder/data-holder.component';
 import { AdminFunctionsService } from '../services/admin-functions.service';
 
 @Component({
@@ -21,12 +22,14 @@ import { AdminFunctionsService } from '../services/admin-functions.service';
   templateUrl: './data-editer.component.html',
   styleUrl: './data-editer.component.scss',
 })
-export class DataEditerComponent {
+export class DataEditerComponent implements OnInit, OnDestroy {
+  private subs: Subscription[] = [];
+
   private adminFunctions = inject(AdminFunctionsService);
   private contactFunctions = inject(ContactFunctionsService);
   private authfunctions = inject(AuthFunctionsService);
-  private dataHolder = inject(DataHolderComponent);
   private toast = inject(ToastService);
+  private bookingFacade = inject(BookingFacade);
   private selectedUserValue: UserProfile;
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
@@ -68,27 +71,32 @@ export class DataEditerComponent {
   public bookings: WritableSignal<Booking[]> = signal([]);
   public selectedBooking: WritableSignal<Booking> = signal(undefined);
 
+  ngOnInit(): void {
+    this.subs.push(
+      this.bookingFacade.getBookings().subscribe((bookings) => {
+        this.bookings.set(bookings);
+      }),
+    );
+  }
+
   updateSelectedBooking(bookingId: string): void {
-    this.contactFunctions.getBookings().then((bookings) => {
-      const booking = bookings.filter((booking) => booking.id === bookingId)[0];
-      this.selectedBooking.set(booking);
+    const booking = this.bookings().filter((booking) => booking.id === bookingId)[0];
+    this.selectedBooking.set(booking);
 
-      const startTime = booking.timePeriod.start.hour + ':' + booking.timePeriod.start.minute;
-      const endTime = booking.timePeriod.end.hour + ':' + booking.timePeriod.end.minute;
-      const startAndEndTime = startTime + ' - ' + endTime;
+    const startTime = booking.timePeriod.start.hour + ':' + booking.timePeriod.start.minute;
+    const endTime = booking.timePeriod.end.hour + ':' + booking.timePeriod.end.minute;
+    const startAndEndTime = startTime + ' - ' + endTime;
 
-      this.serviceControl.setValue(booking.service);
-      this.dateControl.setValue(booking.date);
-      this.timeControl.setValue(startAndEndTime);
-    });
+    this.serviceControl.setValue(booking.service);
+    this.dateControl.setValue(booking.date);
+    this.timeControl.setValue(startAndEndTime);
   }
 
   deleteBooking(id: string): void {
     this.adminFunctions
       .deleteBooking(id)
       .then(() => {
-        this.bookings.set(this.bookings().filter((b) => b.id !== id));
-        this.loadBookingsForUser(this.selectedUser);
+        this.bookingFacade.deleteBooking(id);
         this.openTab('Tider');
         this.toast.open('Booking Aflyst', 'success');
       })
@@ -124,8 +132,7 @@ export class DataEditerComponent {
     this.adminFunctions
       .editBooking(editedBooking)
       .then(() => {
-        this.selectedBooking.set(editedBooking);
-        this.loadBookingsForUser(this.selectedUser);
+        this.bookingFacade.updateBooking(editedBooking);
         this.openTab('Tider');
         this.toast.open('Booking Ændret', 'success');
       })
@@ -150,8 +157,6 @@ export class DataEditerComponent {
       zipCode: user.address.postalCode,
       town: user.address.city,
     });
-
-    this.loadBookingsForUser(user);
   }
 
   private setSelectedUser(): UserProfile {
@@ -173,13 +178,6 @@ export class DataEditerComponent {
     };
 
     return newUser;
-  }
-
-  private loadBookingsForUser(user: UserProfile): void {
-    this.contactFunctions.getBookings().then((bookings) => {
-      const userBookings = bookings.filter((booking) => booking.uid === user.uid);
-      this.bookings.set([...userBookings].sort((a, b) => a.date.localeCompare(b.date)));
-    });
   }
 
   private saveUserSettings(): void {
@@ -234,7 +232,6 @@ export class DataEditerComponent {
     }
 
     this.selectedBooking.set(null);
-    this.dataHolder.loadUsersAndBookings();
   }
 
   resetTabs() {
@@ -259,7 +256,6 @@ export class DataEditerComponent {
     this.allButtons[0].classList.add('active');
 
     this.selectedBooking.set(null);
-    this.dataHolder.loadUsersAndBookings();
   }
 
   openTab(tabName: string) {
@@ -276,7 +272,6 @@ export class DataEditerComponent {
     }
 
     this.selectedBooking.set(null);
-    this.dataHolder.loadUsersAndBookings();
   }
 
   openEditTab() {
@@ -305,5 +300,11 @@ export class DataEditerComponent {
 
   save() {
     this.saveUserSettings();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach((sub) => {
+      sub.unsubscribe();
+    });
   }
 }

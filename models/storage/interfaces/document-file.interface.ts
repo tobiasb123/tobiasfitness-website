@@ -1,21 +1,11 @@
-import { fileType } from './fileType.interface';
+import { Recipe } from './recipe.interface';
 
 export interface DocumentFile {
-  id: number;
-  fileType: fileType;
-  fileName: string;
+  id: string;
+  uid: string;
+  title: string;
   filePath: string;
   fileUrl: string;
   timeCreated: string;
-  discription?: string;
-  order?: number;
-  uid?: string;
-  recipe?: Recipe;
-}
-
-export interface Recipe {
-  image: string;
-  ingredients: string[];
-  instructions: string[];
-  macros: string[];
+  recipe: Recipe;
 }

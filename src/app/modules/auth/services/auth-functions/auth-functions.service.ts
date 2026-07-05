@@ -1,5 +1,4 @@
-import { inject, Injectable, Injector, runInInjectionContext, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { inject, Injectable, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BaseProfile, UserProfile } from '@models/auth/interfaces';
 import { Address } from '@models/auth/interfaces/address.interface';
@@ -15,7 +14,6 @@ import {
   Unsubscribe,
   User,
 } from 'firebase/auth';
-import { map, Observable } from 'rxjs';
 import { AuthFacade } from '../../store/auth.facade';
 import { AUTH_STATE } from '../../tokens/auth-state.token';
 
@@ -125,14 +123,8 @@ export class AuthFunctionsService {
       });
   }
 
-  public isLoggedIn(): Observable<boolean> {
-    return runInInjectionContext(this.injector, () =>
-      toObservable(this.authState).pipe(map((state) => state === 'loggedIn')),
-    );
-  }
-
-  public async updateDetails(updates: Partial<UserProfile>): Promise<void> {
-    return await this.firebaseService.httpPost<Partial<UserProfile>, void>(
+  public async updateDetails(updates: Partial<UserProfile>): Promise<Partial<UserProfile>> {
+    return await this.firebaseService.httpPost<Partial<UserProfile>, Partial<UserProfile>>(
       'auth-updateDetails',
       updates,
     );
