@@ -55,5 +55,9 @@
     }
   </div>
 
-  <a class="to-contact" routerLink="/contact">Bestil Tid</a>
+  @if (isLoggedIn()) {
+    <a class="to-contact" (click)="navigateTo('contact')">Bestil Tid</a>
+  } @else {
+    <a class="to-contact" (click)="navigateTo('signin')">Bestil Tid</a>
+  }
 </div>

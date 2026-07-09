@@ -59,6 +59,10 @@
       width: 25%;
       min-width: 300px;
     }
+
+    small {
+      display: flex;
+    }
   }
 
   h2 {
@@ -67,6 +71,11 @@
 
   button {
     display: none;
+  }
+
+  small {
+    display: none;
+    width: 300px;
   }
 
   .form-element {
@@ -248,7 +257,6 @@
   .service-overview {
     display: flex;
     flex-direction: column;
-    cursor: pointer;
     position: relative;
 
     background-color: rgb(201, 233, 255);

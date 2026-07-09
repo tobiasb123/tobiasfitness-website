@@ -12,6 +12,7 @@ import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
+import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
 import { BookingFacade, ContactFunctionsService } from '../contact';
 import { ToastService } from '../core/services/toast/toast.service';
@@ -66,6 +67,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.bookings.set([...userBookings].sort((a, b) => a.date.localeCompare(b.date)));
       }),
     );
+  }
+
+  public formatBookingDate(date: string): string {
+    return moment(date).isValid() ? moment(date).format('DD-MM-YYYY') : date;
   }
 
   ngOnInit(): void {

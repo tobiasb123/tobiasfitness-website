@@ -62,4 +62,8 @@ export class SigninComponent implements OnInit {
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+  }
 }

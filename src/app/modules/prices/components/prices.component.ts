@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Service } from '@models/booking/interfaces';
-import { AuthFunctionsService } from '@modules/auth';
+import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
+import { ToastService } from '@modules/core';
 import { ContactFunctionsService } from '../../contact';
 
 @Component({
@@ -14,6 +15,9 @@ import { ContactFunctionsService } from '../../contact';
 export class PricesComponent implements OnInit {
   contactFunctions = inject(ContactFunctionsService);
   authFunctions = inject(AuthFunctionsService);
+  private router = inject(Router);
+  authState = inject(AUTH_STATE);
+  toast = inject(ToastService);
 
   adminitrateEnabled: boolean = false;
 
@@ -27,7 +31,18 @@ export class PricesComponent implements OnInit {
     this.generalServices.set(services);
   }
 
+  isLoggedIn(): boolean {
+    return this.authState() === 'loggedIn';
+  }
+
   adminitrateOptions() {
     this.adminitrateEnabled = !this.adminitrateEnabled;
+  }
+
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+    if (route === 'signin') {
+      this.toast.open('Du skal logge ind først', 'info');
+    }
   }
 }

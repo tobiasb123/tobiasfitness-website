@@ -104,6 +104,13 @@ small {
   font-family: Poppins;
   font-weight: bold;
   align-self: start;
+
+  &.sign-in {
+    color: rgb(143, 143, 143);
+    align-self: center;
+    user-select: none;
+    cursor: pointer;
+  }
 }
 input.ng-invalid.ng-touched {
   border: 1px solid red;

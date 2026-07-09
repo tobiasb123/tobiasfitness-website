@@ -118,6 +118,13 @@ small {
   font-family: Poppins;
   font-weight: bold;
   align-self: start;
+
+  &.sign-up {
+    color: rgb(143, 143, 143);
+    align-self: center;
+    user-select: none;
+    cursor: pointer;
+  }
 }
 input.ng-invalid.ng-touched {
   border: 1px solid red;

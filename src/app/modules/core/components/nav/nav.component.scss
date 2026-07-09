@@ -116,7 +116,7 @@ a {
 
   position-anchor: --account-button;
   position: relative;
-  left: calc(-1 * var(--nav-width) - 25px);
+  left: calc(-1.75 * var(--nav-width));
 
   transition: 0.25s all ease;
 
@@ -129,4 +129,7 @@ a {
   &.visible {
     left: 0;
   }
+}
+
+@media (max-width: 600px) {
 }
