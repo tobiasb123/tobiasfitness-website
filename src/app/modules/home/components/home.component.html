@@ -51,4 +51,26 @@
       </label>
     </div>
   </section>
+
+  <section class="section-3">
+    <h2>Anmeldelser</h2>
+    <ul class="carousel">
+      @for (review of reviews; track $index) {
+        <li>
+          <div class="img" [style.backgroundImage]="'url(' + review.image + ')'">
+            <div class="review" (click)="textReview()">
+              <p class="text" [class.active]="reviewText">
+                {{ review.review }}
+                <br />
+              </p>
+              <div class="overview">
+                <p>{{ review.stars }} - {{ review.name }}, {{ review.age }}</p>
+                <small>click for at se anmeldelse</small>
+              </div>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  </section>
 </div>

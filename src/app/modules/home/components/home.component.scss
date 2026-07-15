@@ -151,6 +151,27 @@
   gap: 50px;
 }
 
+.section-3 {
+  h2 {
+    align-self: center;
+    justify-self: end;
+
+    font-size: 30px;
+    font-weight: bold;
+
+    color: rgb(255, 255, 255);
+    text-shadow:
+      3px 0 0 #313131,
+      -3px 0 0 #313131,
+      0 3px 0 #313131,
+      0 -3px 0 #313131,
+      2px 2px 0 #313131,
+      -2px -2px 0 #313131,
+      2px -2px 0 #313131,
+      -2px 2px 0 #313131;
+  }
+}
+
 // These are default designs
 
 section {
@@ -239,6 +260,216 @@ a {
   cursor: pointer;
 }
 
+.carousel {
+  width: 25%;
+  min-width: 375px;
+
+  align-self: center;
+
+  list-style: none;
+  margin: 1rem;
+  padding: 0;
+
+  display: grid;
+  gap: 2rem;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-snap-stop: always;
+
+  anchor-name: --carousel;
+
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+
+    .img {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+      justify-content: end;
+
+      border: 2px solid black;
+      border-radius: 15px;
+
+      background-color: rgb(110, 110, 110);
+
+      width: 500px;
+      height: 500px;
+    }
+
+    .review {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      color: white;
+      background-color: #6e6e6e;
+
+      border-radius: 15px;
+      border: 2px solid black;
+
+      padding: 10px;
+      margin: 10px;
+
+      width: 90%;
+
+      cursor: pointer;
+
+      h3 {
+        text-shadow:
+          3px 0 0 #313131,
+          -3px 0 0 #313131,
+          0 3px 0 #313131,
+          0 -3px 0 #313131,
+          2px 2px 0 #313131,
+          -2px -2px 0 #313131,
+          2px -2px 0 #313131,
+          -2px 2px 0 #313131;
+
+        pointer-events: none;
+      }
+
+      p {
+        pointer-events: none;
+      }
+
+      .overview {
+        display: flex;
+        flex-direction: column;
+      }
+      small {
+        position: relative;
+        color: #d1d1d1;
+
+        align-self: center;
+      }
+
+      .text {
+        display: flex;
+        flex-direction: column;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+        overflow: hidden;
+        transform: scale(0.92) translateY(8px);
+        transform-origin: center;
+        transition:
+          height 0.3s ease,
+          opacity 0.25s ease,
+          transform 0.25s ease,
+          padding 0.25s ease,
+          margin 0.25s ease;
+
+        &.active {
+          height: 200px;
+          padding: 0.5rem 0;
+          margin: 0.5rem 0 0;
+          opacity: 1;
+          transform: scale(1) translateY(0);
+          animation: popIn 0.3s ease-out;
+        }
+      }
+    }
+  }
+
+  &::scroll-button(*) {
+    position: absolute;
+    position-anchor: --carousel;
+
+    margin: 1rem;
+
+    appearance: none;
+    border: none;
+    outline: none;
+
+    background-color: #313131;
+    width: 50px;
+    height: 50px;
+
+    border-radius: 100%;
+    border: 1px solid black;
+
+    color-scheme: dark;
+
+    &:enabled {
+      &:hover {
+        background-color: #414141;
+      }
+
+      &:active {
+        background-color: #1f1f1f;
+      }
+    }
+  }
+  &::scroll-button(right) {
+    content: '⇢';
+    position-area: center right;
+  }
+  &::scroll-button(left) {
+    content: '⇠';
+    position-area: center left;
+  }
+
+  scroll-marker-group: after;
+  &::scroll-marker-group {
+    grid-area: markers;
+
+    display: grid;
+    place-content: safe center;
+    grid: 30px / auto-flow 30px;
+    gap: 15px;
+    padding: 15px;
+    scroll-padding: 15px;
+    margin-bottom: 2rem;
+  }
+  > li::scroll-marker {
+    content: ' ';
+    background-color: #313131;
+    border-radius: 100%;
+    border: 1px solid black;
+
+    &:target-current {
+      background-color: #6e6e6e;
+    }
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.03) translateY(-2px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 // These are scalling designs
 @media (max-width: 1220px) {
   .forbilede {
@@ -274,5 +505,11 @@ a {
   /* when nav moves to the right, free space on the right instead */
   .home-page {
     margin-left: 0;
+  }
+
+  .carousel {
+    &::scroll-button(*) {
+      display: none;
+    }
   }
 }

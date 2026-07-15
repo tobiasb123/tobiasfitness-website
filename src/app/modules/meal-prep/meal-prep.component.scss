@@ -434,8 +434,6 @@ button {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
 
-    scroll-marker-group: after;
-
     @media (prefers-reduced-motion: no-preference) {
       scroll-behavior: smooth;
     }
@@ -517,50 +515,64 @@ button {
       }
     }
 
-    &::scroll-marker-group {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 2rem 0;
-    }
+    &::scroll-button(*) {
+      position: absolute;
+      position-anchor: --carousel;
 
-    &::scroll-marker {
-      content: ' ';
-      width: 20px;
-      height: 20px;
-      aspect-ratio: 1 / 1;
+      margin: 1rem;
+
+      appearance: none;
+      border: none;
+      outline: none;
+
+      background-color: #313131;
+      width: 50px;
+      height: 50px;
+
       border-radius: 100%;
-      border: 2px solid Canvas;
+      border: 1px solid black;
 
-      &:target-current {
-        background: CanvasText;
+      color-scheme: dark;
+
+      &:enabled {
+        &:hover {
+          background-color: #414141;
+        }
+
+        &:active {
+          background-color: #1f1f1f;
+        }
       }
     }
-
-    &::scroll-button(*) {
-      position: fixed;
-      margin: 1rem;
-      font: inherit;
-      background-color: rgb(49, 49, 49);
-      color-scheme: dark;
-      border: 0;
-      border-radius: 100%;
-      font-weight: bold;
-      height: 50px;
-      width: 50px;
-      cursor: pointer;
-    }
-
     &::scroll-button(right) {
       content: '⇢';
       position-area: center right;
     }
-
     &::scroll-button(left) {
       content: '⇠';
       position-area: center left;
+    }
+
+    scroll-marker-group: after;
+    &::scroll-marker-group {
+      grid-area: markers;
+
+      display: grid;
+      place-content: safe center;
+      grid: 30px / auto-flow 30px;
+      gap: 15px;
+      padding: 15px;
+      scroll-padding: 15px;
+    }
+    > li::scroll-marker {
+      content: ' ';
+      background-color: #313131;
+      border-radius: 100%;
+      border: 1px solid black;
+
+      &:target-current {
+        background-color: #1f1f1f;
+      }
     }
   }
 }

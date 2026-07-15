@@ -15,6 +15,19 @@ import { RouterModule } from '@angular/router';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, AfterViewInit {
+  reviewText: boolean = false;
+
+  reviews = [
+    {
+      image: '/Sandie%20Tolstrup.jpeg',
+      review:
+        'En rigtig god oplevelse med en meget grundig vejledning fra Tobias. Inden vi gik i gang, stillede han gode og relevante spørgsmål, så træningen og programmet kunne tilpasses mig og mine behov. Jeg fik en grundig vejledning i brugen af maskinerne, så jeg følte mig tryg ved øvelserne. Og så var det dejligt med lidt ros og opmuntring undervejs 😊 Kan klart anbefales!',
+      name: 'Sandie Tolstrup',
+      age: '45 år',
+      stars: '⭐⭐⭐⭐⭐',
+    },
+  ];
+
   @ViewChildren('infoBox', { read: ElementRef }) infoBoxes!: QueryList<ElementRef<HTMLElement>>;
 
   ngOnInit(): void {
@@ -63,5 +76,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  textReview() {
+    this.reviewText = !this.reviewText;
   }
 }
