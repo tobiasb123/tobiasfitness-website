@@ -152,6 +152,7 @@
 }
 
 .section-3 {
+  position: relative;
   h2 {
     align-self: center;
     justify-self: end;
@@ -169,6 +170,37 @@
       -2px -2px 0 #313131,
       2px -2px 0 #313131,
       -2px 2px 0 #313131;
+  }
+
+  button {
+    appearance: none;
+    outline: none;
+    border: none;
+    box-sizing: none;
+
+    position: absolute;
+    top: 25px;
+    right: 650px;
+
+    width: 150px;
+    height: 50px;
+
+    font-size: 16px;
+
+    background-color: rgb(101, 101, 255);
+
+    color: white;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease-out;
+
+    &:hover {
+      scale: 1.05;
+      background-color: rgb(132, 132, 255);
+    }
   }
 }
 

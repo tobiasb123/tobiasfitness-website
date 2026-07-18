@@ -2,11 +2,14 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  inject,
   OnInit,
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { UserProfile } from '@models/auth/interfaces';
+import { AuthFunctionsService } from '@modules/auth';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +18,10 @@ import { RouterModule } from '@angular/router';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, AfterViewInit {
+  router = inject(Router);
+  private authFunctions = inject(AuthFunctionsService);
+  userProfile: UserProfile;
+
   reviewText: boolean = false;
 
   reviews = [
@@ -32,6 +39,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.scrollToTop();
+
+    this.userProfile = this.authFunctions.currentUserProfile();
   }
 
   ngAfterViewInit(): void {
@@ -80,5 +89,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   textReview() {
     this.reviewText = !this.reviewText;
+  }
+
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+  }
+
+  createReview() {
+    this.navigateTo('create-review');
   }
 }

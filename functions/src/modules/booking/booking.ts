@@ -65,47 +65,73 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
     throw new HttpsError('aborted', 'Der skete en fejl. Din booking blev ikke oprettet');
   };
 
+  const bookingDate = moment(data.date).format('DD-MM-YYYY');
+  const bookingStartHour = String(data.timePeriod.start.hour).padStart(2, '0');
+  const bookingStartMinute = String(data.timePeriod.start.minute).padStart(2, '0');
+  const bookingEndHour = String(data.timePeriod.end.hour).padStart(2, '0');
+  const bookingEndMinute = String(data.timePeriod.end.minute).padStart(2, '0');
+  const bookingTime = `kl. ${bookingStartHour}:${bookingStartMinute} - ${bookingEndHour}:${bookingEndMinute}`;
+  const accountManagementUrl = 'https://tobiasbastholmfitness.dk/account-management';
+
   const booking = await bookingsCollection
     .add(data)
     .then(async (bookingDoc) => {
       return sendMail(
         data.email,
         'Bekræftelse af Booking',
-        `Hej ${data.firstName} ${data.lastName}<br />
-        din booking
-        <br />
-        D.${moment(data.date).format('DD-MM-YYYY')}
-        <br />
-        kl.${data.timePeriod.start.hour}:${data.timePeriod.start.minute}-${data.timePeriod.end.hour}:${data.timePeriod.end.minute} 
-        er blevet godkendt.
-        <br /> 
-        <br /> 
-        Hvis du har yderligere spørgsmål er du meget velkommen til at besvare denne mail. 
-        <br /> 
-        <br /> 
-        Venlig Hilsen<br />
-        Tobias Bastholm
-        <br /> 
-        <br /> 
-        <br /> 
-        <br />
-        <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" />`,
+        `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
+            <div style="background-color: #0f172a; padding: 24px 32px; color: #ffffff;">
+              <h2 style="margin: 0 0 8px; font-size: 24px;">Booking bekræftet</h2>
+              <p style="margin: 0; font-size: 15px; color: #cbd5e1;">Hej ${data.firstName} ${data.lastName}</p>
+            </div>
+            <div style="padding: 32px; color: #1f2937;">
+              <p style="margin: 0 0 16px; font-size: 16px;">Din booking er nu oprettet og er klar til at blive fulgt op.</p>
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+                <p style="margin: 0 0 8px; font-size: 15px;"><strong>Navn:</strong> ${data.firstName} ${data.lastName}</p>
+                <p style="margin: 0 0 8px; font-size: 15px;"><strong>Dato:</strong> ${bookingDate}</p>
+                <p style="margin: 0; font-size: 15px;"><strong>Tid:</strong> ${bookingTime}</p>
+              </div>
+              <p style="margin: 0 0 16px; font-size: 15px;">Du kan administrere og få overblik over din booking direkte i din konto.</p>
+              <p style="margin: 0 0 24px;">
+                <a href="${accountManagementUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold;">Gå til kontooversigt</a>
+              </p>
+              <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du ønsker at aflyse eller ændre din booking, skal du sende en mail til <a href="mailto:tobiasbastholmfitness@gmail.com" style="color: #2563eb; text-decoration: none;">tobiasbastholmfitness@gmail.com</a>.</p>
+              <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du har yderligere spørgsmål, er du velkommen til at besvare denne mail.</p>
+              <p style="margin: 0; font-size: 14px; color: #475569;">Venlig hilsen<br />Tobias Bastholm</p>
+            </div>
+            <div style="padding: 0 32px 24px;">
+              <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" style="display: block; max-width: 240px; margin: 0 auto;" />
+            </div>
+          </div>
+        </div>`,
       )
         .then(async () => {
           return sendMail(
             'tobiasbastholmfitness@gmail.com',
             'Booking',
-            `
-            Navn: ${userProfile.firstName} ${userProfile.lastName}
-            <br /> 
-            Dato: ${moment(data.date).format('DD-MM-YYYY')}.
-            <br /> 
-            Tid: kl.${data.timePeriod.start.hour}:${data.timePeriod.start.minute}-${data.timePeriod.end.hour}:${data.timePeriod.end.minute}.
-            <br /> 
-            Service: ${data.service}. 
-            <br /> <br /> <br /> <br /> 
-            <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" />
-            `,
+            `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
+              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
+                <div style="background-color: #0f172a; padding: 24px 32px; color: #ffffff;">
+                  <h2 style="margin: 0 0 8px; font-size: 24px;">Ny booking modtaget</h2>
+                  <p style="margin: 0; font-size: 15px; color: #cbd5e1;">En ny booking er blevet oprettet</p>
+                </div>
+                <div style="padding: 32px; color: #1f2937;">
+                  <p style="margin: 0 0 16px; font-size: 16px;">Her er detaljerne for den nye booking.</p>
+                  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+                    <p style="margin: 0 0 8px; font-size: 15px;"><strong>Navn:</strong> ${userProfile.firstName} ${userProfile.lastName}</p>
+                    <p style="margin: 0 0 8px; font-size: 15px;"><strong>Dato:</strong> ${bookingDate}</p>
+                    <p style="margin: 0 0 8px; font-size: 15px;"><strong>Tid:</strong> ${bookingTime}</p>
+                    <p style="margin: 0; font-size: 15px;"><strong>Service:</strong> ${data.service}</p>
+                  </div>
+                  <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis kunden ønsker at aflyse eller ændre booking, skal de sende en mail til <a href="mailto:tobiasbastholmfitness@gmail.com" style="color: #2563eb; text-decoration: none;">tobiasbastholmfitness@gmail.com</a>.</p>
+                  <p style="margin: 0; font-size: 14px; color: #475569;">Venlig hilsen<br />Tobias Bastholm</p>
+                </div>
+                <div style="padding: 0 32px 24px;">
+                  <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" style="display: block; max-width: 240px; margin: 0 auto;" />
+                </div>
+              </div>
+            </div>`,
           )
             .then(async () => {
               const bookingSnap = await bookingDoc.get();

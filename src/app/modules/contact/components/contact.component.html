@@ -55,12 +55,14 @@
         }
       </div>
 
-      <div class="button-group">
-        <button id="submit-button" type="submit">Book Tid</button>
-        <button type="button" (click)="scrollToTop()" (click)="open_Service_Options()">
-          Tilbage
-        </button>
-      </div>
+      @if (showButtonGroup) {
+        <div class="button-group">
+          <button id="submit-button" type="submit">Book Tid</button>
+          <button type="button" (click)="scrollToTop()" (click)="open_Service_Options()">
+            Tilbage
+          </button>
+        </div>
+      }
 
       <div class="time-period-overview">
         <label>Start Dato: {{ dateControl.value }}</label>

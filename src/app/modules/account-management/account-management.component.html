@@ -1,5 +1,5 @@
 <div class="body">
-  <section>
+  <section class="account-section">
     <div class="account-info">
       <h1>Konto Information</h1>
       <form [formGroup]="formGroup" (submit)="onSubmit()">
@@ -59,22 +59,42 @@
     </div>
   </section>
 
-  <section>
-    <h1>Dine Tider</h1>
+  <section class="bookings-section">
+    <div class="section-heading">
+      <h1>Dine Tider</h1>
+      <p>Her kan du få et hurtigt overblik over dine kommende bookinger.</p>
+    </div>
+
     <div class="bookings">
-      @if (bookings().at(0)) {
+      @if (bookings().length > 0) {
         @for (booking of bookings(); track booking.id) {
-          <div class="booking">
-            <h2 id="service">{{ booking.service }}</h2>
-            <label id="date">{{ formatBookingDate(booking.date) }}</label>
-            <label id="time"
-              >{{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }} -
-              {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}</label
-            >
-          </div>
+          <article class="booking">
+            <div class="booking-header">
+              <h2 id="service">{{ booking.service }}</h2>
+              <span class="booking-badge">Bekræftet</span>
+            </div>
+
+            <div class="booking-details">
+              <div class="detail-item">
+                <span class="detail-label">Dato</span>
+                <span id="date" class="detail-value">{{ formatBookingDate(booking.date) }}</span>
+              </div>
+
+              <div class="detail-item">
+                <span class="detail-label">Tid</span>
+                <span id="time" class="detail-value">
+                  {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }} -
+                  {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
+                </span>
+              </div>
+            </div>
+          </article>
         }
       } @else {
-        <h3>Ingen kommende tider</h3>
+        <div class="empty-state">
+          <h3>Ingen kommende tider</h3>
+          <p>Du har ikke nogle bookinger lige nu. Book en tid, når du er klar.</p>
+        </div>
       }
     </div>
   </section>

@@ -1,0 +1,24 @@
+<section>
+  <form (submit)="onSubmit($event)" [formGroup]="formGroup">
+    <h1>Opret Anmeldelse</h1>
+    <div class="file">
+      <input
+        #file
+        id="fileInput"
+        type="file"
+        style="display: none"
+        (input)="displayFileName(file.files[0].name)"
+        [formControl]="imageControl"
+      />
+      <img src="upload image.png" id="uploadBtn" (click)="selectFile($event)" />
+      <span id="fileName">Ingen Fil</span>
+    </div>
+
+    <div class="form-element">
+      <label for="review">Din Anmeldelse</label>
+      <textarea name="review" id="review" [formControl]="reviewControl"></textarea>
+    </div>
+
+    <button class="submitButton" type="submit">Anmeld</button>
+  </form>
+</section>

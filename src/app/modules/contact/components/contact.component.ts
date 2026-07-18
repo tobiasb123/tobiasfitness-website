@@ -23,6 +23,8 @@ export class ContactComponent implements OnInit {
 
   private userProfile: UserProfile;
 
+  showButtonGroup: boolean = false;
+
   dateControl = new FormControl<string>('', [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
   serviceControl = new FormControl<string>('', [Validators.required]);
@@ -128,6 +130,7 @@ export class ContactComponent implements OnInit {
     if (this.time_period[0]) {
       this.time_period[0].classList.remove('focus');
       this.time_period[0].parentElement.classList.add('inside');
+      this.showButtonGroup = false;
     }
     if (this.service[0]) {
       this.service[0].classList.add('focus');
@@ -141,6 +144,7 @@ export class ContactComponent implements OnInit {
         this.time_period[0].classList.add('focus');
         this.time_period[0].parentElement.classList.add('inside');
         this.scrollToTop();
+        this.showButtonGroup = true;
       }
       if (this.service[0]) {
         this.service[0].classList.remove('focus');

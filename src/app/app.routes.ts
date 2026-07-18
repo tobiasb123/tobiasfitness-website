@@ -2,6 +2,7 @@ import { Route } from '@angular/router';
 import { AccountManagementComponent } from './modules/account-management/account-management.component';
 import { AdminMenuComponent } from './modules/admin-menu/admin-menu.component';
 import { ContactComponent } from './modules/contact/components/contact.component';
+import { CreateReviewComponent } from './modules/create-review/create-review.component';
 import { HomeComponent } from './modules/home/components/home.component';
 import { MealPrepComponent } from './modules/meal-prep/meal-prep.component';
 import { PricesComponent } from './modules/prices/components/prices.component';
@@ -59,6 +60,12 @@ export const routes: RouteExt[] = [
     path: 'account-management',
     component: AccountManagementComponent,
     displayName: 'account-management',
+    showInNavList: false,
+  },
+  {
+    path: 'create-review',
+    component: CreateReviewComponent,
+    displayName: 'create-review',
     showInNavList: false,
   },
 ];

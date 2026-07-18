@@ -15,7 +15,7 @@ import { ContactFunctionsService } from '../../contact';
 export class PricesComponent implements OnInit {
   contactFunctions = inject(ContactFunctionsService);
   authFunctions = inject(AuthFunctionsService);
-  private router = inject(Router);
+  router = inject(Router);
   authState = inject(AUTH_STATE);
   toast = inject(ToastService);
 

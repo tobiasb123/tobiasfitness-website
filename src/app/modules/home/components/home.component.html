@@ -53,6 +53,11 @@
   </section>
 
   <section class="section-3">
+    <!-- Remove when create-review works -->
+    @if (userProfile?.admin) {
+      <button (click)="createReview()">Opret Anmeldelse</button>
+    }
+    <!-- Remove when create-review works -->
     <h2>Anmeldelser</h2>
     <ul class="carousel">
       @for (review of reviews; track $index) {
