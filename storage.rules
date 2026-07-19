@@ -1,0 +1,66 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isImageUpload() {
+      return request.resource != null
+             && request.resource.contentType != null
+             && request.resource.contentType.matches('image/.*');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function hasNonEmptyPath(path) {
+      return path != '';
+    }
+
+    function hasMaxSize(maxBytes) {
+      return request.resource.size <= maxBytes;
+    }
+
+    match /recipes/pending/{uploadIntentId}/{fileName} {
+      allow read: if false;
+      allow write: if isSignedIn()
+                   && resource == null
+                   && hasNonEmptyPath(uploadIntentId)
+                   && hasNonEmptyPath(fileName)
+                   && isImageUpload()
+                   && hasMaxSize(25 * 1024 * 1024);
+    }
+
+    match /recipes/{recipeId}/{fileName} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    match /recipes/{legacyFileName} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    match /reviews/pending/{uploadIntentId}/{fileName} {
+      allow read: if false;
+      allow write: if isSignedIn()
+                   && resource == null
+                   && hasNonEmptyPath(uploadIntentId)
+                   && hasNonEmptyPath(fileName)
+                   && isImageUpload()
+                   && hasMaxSize(25 * 1024 * 1024);
+    }
+
+    match /reviews/{reviewId}/{fileName} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    match /reviews/{legacyFileName} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

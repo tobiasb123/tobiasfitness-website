@@ -12,17 +12,27 @@
   <form
     [formGroup]="formGroup"
     (submit)="
-      save([MacroInput1.value, MacroInput2.value, MacroInput3.value, MacroInput4.value], file)
+      submitRecipe(
+        [MacroInput1.value, MacroInput2.value, MacroInput3.value, MacroInput4.value],
+        file
+      )
     "
     class="meal-page"
     [class.active]="addMealPageActive"
   >
-    <button class="meal-button right" (click)="toggleMealAddPage()">Luk</button>
+    <button
+      class="meal-button right"
+      type="button"
+      (click)="toggleMealAddPage()"
+      [disabled]="isUploading()"
+    >
+      Luk
+    </button>
 
     <div class="h2input">
       <h2>Modtager</h2>
       <select name="reciever" id="reciever" class="reciever" [formControl]="recieverControl">
-        <option value="alle">Alle</option>
+        <option value="all">Alle</option>
         @for (reciever of recieverOptions(); track $index) {
           <option value="{{ reciever.uid }}">
             {{ reciever.firstName }} {{ reciever.lastName }}
@@ -37,6 +47,15 @@
     <div class="h2input">
       <h2>Billede</h2>
       <input #file type="file" class="fileInput" />
+
+      @if (isUploading()) {
+        <div class="upload-progress">
+          <label>Uploader: {{ uploadProgress() }}%</label>
+          <small>{{ getUploadEtaLabel() }}</small>
+          <progress [value]="uploadProgress()" max="100"></progress>
+          <button type="button" (click)="cancelUpload()">Annuller upload</button>
+        </div>
+      }
     </div>
 
     <div class="lists">
@@ -44,13 +63,15 @@
         <h2>ingredienser</h2>
         <div class="inputs">
           <input #IitemNameInput type="text" />
-          <button (click)="addItem(IitemNameInput.value, 'I-list', IitemNameInput)">Tilføj</button>
+          <button type="button" (click)="addItem(IitemNameInput.value, 'I-list', IitemNameInput)">
+            Tilføj
+          </button>
         </div>
         <div class="list">
           @for (item of ingredientList(); track $index) {
             <div class="element">
               <label>{{ item }}</label>
-              <button (click)="removeItem(item, 'I-list')">Fjern</button>
+              <button type="button" (click)="removeItem(item, 'I-list')">Fjern</button>
             </div>
           }
         </div>
@@ -60,13 +81,15 @@
         <h2>Fremgangsmåde</h2>
         <div class="inputs">
           <input #PitemNameInput type="text" />
-          <button (click)="addItem(PitemNameInput.value, 'P-list', PitemNameInput)">Tilføj</button>
+          <button type="button" (click)="addItem(PitemNameInput.value, 'P-list', PitemNameInput)">
+            Tilføj
+          </button>
         </div>
         <div class="list">
           @for (item of instructionList(); track $index) {
             <div class="element">
               <label>{{ item }}</label>
-              <button (click)="removeItem(item, 'P-list')">Fjern</button>
+              <button type="button" (click)="removeItem(item, 'P-list')">Fjern</button>
             </div>
           }
         </div>
@@ -95,11 +118,13 @@
         <input #MacroInput4 type="text" [defaultValue]="macroList()[3]" />
       </div>
     </div>
-    @if (!editting) {
-      <button class="saveButton" type="submit">Gem</button>
-    } @else {
-      <button class="saveButton" (click)="edit()">Gem</button>
-    }
+    <button class="saveButton" type="submit" [disabled]="isUploading()">
+      @if (isUploading()) {
+        Uploader...
+      } @else {
+        Gem
+      }
+    </button>
   </form>
 
   <div class="meal-page" [class.active]="viewMealPageActive">
@@ -149,7 +174,7 @@
           <div
             class="carousel-element"
             [style.backgroundImage]="'url(' + recipe.fileUrl + ')'"
-            (click)="openMeal(recipe.title)"
+            (click)="openMeal(recipe.id)"
           >
             <div class="info">
               <h3>{{ recipe.title }}</h3>
@@ -168,13 +193,13 @@
   <section class="your carousel-section">
     <h2>Dine Opskrifter</h2>
     <ul class="carousel">
-      @if (yourRecipies() === []) {
+      @if (yourRecipies().length > 0) {
         @for (recipe of yourRecipies(); track $index) {
           <li>
             <div
               class="carousel-element image"
               [style.backgroundImage]="'url(' + recipe.fileUrl + ')'"
-              (click)="openMeal(recipe.title)"
+              (click)="openMeal(recipe.id)"
             >
               <div class="info">
                 <h3>{{ recipe.title }}</h3>

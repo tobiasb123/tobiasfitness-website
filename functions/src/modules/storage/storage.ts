@@ -24,7 +24,7 @@ const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 const UPLOAD_INTENT_EXPIRY_MINUTES = 15;
 
 const firestore = getFirestore();
-const recipeCollection = firestore.collection('recipe');
+const recipeCollection = firestore.collection('recipes');
 const storage = getStorage();
 const bucket = storage.bucket();
 const uploadIntentCollection = firestore.collection('storage-upload-intents');
@@ -50,7 +50,24 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
 
   const uploadIntentRef = uploadIntentCollection.doc();
   const fileRootPath = commonGetFileTypePath(input.fileType);
-  const storagePath = `${fileRootPath}/${input.fileName}`;
+  const targetFileId = input.fileId?.trim();
+  const normalizedRecipeUid = input.uid?.trim();
+
+  if (input.fileType === 'recipe' && normalizedRecipeUid && normalizedRecipeUid !== 'all') {
+    await getUser(normalizedRecipeUid).catch(() => {
+      throw new HttpsError('invalid-argument', 'Brugeren blev ikke fundet');
+    });
+  }
+
+  if (input.fileType === 'recipe' && targetFileId) {
+    const existingRecipe = await getFileInfoFromFirestoreById(targetFileId, input.fileType);
+
+    if (!existingRecipe) {
+      throw new HttpsError('not-found', 'Opskrift blev ikke fundet');
+    }
+  }
+
+  const storagePath = `${fileRootPath}/pending/${uploadIntentRef.id}/${normalizedFileName}`;
   const expiresAtDate = new Date(Date.now() + UPLOAD_INTENT_EXPIRY_MINUTES * 60 * 1000);
 
   const uploadIntentData: UploadIntentDocument = {
@@ -66,6 +83,14 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
     createdAt: Timestamp.now(),
     expiresAt: Timestamp.fromDate(expiresAtDate),
   };
+
+  if (targetFileId) {
+    uploadIntentData.fileId = targetFileId;
+  }
+
+  if (normalizedRecipeUid) {
+    uploadIntentData.recipeUid = normalizedRecipeUid;
+  }
 
   if (input.recipe) {
     uploadIntentData.recipe = input.recipe;
@@ -134,16 +159,29 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
       throw new HttpsError('not-found', 'Den uploadede fil blev ikke fundet');
     }
 
+    const targetFileId = uploadIntent.fileId ?? input.uploadIntentId;
+    const existingFile = uploadIntent.fileId
+      ? await getFileInfoFromFirestoreById(uploadIntent.fileId, uploadIntent.fileType)
+      : null;
+
+    if (uploadIntent.fileId && !existingFile) {
+      throw new HttpsError('not-found', 'Opskrift blev ikke fundet');
+    }
+
     const fileRootPath = commonGetFileTypePath(uploadIntent.fileType);
-    const canonicalFilePath = `${fileRootPath}/${uploadIntent.fileName}`;
+    const canonicalFilePath = `${fileRootPath}/${targetFileId}/${uploadIntent.fileName}`;
     let activeFile = sourceFile;
 
     if (canonicalFilePath !== uploadIntent.storagePath) {
       const canonicalFile = bucket.file(canonicalFilePath);
       const canonicalFileExists = await canonicalFile.exists();
 
-      if (canonicalFileExists[0]) {
+      if (canonicalFileExists[0] && canonicalFilePath !== existingFile?.filePath) {
         throw new HttpsError('already-exists', 'En fil med dette navn findes allerede');
+      }
+
+      if (canonicalFileExists[0] && canonicalFilePath === existingFile?.filePath) {
+        await canonicalFile.delete();
       }
 
       await sourceFile.move(canonicalFilePath);
@@ -172,25 +210,34 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
     }
 
     const fileUrl = await getDownloadURL(activeFile);
-    const timeCreated = moment(storageMetadata.timeCreated).tz('Europe/Copenhagen').toString();
+    const timeCreated =
+      existingFile?.timeCreated ??
+      moment(storageMetadata.timeCreated).tz('Europe/Copenhagen').toString();
     const fileData: Omit<DocumentFile, 'id' | 'fileType' | 'fileName' | 'folderPath'> = {
       filePath: activeFile.name,
       fileUrl,
-      uid: user.uid,
+      uid:
+        uploadIntent.fileType === 'recipe'
+          ? (uploadIntent.recipeUid ?? existingFile?.uid ?? 'all')
+          : (existingFile?.uid ?? user.uid),
       timeCreated,
-      recipe: uploadIntent.recipe,
-      title: uploadIntent.title,
+      recipe: uploadIntent.recipe ?? existingFile?.recipe,
+      title: uploadIntent.title ?? existingFile?.title,
     };
 
     const collectionPath = commonGetFileTypePath(uploadIntent.fileType);
-    await firestore.collection(collectionPath).doc(input.uploadIntentId).set(fileData);
+    await firestore.collection(collectionPath).doc(targetFileId).set(fileData);
+
+    if (existingFile?.filePath && existingFile.filePath !== activeFile.name) {
+      await bucket.file(existingFile.filePath).delete({ ignoreNotFound: true });
+    }
 
     const fileName = commonGetFileNameFromPath(fileData.filePath, uploadIntent.fileType);
     const folderPath = commonGetFileTypePath(uploadIntent.fileType);
 
     const file: DocumentFile = {
       ...fileData,
-      id: input.uploadIntentId,
+      id: targetFileId,
       fileType: uploadIntent.fileType,
       fileName,
       folderPath,
@@ -215,6 +262,17 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
 export const editRecipe = createAdminEndpoint(async (req, res) => {
   const data = req.body as DocumentFile;
   const recipeDoc = await recipeCollection.doc(data.id).get();
+  const normalizedRecipeUid = data.uid?.trim();
+
+  if (!normalizedRecipeUid) {
+    throw new HttpsError('invalid-argument', 'Modtageren er påkrævet');
+  }
+
+  if (normalizedRecipeUid !== 'all') {
+    await getUser(normalizedRecipeUid).catch(() => {
+      throw new HttpsError('invalid-argument', 'Brugeren blev ikke fundet');
+    });
+  }
 
   if (!recipeDoc.exists) {
     throw new HttpsError('not-found', 'Opskrift findes ikke');
@@ -222,6 +280,7 @@ export const editRecipe = createAdminEndpoint(async (req, res) => {
 
   await recipeDoc.ref
     .update({
+      uid: normalizedRecipeUid,
       title: data.title,
       recipe: data.recipe,
     })

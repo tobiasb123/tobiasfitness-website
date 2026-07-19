@@ -3,10 +3,12 @@ import { Timestamp } from 'firebase-admin/firestore';
 
 export interface UploadIntentDocument {
   uid: string;
+  recipeUid?: string;
   status: 'pending' | 'finalized';
   fileName: string;
   fileType: FileType;
   folderPath: string;
+  fileId?: string;
   recipe?: Recipe;
   title?: string;
   reviewText?: string;
@@ -17,5 +19,6 @@ export interface UploadIntentDocument {
   createdAt: Timestamp;
   expiresAt: Timestamp;
   finalizedAt?: Timestamp;
+  finalStoragePath?: string;
   finalizedFileId?: string;
 }

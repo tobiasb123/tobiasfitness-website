@@ -11,5 +11,8 @@ export const commonGetFileTypePath = (fileType: FileType): 'recipes' | 'reviews'
 
 export const commonGetFileNameFromPath = (filePath: string, fileType: FileType): string => {
   const rootPath = `${commonGetFileTypePath(fileType)}/`;
-  return filePath.slice(rootPath.length);
+  const relativePath = filePath.slice(rootPath.length);
+  const pathSegments = relativePath.split('/');
+
+  return pathSegments[pathSegments.length - 1] ?? relativePath;
 };

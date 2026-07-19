@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/https';
 
 const firestore = getFirestore();
-const recipeCollection = firestore.collection('recipe');
+const recipeCollection = firestore.collection('recipes');
 
 export const commonGetRecipies = async (): Promise<DocumentFile[]> => {
   return await recipeCollection.get().then((recipeSnap) => {
@@ -14,6 +14,7 @@ export const commonGetRecipies = async (): Promise<DocumentFile[]> => {
 
       recipies.push({
         ...recipe,
+        id: recipeDoc.id,
       });
     }
 
@@ -29,6 +30,7 @@ export const commonGetRecipe = async (name: string): Promise<DocumentFile> => {
 
   return {
     ...(recipeDoc.data() as DocumentFile),
+    id: recipeDoc.id,
   };
 };
 
