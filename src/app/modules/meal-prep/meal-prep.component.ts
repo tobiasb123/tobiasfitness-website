@@ -1,4 +1,12 @@
-import { Component, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserProfile } from '@models/auth/interfaces';
 import { DocumentFile, Recipe } from '@models/storage';
@@ -10,6 +18,7 @@ import { Subscription } from 'rxjs';
 import { AdminFacade } from '../admin-menu';
 import { ToastService } from '../core/services/toast/toast.service';
 import { ResumableRecipeUpload, StorageFunctions } from './services/storage-functions.service';
+import { RecipesFacade } from './store/recipes.facade';
 
 @Component({
   selector: 'app-meal-prep',
@@ -24,6 +33,7 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   private storageService = inject(StorageFunctions);
   private toast = inject(ToastService);
   private adminFacade = inject(AdminFacade);
+  private recipesFacade = inject(RecipesFacade);
 
   titleControl = new FormControl<string>('');
   recieverControl = new FormControl<string>('all');
@@ -46,6 +56,9 @@ export class MealPrepComponent implements OnInit, OnDestroy {
 
   recipies: WritableSignal<DocumentFile[]> = signal([]);
   yourRecipies: WritableSignal<DocumentFile[]> = signal([]);
+  allRecipes: WritableSignal<DocumentFile[]> = signal([]);
+  recipesLoading = signal(false);
+  recipesError = signal('');
 
   userProfile: UserProfile;
 
@@ -60,6 +73,12 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   recipeData: Recipe;
   private activeUpload: ResumableRecipeUpload | null = null;
   private uploadStartedAtMs: number | null = null;
+
+  private readonly profileEffect = effect(() => {
+    const profile = this.authFunctions.currentUserProfile();
+    this.userProfile = profile;
+    this.setRecipeCollections(this.allRecipes());
+  });
 
   ngOnInit(): void {
     this.userProfile = this.authFunctions.currentUserProfile();
@@ -78,21 +97,24 @@ export class MealPrepComponent implements OnInit, OnDestroy {
       }),
     );
 
-    this.storageService.getRecipies().then((recipies) => {
-      var allRecipies: Array<DocumentFile> = [];
-      var userRecipies: Array<DocumentFile> = [];
-      for (let index = 0; index < recipies.length; index++) {
-        const recipe = recipies[index];
-        if (recipe.uid === 'all') {
-          allRecipies.push(recipe);
-        }
-        if (recipe.uid === this.userProfile.uid) {
-          userRecipies.push(recipe);
-        }
-      }
-      this.recipies.set(this.formatRecipes(allRecipies));
-      this.yourRecipies.set(this.formatRecipes(userRecipies));
-    });
+    this.subs.push(
+      this.recipesFacade.getRecipes().subscribe((recipes) => {
+        this.allRecipes.set(recipes);
+        this.setRecipeCollections(recipes);
+      }),
+    );
+
+    this.subs.push(
+      this.recipesFacade.isLoadingRecipes().subscribe((loading) => {
+        this.recipesLoading.set(loading);
+      }),
+    );
+
+    this.subs.push(
+      this.recipesFacade.getLoadingRecipesError().subscribe((error) => {
+        this.recipesError.set(error || '');
+      }),
+    );
   }
 
   toggleMealAddPage() {
@@ -351,33 +373,17 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   private upsertRecipe(documentFile: DocumentFile): void {
     const formattedRecipe = this.formatRecipes([documentFile])[0];
 
-    this.recipies.update((recipes) => this.updateRecipeCollection(recipes, formattedRecipe, false));
-    this.yourRecipies.update((recipes) =>
-      this.updateRecipeCollection(recipes, formattedRecipe, true),
-    );
+    this.recipesFacade.upsertRecipe(formattedRecipe);
     this.selectedDocumentData.set(formattedRecipe);
   }
 
-  private updateRecipeCollection(
-    recipes: DocumentFile[],
-    recipe: DocumentFile,
-    isUserCollection: boolean,
-  ): DocumentFile[] {
-    const withoutRecipe = recipes.filter((existingRecipe) => existingRecipe.id !== recipe.id);
+  private setRecipeCollections(recipes: DocumentFile[]): void {
+    const allRecipies = recipes.filter((recipe) => recipe.uid === 'all');
+    const userUid = this.userProfile?.uid;
+    const userRecipies = userUid ? recipes.filter((recipe) => recipe.uid === userUid) : [];
 
-    if (!this.belongsToCollection(recipe, isUserCollection)) {
-      return withoutRecipe;
-    }
-
-    return [...withoutRecipe, recipe];
-  }
-
-  private belongsToCollection(recipe: DocumentFile, isUserCollection: boolean): boolean {
-    if (isUserCollection) {
-      return recipe.uid === this.userProfile.uid;
-    }
-
-    return recipe.uid === 'all';
+    this.recipies.set(this.formatRecipes(allRecipies));
+    this.yourRecipies.set(this.formatRecipes(userRecipies));
   }
 
   ngOnDestroy(): void {

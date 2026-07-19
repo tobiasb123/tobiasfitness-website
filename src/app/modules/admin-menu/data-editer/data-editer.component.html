@@ -79,11 +79,18 @@
         </div>
       }
       <div class="buttons">
-        <button class="confirm" type="button" (click)="openEditTab()">Edit</button>
+        <button
+          class="confirm"
+          type="button"
+          [disabled]="isBookingCommandLoading()"
+          (click)="openEditTab()"
+        >
+          Edit
+        </button>
         <button
           class="danger"
           type="button"
-          [disabled]="!selectedBooking()"
+          [disabled]="!selectedBooking() || isBookingCommandLoading()"
           (click)="requestDeleteBooking()"
         >
           Delete
@@ -219,9 +226,30 @@
         </div>
       </form>
       <div class="button-holder">
-        <button class="confirm" type="button" (click)="editBooking()">Gem</button>
-        <button class="danger" type="button" (click)="requestDeleteBooking()">Slet booking</button>
-        <button class="cancel" type="button" (click)="openTab('Tider')">Tilbage</button>
+        <button
+          class="confirm"
+          type="button"
+          [disabled]="isBookingCommandLoading()"
+          (click)="editBooking()"
+        >
+          Gem
+        </button>
+        <button
+          class="danger"
+          type="button"
+          [disabled]="isBookingCommandLoading()"
+          (click)="requestDeleteBooking()"
+        >
+          Slet booking
+        </button>
+        <button
+          class="cancel"
+          type="button"
+          [disabled]="isBookingCommandLoading()"
+          (click)="openTab('Tider')"
+        >
+          Tilbage
+        </button>
       </div>
       @if (isDeleteConfirmationOpen()) {
         <div class="delete-confirmation inline-confirmation">

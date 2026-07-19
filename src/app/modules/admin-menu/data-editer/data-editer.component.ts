@@ -11,10 +11,9 @@ import { UserProfile } from '@models/auth/interfaces';
 import { Booking, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import { BookingFacade } from '@modules/booking';
-import { Subscription } from 'rxjs';
-import { ContactFunctionsService } from '../../contact';
+import { combineLatest, Subscription } from 'rxjs';
 import { ToastService } from '../../core/services/toast/toast.service';
-import { AdminFunctionsService } from '../services/admin-functions.service';
+import { AdminFacade } from '../store/admin.facade';
 
 @Component({
   selector: 'app-data-editer',
@@ -25,12 +24,12 @@ import { AdminFunctionsService } from '../services/admin-functions.service';
 export class DataEditerComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
 
-  private adminFunctions = inject(AdminFunctionsService);
-  private contactFunctions = inject(ContactFunctionsService);
+  private adminFacade = inject(AdminFacade);
   private authfunctions = inject(AuthFunctionsService);
   private toast = inject(ToastService);
   private bookingFacade = inject(BookingFacade);
   private selectedUserValue: UserProfile;
+  private activeCommand: 'edit' | 'delete' | null = null;
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
@@ -71,11 +70,52 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   public bookings: WritableSignal<Booking[]> = signal([]);
   public selectedBooking: WritableSignal<Booking> = signal(undefined);
   public isDeleteConfirmationOpen = signal(false);
+  public isBookingCommandLoading = signal(false);
 
   ngOnInit(): void {
     this.subs.push(
       this.bookingFacade.getBookings().subscribe((bookings) => {
         this.bookings.set(bookings);
+      }),
+    );
+
+    this.subs.push(
+      this.adminFacade.isBookingCommandLoading().subscribe((loading) => {
+        this.isBookingCommandLoading.set(loading);
+      }),
+    );
+
+    this.subs.push(
+      combineLatest([
+        this.adminFacade.isBookingCommandCompleted(),
+        this.adminFacade.getBookingCommandError(),
+        this.adminFacade.getBookingCommandType(),
+      ]).subscribe(([completed, error, commandType]) => {
+        if (!completed || !this.activeCommand || commandType !== this.activeCommand) {
+          return;
+        }
+
+        if (this.activeCommand === 'delete') {
+          if (error) {
+            this.toast.open(error, 'error');
+          } else {
+            this.isDeleteConfirmationOpen.set(false);
+            this.openTab('Tider');
+            this.toast.open('Booking Aflyst', 'success');
+          }
+        }
+
+        if (this.activeCommand === 'edit') {
+          if (error) {
+            this.toast.open(error, 'error');
+          } else {
+            this.openTab('Tider');
+            this.toast.open('Booking Ændret', 'success');
+          }
+        }
+
+        this.activeCommand = null;
+        this.adminFacade.clearBookingCommandState();
       }),
     );
   }
@@ -100,17 +140,8 @@ export class DataEditerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.adminFunctions
-      .deleteBooking(id)
-      .then(() => {
-        this.isDeleteConfirmationOpen.set(false);
-        this.bookingFacade.deleteBooking(id);
-        this.openTab('Tider');
-        this.toast.open('Booking Aflyst', 'success');
-      })
-      .catch(() => {
-        this.toast.open('Noget gik galt', 'error');
-      });
+    this.activeCommand = 'delete';
+    this.adminFacade.deleteBooking(id);
   }
 
   requestDeleteBooking(): void {
@@ -154,16 +185,9 @@ export class DataEditerComponent implements OnInit, OnDestroy {
       date,
       timePeriod,
     };
-    this.adminFunctions
-      .editBooking(editedBooking)
-      .then(() => {
-        this.bookingFacade.updateBooking(editedBooking);
-        this.openTab('Tider');
-        this.toast.open('Booking Ændret', 'success');
-      })
-      .catch(() => {
-        this.toast.open('Noget gik galt', 'error');
-      });
+
+    this.activeCommand = 'edit';
+    this.adminFacade.editBooking(editedBooking);
   }
 
   private updateSelectedUser(user: UserProfile): void {

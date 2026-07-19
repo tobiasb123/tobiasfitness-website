@@ -168,6 +168,14 @@
 
   <section class="free carousel-section">
     <h2>Gratis Opskrifter</h2>
+    @if (recipesLoading()) {
+      <p>Indlæser opskrifter...</p>
+    }
+
+    @if (recipesError()) {
+      <p>{{ recipesError() }}</p>
+    }
+
     <ul class="carousel">
       @for (recipe of recipies(); track $index) {
         <li>

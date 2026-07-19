@@ -3,6 +3,14 @@
   <form [formGroup]="formGroup" (submit)="onSubmit($event)">
     <div id="service" class="service focus">
       <div class="container">
+        @if (servicesLoading()) {
+          <p>Indlæser services...</p>
+        }
+
+        @if (servicesError()) {
+          <p>{{ servicesError() }}</p>
+        }
+
         @for (service of serviceFormComponents(); track $index) {
           <div class="service-element service-options" (click)="select_service($event)">
             <img src="{{ service.image }}" />

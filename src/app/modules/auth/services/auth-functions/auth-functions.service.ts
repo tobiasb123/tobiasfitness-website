@@ -1,4 +1,4 @@
-import { inject, Injectable, Injector, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BaseProfile, UserProfile } from '@models/auth/interfaces';
 import { Address } from '@models/auth/interfaces/address.interface';
@@ -25,22 +25,29 @@ export class AuthFunctionsService {
   private firebaseService = inject(FirebaseService);
   private auth = this.firebaseService.getAuth();
   private router = inject(Router);
-  private injector = inject(Injector);
   private authFacade = inject(AuthFacade);
   private toastService = inject(ToastService);
   private idTokenListener: Unsubscribe;
 
   public currentUserProfile = signal<UserProfile>(undefined);
 
+  private readonly profileEffect = effect(() => {
+    const profile = this.authFacade.currentProfile();
+
+    this.currentUserProfile.set(profile ?? undefined);
+
+    if (profile?.uid) {
+      this.authState.set('loggedIn');
+    }
+  });
+
   public initialize(): void {
     this.idTokenListener = this.auth.onIdTokenChanged((user) => {
       if (user) {
-        this.firebaseService.httpGet<UserProfile>('auth-getUserProfile').then((userProfile) => {
-          this.currentUserProfile.set(userProfile);
-          this.authState.set('loggedIn');
-        });
+        this.authFacade.loadAuthProfile();
       } else {
         this.currentUserProfile.set(undefined);
+        this.authFacade.clearAuthProfile();
         this.authState.set('ready');
       }
     });
@@ -75,6 +82,7 @@ export class AuthFunctionsService {
           profile,
         );
 
+        this.authFacade.setAuthProfile(user);
         this.initialize();
         return user;
       })
@@ -124,9 +132,21 @@ export class AuthFunctionsService {
   }
 
   public async updateDetails(updates: Partial<UserProfile>): Promise<Partial<UserProfile>> {
-    return await this.firebaseService.httpPost<Partial<UserProfile>, Partial<UserProfile>>(
-      'auth-updateDetails',
-      updates,
-    );
+    const updatedProfile = await this.firebaseService.httpPost<
+      Partial<UserProfile>,
+      Partial<UserProfile>
+    >('auth-updateDetails', updates);
+
+    const currentProfile = this.currentUserProfile();
+    const mergedProfile = {
+      ...currentProfile,
+      ...updatedProfile,
+      address: updatedProfile.address ?? currentProfile?.address,
+    } as UserProfile;
+
+    this.currentUserProfile.set(mergedProfile);
+    this.authFacade.setAuthProfile(mergedProfile);
+
+    return updatedProfile;
   }
 }

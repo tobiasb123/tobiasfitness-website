@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   ElementRef,
   inject,
   OnInit,
@@ -22,6 +23,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private authFunctions = inject(AuthFunctionsService);
   userProfile: UserProfile;
 
+  private readonly profileEffect = effect(() => {
+    this.userProfile = this.authFunctions.currentUserProfile();
+  });
+
   reviewText: boolean = false;
 
   reviews = [
@@ -39,8 +44,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.scrollToTop();
-
-    this.userProfile = this.authFunctions.currentUserProfile();
   }
 
   ngAfterViewInit(): void {

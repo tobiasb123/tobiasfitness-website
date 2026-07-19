@@ -21,7 +21,8 @@
       "@modules/firebase": ["./src/app/modules/firebase/index.ts"],
       "@modules/auth": ["./src/app/modules/auth/index.ts"],
       "@modules/core": ["./src/app/modules/core/index.ts"],
-      "@modules/booking": ["./src/app/modules/contact/index.ts"]
+      "@modules/booking": ["./src/app/modules/contact/index.ts"],
+      "@modules/meal-prep": ["./src/app/modules/meal-prep/index.ts"]
     }
   },
   "angularCompilerOptions": {

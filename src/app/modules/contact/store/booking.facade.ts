@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Booking } from '@models/booking/interfaces';
 import { AUTH_STATE } from '@modules/auth';
 import { Update } from '@ngrx/entity';
 import { Store } from '@ngrx/store';
-import { filter, Observable, switchMap, tap } from 'rxjs';
+import { combineLatest, filter, Observable, switchMap, tap } from 'rxjs';
 import {
   deleteBookingAction,
   loadBookingsAction,
@@ -16,16 +17,17 @@ import { selectBookingFeature, selectBookings } from './booking.selectors';
 export class BookingFacade {
   private store = inject(Store);
   private authState = inject(AUTH_STATE);
+  private authState$ = toObservable(this.authState);
 
   public getBookings(): Observable<Booking[]> {
-    return this.store.select(selectBookingFeature).pipe(
-      filter(() => this.authState() === 'loggedIn'),
-      tap((state) => {
+    return combineLatest([this.store.select(selectBookingFeature), this.authState$]).pipe(
+      filter(([, authState]) => authState === 'loggedIn'),
+      tap(([state]) => {
         if (!state.loaded && !state.loading) {
           this.store.dispatch(loadBookingsAction());
         }
       }),
-      filter((state) => state.loaded),
+      filter(([state]) => state.loaded),
       switchMap(() => this.store.select(selectBookings)),
     );
   }

@@ -6,13 +6,28 @@ import {
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
-import { AUTH_STATE, AuthState, logoutReducer } from '@modules/auth';
-import { BookingEffects, bookingFeature, bookingReducer } from '@modules/booking';
+import {
+  AUTH_STATE,
+  AuthProfileEffects,
+  AuthState,
+  authProfileFeature,
+  authProfileReducer,
+  logoutReducer,
+} from '@modules/auth';
+import {
+  BookingEffects,
+  ServicesEffects,
+  bookingFeature,
+  bookingReducer,
+  servicesFeature,
+  servicesReducer,
+} from '@modules/booking';
 import {
   provideFirebaseApp,
   provideFirebaseAuth,
   provideFirebaseFunctions,
 } from '@modules/firebase';
+import { RecipesEffects, recipesFeature, recipesReducer } from '@modules/meal-prep';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
@@ -43,13 +58,22 @@ export const appConfig: ApplicationConfig = {
     provideStore(
       {
         [adminFeature]: adminReducer,
+        [authProfileFeature]: authProfileReducer,
         [bookingFeature]: bookingReducer,
+        [servicesFeature]: servicesReducer,
+        [recipesFeature]: recipesReducer,
       },
       {
         metaReducers: [logoutReducer],
       },
     ),
-    provideEffects(AdminEffects, BookingEffects),
+    provideEffects(
+      AdminEffects,
+      AuthProfileEffects,
+      BookingEffects,
+      ServicesEffects,
+      RecipesEffects,
+    ),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
 };

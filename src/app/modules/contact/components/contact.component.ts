@@ -1,4 +1,12 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
@@ -6,9 +14,11 @@ import { BOOKING_TIME_OPTIONS } from '@models/booking/booking-time-options';
 import { BookingBase, Service, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
+import { Subscription } from 'rxjs';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { ContactFunctionsService } from '../services/contact-functions/contact-functions.service';
 import { BookingFacade } from '../store/booking.facade';
+import { ServicesFacade } from '../store/services.facade';
 
 @Component({
   selector: 'app-contact',
@@ -16,13 +26,19 @@ import { BookingFacade } from '../store/booking.facade';
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
 })
-export class ContactComponent implements OnInit {
+export class ContactComponent implements OnInit, OnDestroy {
+  private subs: Subscription[] = [];
   private authFunctions = inject(AuthFunctionsService);
   private toast = inject(ToastService);
   private contactFunctions = inject(ContactFunctionsService);
   private bookingFacade = inject(BookingFacade);
+  private servicesFacade = inject(ServicesFacade);
 
   private userProfile: UserProfile;
+
+  private readonly profileEffect = effect(() => {
+    this.userProfile = this.authFunctions.currentUserProfile();
+  });
 
   showButtonGroup: boolean = false;
 
@@ -41,6 +57,8 @@ export class ContactComponent implements OnInit {
   hourOptions: Array<string> = BOOKING_TIME_OPTIONS;
 
   serviceFormComponents: WritableSignal<Service[]> = signal([]);
+  servicesLoading = signal(false);
+  servicesError = signal('');
 
   serviceOverview: Service[] = [
     {
@@ -57,18 +75,31 @@ export class ContactComponent implements OnInit {
   service = document.getElementsByClassName('service');
 
   async ngOnInit(): Promise<void> {
-    this.userProfile = this.authFunctions.currentUserProfile();
-
     this.scrollToTop();
 
-    const services = await this.contactFunctions.getServices();
-    this.serviceFormComponents.set(services);
+    this.subs.push(
+      this.servicesFacade.getServices().subscribe((services) => {
+        this.serviceFormComponents.set(services);
+      }),
+    );
+
+    this.subs.push(
+      this.servicesFacade.isLoadingServices().subscribe((loading) => {
+        this.servicesLoading.set(loading);
+      }),
+    );
+
+    this.subs.push(
+      this.servicesFacade.getLoadingServicesError().subscribe((error) => {
+        this.servicesError.set(error || '');
+      }),
+    );
   }
 
   onSubmit(event: SubmitEvent) {
     event.preventDefault();
 
-    if (!this.userProfile.email) {
+    if (!this.userProfile?.email) {
       console.log('No Valid Email.');
       return;
     }
@@ -183,5 +214,11 @@ export class ContactComponent implements OnInit {
         }
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach((sub) => {
+      sub.unsubscribe();
+    });
   }
 }

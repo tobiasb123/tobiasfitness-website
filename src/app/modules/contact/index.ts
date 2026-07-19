@@ -3,3 +3,7 @@ export { BookingEffects } from './store/booking.effects';
 export { BookingFacade } from './store/booking.facade';
 export { bookingReducer } from './store/booking.reducer';
 export { bookingFeature } from './store/booking.selectors';
+export { ServicesEffects } from './store/services.effects';
+export { ServicesFacade } from './store/services.facade';
+export { servicesReducer } from './store/services.reducer';
+export { servicesFeature } from './store/services.selectors';

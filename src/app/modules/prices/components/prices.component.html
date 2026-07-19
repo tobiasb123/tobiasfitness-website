@@ -37,6 +37,15 @@
   }
 
   <h1>Ydelser</h1>
+
+  @if (servicesLoading()) {
+    <p>Indlæser services...</p>
+  }
+
+  @if (servicesError()) {
+    <p>{{ servicesError() }}</p>
+  }
+
   <div class="services">
     @for (service of generalServices(); track service.id) {
       <div class="service">
