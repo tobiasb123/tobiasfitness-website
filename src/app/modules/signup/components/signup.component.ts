@@ -39,9 +39,9 @@ export class SignupComponent implements OnInit {
   });
 
   address: Address = {
-    city: this.cityControl.value,
-    postalCode: this.postalCodeControl.value,
-    street: this.streetControl.value,
+    city: '',
+    postalCode: 0,
+    street: '',
   };
 
   ngOnInit(): void {
@@ -61,6 +61,12 @@ export class SignupComponent implements OnInit {
     }
 
     const toastRef = this.toast.open('Opretter konto...', 'loading');
+
+    this.address = {
+      city: this.cityControl.value,
+      postalCode: this.postalCodeControl.value,
+      street: this.streetControl.value,
+    };
 
     this.authFunctions
       .signUp(

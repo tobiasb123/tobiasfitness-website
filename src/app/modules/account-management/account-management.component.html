@@ -120,6 +120,14 @@
               <button class="reschedule-button" type="button" (click)="sendRescheduleMail(booking)">
                 Foreslå omlægning
               </button>
+
+              <button
+                class="cancel-request-button"
+                type="button"
+                (click)="sendCancellationMail(booking)"
+              >
+                Anmod om aflysning
+              </button>
             </div>
           </article>
         }

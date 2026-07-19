@@ -1,6 +1,7 @@
 import {
   Booking,
   BookingBase,
+  CancelBookingRequest,
   RescheduleBookingRequest,
   Service,
 } from '@models/booking/interfaces';
@@ -224,6 +225,55 @@ export const sendRescheduleMail = createAuthEndpoint(async (req, res, user) => {
             <p style="margin: 0 0 8px; font-size: 15px;"><strong>Nuværende tid:</strong> ${String(booking.timePeriod.start.hour).padStart(2, '0')}:${String(booking.timePeriod.start.minute).padStart(2, '0')} - ${String(booking.timePeriod.end.hour).padStart(2, '0')}:${String(booking.timePeriod.end.minute).padStart(2, '0')}</p>
             <p style="margin: 0 0 8px; font-size: 15px;"><strong>Ønsket ny dato:</strong> ${requestedDate}</p>
             <p style="margin: 0; font-size: 15px;"><strong>Ønsket ny tid:</strong> ${data.requestedTime}</p>
+          </div>
+          <p style="margin: 0; font-size: 14px; color: #475569;">Forespørgslen er sendt fra kontooversigten.</p>
+        </div>
+      </div>
+    </div>`,
+  );
+
+  res.json({ success: true });
+});
+
+export const sendCancellationMail = createAuthEndpoint(async (req, res, user) => {
+  const data = req.body as CancelBookingRequest;
+  const bookingDoc = await bookingsCollection.doc(data.bookingId).get();
+
+  if (!bookingDoc.exists) {
+    throw new HttpsError('not-found', 'Booking findes ikke');
+  }
+
+  const booking = {
+    ...(bookingDoc.data() as Booking),
+    id: bookingDoc.id,
+  };
+
+  if (booking.uid !== user.uid) {
+    throw new HttpsError('permission-denied', 'Du har ikke adgang til denne booking');
+  }
+
+  const userProfile = await getUser(user.uid);
+  const bookingDate = moment(booking.date).isValid()
+    ? moment(booking.date).format('DD-MM-YYYY')
+    : booking.date;
+  const bookingTime = `${String(booking.timePeriod.start.hour).padStart(2, '0')}:${String(booking.timePeriod.start.minute).padStart(2, '0')} - ${String(booking.timePeriod.end.hour).padStart(2, '0')}:${String(booking.timePeriod.end.minute).padStart(2, '0')}`;
+
+  await sendMail(
+    'tobiasbastholmfitness@gmail.com',
+    `Ønske om aflysning af booking - ${booking.service}`,
+    `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
+        <div style="background-color: #0f172a; padding: 24px 32px; color: #ffffff;">
+          <h2 style="margin: 0 0 8px; font-size: 24px;">Ønske om aflysning</h2>
+          <p style="margin: 0; font-size: 15px; color: #cbd5e1;">En kunde ønsker at aflyse en booking</p>
+        </div>
+        <div style="padding: 32px; color: #1f2937;">
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #ef4444; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Navn:</strong> ${userProfile.firstName} ${userProfile.lastName}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Email:</strong> ${booking.email}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Service:</strong> ${booking.service}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Dato:</strong> ${bookingDate}</p>
+            <p style="margin: 0; font-size: 15px;"><strong>Tid:</strong> ${bookingTime}</p>
           </div>
           <p style="margin: 0; font-size: 14px; color: #475569;">Forespørgslen er sendt fra kontooversigten.</p>
         </div>

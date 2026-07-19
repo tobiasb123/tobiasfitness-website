@@ -322,6 +322,26 @@ form {
   }
 }
 
+.cancel-request-button {
+  border: 1px solid #fca5a5;
+  appearance: none;
+  padding: 10px 14px;
+  align-self: flex-start;
+  border-radius: 999px;
+  cursor: pointer;
+  background: #fff1f2;
+  color: #b91c1c;
+  font-weight: 600;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: #ffe4e6;
+  }
+}
+
 .empty-state {
   text-align: center;
   padding: 24px;

@@ -11,7 +11,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { BOOKING_TIME_OPTIONS, formatTimePeriodOption } from '@models/booking/booking-time-options';
-import { Booking, RescheduleBookingRequest } from '@models/booking/interfaces';
+import {
+  Booking,
+  CancelBookingRequest,
+  RescheduleBookingRequest,
+} from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
@@ -153,6 +157,19 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
       this.toast.open('Forespørgsel om omlægning sendt', 'success');
     } catch {
       this.toast.open('Forespørgsel om omlægning kunne ikke sendes', 'error');
+    }
+  }
+
+  public async sendCancellationMail(booking: Booking): Promise<void> {
+    const request: CancelBookingRequest = {
+      bookingId: booking.id,
+    };
+
+    try {
+      await this.contactFunctions.sendCancellationMail(request);
+      this.toast.open('Forespørgsel om aflysning sendt', 'success');
+    } catch {
+      this.toast.open('Forespørgsel om aflysning kunne ikke sendes', 'error');
     }
   }
 

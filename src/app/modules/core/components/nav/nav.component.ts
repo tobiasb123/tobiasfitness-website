@@ -20,6 +20,7 @@ export class NavComponent implements OnInit, OnDestroy {
   private lastScrollY = 0;
   private readonly handleWindowScroll = () => {
     const currentScrollY = window.scrollY;
+    const isAtTop = currentScrollY <= 2;
 
     if (this.menuOpen()) {
       this.navHidden.set(false);
@@ -29,7 +30,7 @@ export class NavComponent implements OnInit, OnDestroy {
 
     if (currentScrollY > this.lastScrollY && currentScrollY > 0) {
       this.navHidden.set(true);
-    } else if (currentScrollY < this.lastScrollY) {
+    } else if (isAtTop) {
       this.navHidden.set(false);
     }
 

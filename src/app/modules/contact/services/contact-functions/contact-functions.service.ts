@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import {
   Booking,
   BookingBase,
+  CancelBookingRequest,
   RescheduleBookingRequest,
   Service,
 } from '@models/booking/interfaces';
@@ -30,6 +31,13 @@ export class ContactFunctionsService {
   ): Promise<{ success: boolean }> {
     return this.firbaseService.httpPost<RescheduleBookingRequest, { success: boolean }>(
       'booking-sendRescheduleMail',
+      request,
+    );
+  }
+
+  public async sendCancellationMail(request: CancelBookingRequest): Promise<{ success: boolean }> {
+    return this.firbaseService.httpPost<CancelBookingRequest, { success: boolean }>(
+      'booking-sendCancellationMail',
       request,
     );
   }
