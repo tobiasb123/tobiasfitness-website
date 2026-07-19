@@ -30,7 +30,7 @@ p {
   align-items: center;
   justify-content: center;
 
-  margin-top: 60px;
+  padding-top: var(--page-nav-offset);
 }
 
 button {

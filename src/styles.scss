@@ -14,13 +14,35 @@ html {
   scroll-behavior: smooth;
 }
 
+h1,
+h2,
 h3 {
   font-family: Merriweather;
+}
+
+h1 {
+  margin: 0 0 24px;
+  align-self: center;
+  justify-self: end;
+  font-size: 50px;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  text-shadow:
+    3px 0 0 #313131,
+    -3px 0 0 #313131,
+    0 3px 0 #313131,
+    0 -3px 0 #313131,
+    2px 2px 0 #313131,
+    -2px -2px 0 #313131,
+    2px -2px 0 #313131,
+    -2px 2px 0 #313131;
 }
 
 /* Shared sizing for the fixed navigation */
 :root {
   --nav-width: 250px;
+  --page-nav-offset: 156px;
 }
 
 @media (max-width: 600px) {

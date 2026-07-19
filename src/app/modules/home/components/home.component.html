@@ -62,15 +62,25 @@
     <ul class="carousel">
       @for (review of reviews; track $index) {
         <li>
-          <div class="img" [style.backgroundImage]="'url(' + review.image + ')'">
-            <div class="review" (click)="textReview()">
+          <div class="review-card" (click)="textReview()">
+            <div class="img" [style.backgroundImage]="'url(' + review.image + ')'"></div>
+
+            <div class="review-content">
+              <div class="review-header">
+                <div class="review-avatar">{{ review.name?.charAt(0) || 'T' }}</div>
+                <div class="review-meta">
+                  <strong>{{ review.name }}</strong>
+                  <span>{{ review.age }} år</span>
+                </div>
+                <span class="review-stars">{{ review.stars }}★</span>
+              </div>
+
               <p class="text" [class.active]="reviewText">
                 {{ review.review }}
-                <br />
               </p>
+
               <div class="overview">
-                <p>{{ review.stars }} - {{ review.name }}, {{ review.age }}</p>
-                <small>click for at se anmeldelse</small>
+                <small>klik for at læse hele anmeldelsen</small>
               </div>
             </div>
           </div>

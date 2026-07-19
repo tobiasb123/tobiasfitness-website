@@ -2,18 +2,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 60px;
-  padding: 40px 20px 100px;
+  padding: calc(var(--page-nav-offset) + 12px) 20px 100px;
   background-image: url('../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
   background-size: cover;
 
   h1 {
-    font-size: clamp(2rem, 3vw, 2.8rem);
     margin: 40px 0 24px;
-    color: #0f172a;
-    text-shadow: none;
-    font-family: Merriweather;
   }
 }
 

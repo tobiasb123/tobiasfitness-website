@@ -1,43 +1,61 @@
-<footer>
-  <div class="grid-holder">
-    <img src="Tobias_Bastholm_Fitness_Logo.png" width="400px" height="200px" />
-    <div class="holder">
-      <div class="grid line-holder">
-        <h3>Links</h3>
-        <div>
+<footer class="site-footer">
+  <div class="footer-shell">
+    <section class="footer-banner">
+      <div class="banner-copy">
+        <p class="eyebrow">Tobias Bastholm Fitness</p>
+        <h2>Klar til at tage næste skridt?</h2>
+        <p>
+          Book en tid, tag kontakt eller følg med på sociale medier for inspiration, træning og nye
+          opdateringer.
+        </p>
+      </div>
+
+      <div class="banner-actions">
+        <a class="footer-cta" routerLink="/contact">Bestil Tid</a>
+        <a class="footer-secondary" href="mailto:tobiasbastholmfitness@gmail.com">Kontakt</a>
+      </div>
+    </section>
+
+    <div class="footer-main">
+      <div class="brand-column">
+        <img src="Tobias_Bastholm_Fitness_Logo.png" alt="Tobias Bastholm Fitness logo" />
+        <p class="brand-copy">
+          Personlig traening, coaching og kostvejledning med fokus paa struktur, progression og
+          holdbare resultater.
+        </p>
+      </div>
+
+      <div class="footer-columns">
+        <section class="footer-section">
+          <h3>Links</h3>
           <a class="link" routerLink="/">Forside</a>
-        </div>
-        <div>
           <a class="link" routerLink="/prices">Priser</a>
-        </div>
-        <div>
           <a class="link" routerLink="/contact">Bestil Tid</a>
-        </div>
-        <div>
-          <a class="link" href="mailto:tobiasbastholmfitness@gmail.com">Send en mail</a>
-        </div>
-      </div>
+        </section>
 
-      <div class="socials">
-        <h3>Sociale-Medier</h3>
-        <div class="button-container">
-          <a
-            class="instagram social-button"
-            (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
-          ></a>
-          <a
-            class="facebook social-button"
-            (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
-          ></a>
-        </div>
-      </div>
+        <section class="footer-section social-section">
+          <h3>Sociale Medier</h3>
+          <div class="button-container">
+            <a
+              class="instagram social-button"
+              aria-label="Instagram"
+              (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
+            ></a>
+            <a
+              class="facebook social-button"
+              aria-label="Facebook"
+              (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
+            ></a>
+          </div>
+        </section>
 
-      <div class="grid">
-        <h3>Info</h3>
-        <a class="info">CVR: 46386167</a>
-        <a class="info">Telefonnummer: +4561722524</a>
-        <a class="info">Adresse: Østre Havnevej 11c, 4300 Holbæk</a>
-        <a class="info">Mail: tobiasbastholmfitness@gmail.com</a>
+        <section class="footer-section">
+          <h3>Info</h3>
+          <span class="info">CVR: 46386167</span>
+          <span class="info">Telefonnummer: +45 61 72 25 24</span>
+          <span class="info">Adresse: Oestre Havnevej 11c, 4300 Holbaek</span>
+          <span class="info">Mail: tobiasbastholmfitness@gmail.com</span>
+        </section>
       </div>
     </div>
   </div>

@@ -10,12 +10,18 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
-import { Booking } from '@models/booking/interfaces';
+import { BOOKING_TIME_OPTIONS, formatTimePeriodOption } from '@models/booking/booking-time-options';
+import { Booking, RescheduleBookingRequest } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
 import { BookingFacade, ContactFunctionsService } from '../contact';
 import { ToastService } from '../core/services/toast/toast.service';
+
+export interface BookingRescheduleSelection {
+  date: string;
+  time: string;
+}
 
 @Component({
   selector: 'app-account-management',
@@ -24,6 +30,8 @@ import { ToastService } from '../core/services/toast/toast.service';
   styleUrl: './account-management.component.scss',
 })
 export class AccountManagementComponent implements OnInit, OnDestroy {
+  public readonly rescheduleTimeOptions = BOOKING_TIME_OPTIONS;
+
   private subs: Subscription[] = [];
 
   private authFunctions = inject(AuthFunctionsService);
@@ -33,6 +41,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
   private userProfile: UserProfile | undefined;
 
   public bookings: WritableSignal<Booking[]> = signal([]);
+  public rescheduleSelections = signal<Record<string, BookingRescheduleSelection>>({});
 
   private readonly profileEffect = effect(() => {
     const profile = this.authFunctions.currentUserProfile();
@@ -71,6 +80,80 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
   public formatBookingDate(date: string): string {
     return moment(date).isValid() ? moment(date).format('DD-MM-YYYY') : date;
+  }
+
+  private createDefaultRescheduleSelection(): BookingRescheduleSelection {
+    return {
+      date: moment().format('YYYY-MM-DD'),
+      time: this.rescheduleTimeOptions[0] ?? '',
+    };
+  }
+
+  private formatBookingTimeOption(booking: Booking): string {
+    return formatTimePeriodOption(booking.timePeriod);
+  }
+
+  public getRescheduleSelection(booking: Booking): BookingRescheduleSelection {
+    const bookingKey = String(booking.id);
+    const existingSelection = this.rescheduleSelections()[bookingKey];
+
+    if (existingSelection) {
+      return existingSelection;
+    }
+
+    const selectedDate = moment(booking.date).isValid()
+      ? moment(booking.date).format('YYYY-MM-DD')
+      : this.createDefaultRescheduleSelection().date;
+
+    const bookingTimeOption = this.formatBookingTimeOption(booking);
+    const selectedTime = this.rescheduleTimeOptions.includes(bookingTimeOption)
+      ? bookingTimeOption
+      : this.createDefaultRescheduleSelection().time;
+
+    return {
+      date: selectedDate,
+      time: selectedTime,
+    };
+  }
+
+  public updateRescheduleSelection(
+    booking: Booking,
+    field: keyof BookingRescheduleSelection,
+    value: string,
+  ): void {
+    const bookingId = booking.id;
+    const bookingKey = String(bookingId);
+    const currentSelections = this.rescheduleSelections();
+
+    this.rescheduleSelections.set({
+      ...currentSelections,
+      [bookingKey]: {
+        ...(currentSelections[bookingKey] ?? this.getRescheduleSelection(booking)),
+        [field]: value,
+      },
+    });
+  }
+
+  public async sendRescheduleMail(booking: Booking): Promise<void> {
+    const selection = this.getRescheduleSelection(booking);
+
+    if (!selection.date || !selection.time) {
+      this.toast.open('Vælg en ny dato og tid først', 'error');
+      return;
+    }
+
+    const request: RescheduleBookingRequest = {
+      bookingId: booking.id,
+      requestedDate: selection.date,
+      requestedTime: selection.time,
+    };
+
+    try {
+      await this.contactFunctions.sendRescheduleMail(request);
+      this.toast.open('Forespørgsel om omlægning sendt', 'success');
+    } catch {
+      this.toast.open('Forespørgsel om omlægning kunne ikke sendes', 'error');
+    }
   }
 
   ngOnInit(): void {

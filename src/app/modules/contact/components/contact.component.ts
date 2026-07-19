@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
+import { BOOKING_TIME_OPTIONS } from '@models/booking/booking-time-options';
 import { BookingBase, Service, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
@@ -37,13 +38,7 @@ export class ContactComponent implements OnInit {
     pris: this.priceControl,
   });
 
-  hourOptions: Array<string> = [
-    '09:00 - 10:00',
-    '11:00 - 12:00',
-    '13:00 - 14:00',
-    '15:00 - 16:00',
-    '17:00 - 18:00',
-  ];
+  hourOptions: Array<string> = BOOKING_TIME_OPTIONS;
 
   serviceFormComponents: WritableSignal<Service[]> = signal([]);
 

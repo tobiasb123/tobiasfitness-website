@@ -30,8 +30,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       review:
         'En rigtig god oplevelse med en meget grundig vejledning fra Tobias. Inden vi gik i gang, stillede han gode og relevante spørgsmål, så træningen og programmet kunne tilpasses mig og mine behov. Jeg fik en grundig vejledning i brugen af maskinerne, så jeg følte mig tryg ved øvelserne. Og så var det dejligt med lidt ros og opmuntring undervejs 😊 Kan klart anbefales!',
       name: 'Sandie Tolstrup',
-      age: '45 år',
-      stars: '⭐⭐⭐⭐⭐',
+      age: '45',
+      stars: '5',
     },
   ];
 

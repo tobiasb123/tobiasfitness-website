@@ -70,6 +70,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
 
   public bookings: WritableSignal<Booking[]> = signal([]);
   public selectedBooking: WritableSignal<Booking> = signal(undefined);
+  public isDeleteConfirmationOpen = signal(false);
 
   ngOnInit(): void {
     this.subs.push(
@@ -82,6 +83,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   updateSelectedBooking(bookingId: string): void {
     const booking = this.bookings().filter((booking) => booking.id === bookingId)[0];
     this.selectedBooking.set(booking);
+    this.isDeleteConfirmationOpen.set(false);
 
     const startTime = booking.timePeriod.start.hour + ':' + booking.timePeriod.start.minute;
     const endTime = booking.timePeriod.end.hour + ':' + booking.timePeriod.end.minute;
@@ -93,9 +95,15 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   }
 
   deleteBooking(id: string): void {
+    if (!id) {
+      this.toast.open('Vælg en booking først', 'error');
+      return;
+    }
+
     this.adminFunctions
       .deleteBooking(id)
       .then(() => {
+        this.isDeleteConfirmationOpen.set(false);
         this.bookingFacade.deleteBooking(id);
         this.openTab('Tider');
         this.toast.open('Booking Aflyst', 'success');
@@ -103,6 +111,23 @@ export class DataEditerComponent implements OnInit, OnDestroy {
       .catch(() => {
         this.toast.open('Noget gik galt', 'error');
       });
+  }
+
+  requestDeleteBooking(): void {
+    if (!this.selectedBooking()) {
+      this.toast.open('Vælg en booking først', 'error');
+      return;
+    }
+
+    this.isDeleteConfirmationOpen.set(true);
+  }
+
+  cancelDeleteBooking(): void {
+    this.isDeleteConfirmationOpen.set(false);
+  }
+
+  confirmDeleteBooking(): void {
+    this.deleteBooking(this.selectedBooking()?.id);
   }
 
   editBooking(): void {
@@ -232,6 +257,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
     }
 
     this.selectedBooking.set(null);
+    this.isDeleteConfirmationOpen.set(false);
   }
 
   resetTabs() {
@@ -256,6 +282,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
     this.allButtons[0].classList.add('active');
 
     this.selectedBooking.set(null);
+    this.isDeleteConfirmationOpen.set(false);
   }
 
   openTab(tabName: string) {
@@ -272,9 +299,15 @@ export class DataEditerComponent implements OnInit, OnDestroy {
     }
 
     this.selectedBooking.set(null);
+    this.isDeleteConfirmationOpen.set(false);
   }
 
   openEditTab() {
+    if (!this.selectedBooking()) {
+      this.toast.open('Vælg en booking først', 'error');
+      return;
+    }
+
     for (let index = 0; index < this.allTabs.length; index++) {
       const element = this.allTabs[index];
       if (element.classList.contains('Edit')) {

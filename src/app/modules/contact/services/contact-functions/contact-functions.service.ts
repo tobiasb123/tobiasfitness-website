@@ -1,5 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Booking, BookingBase, Service } from '@models/booking/interfaces';
+import {
+  Booking,
+  BookingBase,
+  RescheduleBookingRequest,
+  Service,
+} from '@models/booking/interfaces';
 import { FirebaseService } from '@modules/firebase';
 
 @Injectable({
@@ -18,5 +23,14 @@ export class ContactFunctionsService {
 
   public async getServices(): Promise<Service[]> {
     return this.firbaseService.httpGet<Service[]>('booking-getServices');
+  }
+
+  public async sendRescheduleMail(
+    request: RescheduleBookingRequest,
+  ): Promise<{ success: boolean }> {
+    return this.firbaseService.httpPost<RescheduleBookingRequest, { success: boolean }>(
+      'booking-sendRescheduleMail',
+      request,
+    );
   }
 }

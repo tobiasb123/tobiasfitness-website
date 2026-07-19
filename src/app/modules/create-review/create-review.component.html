@@ -1,6 +1,11 @@
-<section>
-  <form (submit)="onSubmit($event)" [formGroup]="formGroup">
-    <h1>Opret Anmeldelse</h1>
+<section class="review-shell">
+  <form class="review-card" (submit)="onSubmit($event)" [formGroup]="formGroup">
+    <div class="card-header">
+      <p class="eyebrow">Review</p>
+      <h1>Opret Anmeldelse</h1>
+      <p class="intro">Del dit indtryk og upload et billede, så andre kan se din oplevelse.</p>
+    </div>
+
     <div class="file">
       <input
         #file

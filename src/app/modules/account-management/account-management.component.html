@@ -88,6 +88,39 @@
                 </span>
               </div>
             </div>
+
+            <div class="reschedule-panel">
+              <div class="reschedule-row">
+                <label class="reschedule-label" [for]="'reschedule-date-' + booking.id"
+                  >Ny dato</label
+                >
+                <input
+                  [id]="'reschedule-date-' + booking.id"
+                  type="date"
+                  [value]="getRescheduleSelection(booking).date"
+                  (change)="updateRescheduleSelection(booking, 'date', $any($event.target).value)"
+                />
+              </div>
+
+              <div class="reschedule-row">
+                <label class="reschedule-label" [for]="'reschedule-time-' + booking.id"
+                  >Ny tid</label
+                >
+                <select
+                  [id]="'reschedule-time-' + booking.id"
+                  [value]="getRescheduleSelection(booking).time"
+                  (change)="updateRescheduleSelection(booking, 'time', $any($event.target).value)"
+                >
+                  @for (timeOption of rescheduleTimeOptions; track timeOption) {
+                    <option [value]="timeOption">{{ timeOption }}</option>
+                  }
+                </select>
+              </div>
+
+              <button class="reschedule-button" type="button" (click)="sendRescheduleMail(booking)">
+                Foreslå omlægning
+              </button>
+            </div>
           </article>
         }
       } @else {

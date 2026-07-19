@@ -1,40 +1,11 @@
 <div class="body">
-  <div class="list-container">
-    <div class="Profiles view active">
-      @if (!allUsers().at(0)) {
-        <h2>Ingen Brugere</h2>
-        <p>Refresh to load</p>
-      } @else {
-        @for (profile of allUsers(); track profile.uid) {
-          <div class="profile element" (click)="selectUser(profile.uid)">
-            <p>uid: {{ profile.uid }}</p>
-            <p>Navn: {{ profile.firstName }} {{ profile.lastName }}</p>
-            <p>Email: {{ profile.email }}</p>
-          </div>
-        }
-      }
+  <aside class="options">
+    <div class="sidebar-header">
+      <p class="eyebrow">Admin</p>
+      <h2>Kontrolpanel</h2>
+      <p>Få overblik over brugere, bookinger og kundedata.</p>
     </div>
-    <div class="Apointments view">
-      @if (!bookings().at(0)) {
-        <h2>Ingen Bookinger</h2>
-        <p>Refresh to load</p>
-      } @else {
-        @for (booking of bookings(); track booking.id) {
-          <div class="apointment element" (click)="selectUser(booking.uid)">
-            <p>Navn: {{ booking.firstName }} {{ booking.lastName }}</p>
-            <p>
-              Dato: {{ booking.date }} <br />
-              Tid: {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }}
-              -
-              {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
-            </p>
-            <p>Service: {{ booking.service }}</p>
-          </div>
-        }
-      }
-    </div>
-  </div>
-  <div class="options">
+
     <div class="view-options">
       <button class="view-option active" (click)="selectView($event)">Profiles</button>
       <button class="view-option" (click)="selectView($event)">Apointments</button>
@@ -42,13 +13,86 @@
 
     <div class="selected-profile">
       @if (selectedUser()) {
-        <p>uid: {{ selectedUser().uid }}</p>
-        <p>Navn: {{ selectedUser().firstName }} {{ selectedUser().lastName }}</p>
-        <p>Email: {{ selectedUser().email }}</p>
+        <div class="profile-summary">
+          <span class="label">Valgt profil</span>
+          <strong>{{ selectedUser().firstName }} {{ selectedUser().lastName }}</strong>
+          <p>{{ selectedUser().email }}</p>
+        </div>
+      } @else {
+        <div class="profile-summary empty">
+          <span class="label">Valgt profil</span>
+          <strong>Ingen valgt</strong>
+          <p>Vælg en bruger i listen for at se detaljerne.</p>
+        </div>
       }
     </div>
 
-    <button (click)="openEditer()">Open Profile</button>
+    <button class="primary-button" (click)="openEditer()">Åbn profil</button>
+  </aside>
+
+  <div class="list-container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Brugere</span>
+        <strong>{{ allUsers().length }}</strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Bookinger</span>
+        <strong>{{ bookings().length }}</strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Valgt</span>
+        <strong>{{ selectedUser() ? selectedUser().firstName?.charAt(0) || '—' : '—' }}</strong>
+      </div>
+    </div>
+
+    <div class="view Profiles active">
+      @if (!allUsers().length) {
+        <div class="empty-state">
+          <h3>Ingen brugere</h3>
+          <p>Refresh for at hente data.</p>
+        </div>
+      } @else {
+        @for (profile of allUsers(); track profile.uid) {
+          <button class="profile element" (click)="selectUser(profile.uid)">
+            <div class="card-main">
+              <span class="card-label">Bruger</span>
+              <strong>{{ profile.firstName }} {{ profile.lastName }}</strong>
+            </div>
+            <div class="card-meta">
+              <span>{{ profile.email }}</span>
+              <small>UID: {{ profile.uid }}</small>
+            </div>
+          </button>
+        }
+      }
+    </div>
+
+    <div class="view Apointments">
+      @if (!bookings().length) {
+        <div class="empty-state">
+          <h3>Ingen bookinger</h3>
+          <p>Refresh for at hente data.</p>
+        </div>
+      } @else {
+        @for (booking of bookings(); track booking.id) {
+          <button class="apointment element" (click)="selectUser(booking.uid)">
+            <div class="card-main">
+              <span class="card-label">Booking</span>
+              <strong>{{ booking.firstName }} {{ booking.lastName }}</strong>
+            </div>
+            <div class="card-meta">
+              <span>{{ booking.date }}</span>
+              <small>
+                {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }} -
+                {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
+              </small>
+            </div>
+            <span class="service-pill">{{ booking.service }}</span>
+          </button>
+        }
+      }
+    </div>
   </div>
 </div>
 

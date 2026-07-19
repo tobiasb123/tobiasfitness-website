@@ -1,7 +1,15 @@
-import { Booking, BookingBase, Service } from '@models/booking/interfaces';
+import {
+  Booking,
+  BookingBase,
+  RescheduleBookingRequest,
+  Service,
+} from '@models/booking/interfaces';
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
-import { getBlockedDays, getTimePeriods } from '../../shared/config/config.shared';
+import {
+  getBlockedDays,
+  getTimePeriods as getTimePeriodsConfig,
+} from '../../shared/config/config.shared';
 import { createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
 import { getUser } from '../auth/common/auth.common';
 import { sendMail } from '../mail/common/mail.common';
@@ -28,7 +36,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
   }
 
   const chosenTimePeriod = data.timePeriod;
-  const timePeriods = await getTimePeriods();
+  const timePeriods = await getTimePeriodsConfig();
   const isPeriodValid = timePeriods.some((timePeriod) => {
     return (
       timePeriod.start.hour === chosenTimePeriod.start.hour &&
@@ -97,7 +105,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
                 <a href="${accountManagementUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold;">Gå til kontooversigt</a>
               </p>
               <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du ønsker at aflyse eller ændre din booking, skal du sende en mail til <a href="mailto:tobiasbastholmfitness@gmail.com" style="color: #2563eb; text-decoration: none;">tobiasbastholmfitness@gmail.com</a>.</p>
-              <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du har yderligere spørgsmål, er du velkommen til at besvare denne mail.</p>
+              <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du har nogle spørgsmål er du meget velkommen til at kontakte mig via hjemmesiden.</p>
               <p style="margin: 0; font-size: 14px; color: #475569;">Venlig hilsen<br />Tobias Bastholm</p>
             </div>
             <div style="padding: 0 32px 24px;">
@@ -174,4 +182,54 @@ export const getServices = createPublicEndpoint(async (req, res) => {
   }
 
   res.json(services);
+});
+
+export const sendRescheduleMail = createAuthEndpoint(async (req, res, user) => {
+  const data = req.body as RescheduleBookingRequest;
+  const bookingDoc = await bookingsCollection.doc(data.bookingId).get();
+
+  if (!bookingDoc.exists) {
+    throw new HttpsError('not-found', 'Booking findes ikke');
+  }
+
+  const booking = {
+    ...(bookingDoc.data() as Booking),
+    id: bookingDoc.id,
+  };
+
+  if (booking.uid !== user.uid) {
+    throw new HttpsError('permission-denied', 'Du har ikke adgang til denne booking');
+  }
+
+  const userProfile = await getUser(user.uid);
+  const requestedDate = moment(data.requestedDate).isValid()
+    ? moment(data.requestedDate).format('DD-MM-YYYY')
+    : data.requestedDate;
+
+  await sendMail(
+    'tobiasbastholmfitness@gmail.com',
+    `Ønske om omlægning af booking - ${booking.service}`,
+    `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
+        <div style="background-color: #0f172a; padding: 24px 32px; color: #ffffff;">
+          <h2 style="margin: 0 0 8px; font-size: 24px;">Ønske om omlægning</h2>
+          <p style="margin: 0; font-size: 15px; color: #cbd5e1;">En kunde ønsker at flytte en booking</p>
+        </div>
+        <div style="padding: 32px; color: #1f2937;">
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Navn:</strong> ${userProfile.firstName} ${userProfile.lastName}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Email:</strong> ${booking.email}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Service:</strong> ${booking.service}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Nuværende dato:</strong> ${moment(booking.date).format('DD-MM-YYYY')}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Nuværende tid:</strong> ${String(booking.timePeriod.start.hour).padStart(2, '0')}:${String(booking.timePeriod.start.minute).padStart(2, '0')} - ${String(booking.timePeriod.end.hour).padStart(2, '0')}:${String(booking.timePeriod.end.minute).padStart(2, '0')}</p>
+            <p style="margin: 0 0 8px; font-size: 15px;"><strong>Ønsket ny dato:</strong> ${requestedDate}</p>
+            <p style="margin: 0; font-size: 15px;"><strong>Ønsket ny tid:</strong> ${data.requestedTime}</p>
+          </div>
+          <p style="margin: 0; font-size: 14px; color: #475569;">Forespørgslen er sendt fra kontooversigten.</p>
+        </div>
+      </div>
+    </div>`,
+  );
+
+  res.json({ success: true });
 });

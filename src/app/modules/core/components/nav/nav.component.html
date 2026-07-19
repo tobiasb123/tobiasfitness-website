@@ -1,52 +1,99 @@
-<div class="header">
-  <button class="menuButton" (click)="openCloseNav()"></button>
-  <div>
-    <a class="home-link" routerLink="/" (click)="closeNav()">Tobiasbastholmfitness</a>
-  </div>
-</div>
+<header class="nav-shell" [class.menu-open]="menuOpen()" [class.nav-hidden]="navHidden()">
+  <div class="nav-bar">
+    <a class="brand-link" routerLink="/" (click)="closeNav()">
+      <span class="brand-mark">TB</span>
+      <span class="brand-text">
+        <strong>Tobias Bastholm</strong>
+        <small>Fitness</small>
+      </span>
+    </a>
 
-<nav class="nav">
-  <div class="otherNavComponents">
-    @for (route of routes; track route) {
-      @if (route.showInNavList) {
-        @if (currentUser()) {
-          @if (
-            (route.displayName === 'Opskrifter' && currentUser()?.admin) ||
-            (route.displayName === 'Admin-Menu' && currentUser()?.admin)
-          ) {
-            <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
-          }
-
-          @if (route.displayName === 'Bestil Tid') {
-            <a [routerLink]="route.path" (click)="openCloseNav()">{{ route.displayName }}</a>
-          }
-        }
-
-        @if (
-          route.displayName !== 'Konto' &&
-          route.displayName !== 'Admin-Menu' &&
-          route.displayName !== 'Bestil Tid' &&
-          route.displayName !== 'Opskrifter'
-        ) {
-          <a class="accountButton" [routerLink]="route.path" (click)="openCloseNav()">{{
-            route.displayName
-          }}</a>
-        }
-
-        @if (route.displayName === 'Konto') {
-          <a (click)="accountAccess()">Konto</a>
-          <div class="account-access">
-            @if (isLoggedIn()) {
-              <a [routerLink]="routes[7].path" (click)="closeNav()">Adminster Konto</a>
-              <a (click)="logOut()">Log Out</a>
-            } @else {
-              <a (click)="signUp()">Opret Konto</a>
-              <a (click)="logIn()">Log Ind</a>
-            }
-          </div>
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a
+        class="nav-link"
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Forside
+      </a>
+      @for (route of routes; track route.path) {
+        @if (shouldShowPrimaryLink(route)) {
+          <a
+            class="nav-link"
+            [class.cta-link]="isCtaRoute(route)"
+            [routerLink]="route.path"
+            routerLinkActive="active"
+            (click)="handlePrimaryNavigation(route)"
+          >
+            {{ route.displayName }}
+          </a>
         }
       }
-    }
+    </nav>
+
+    <div class="account-cluster">
+      <button class="account-toggle" type="button" (click)="toggleAccountMenu()">Konto</button>
+
+      <div class="account-menu" [class.open]="accountMenuOpen()">
+        @if (isLoggedIn()) {
+          <a routerLink="/account-management" (click)="closeNav()">Administrer konto</a>
+          <button type="button" (click)="logOut()">Log ud</button>
+        } @else {
+          <button type="button" (click)="signUp()">Opret konto</button>
+          <button type="button" (click)="logIn()">Log ind</button>
+        }
+      </div>
+
+      <button
+        class="menu-button"
+        type="button"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Toggle navigation"
+        (click)="toggleMenu()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </div>
-</nav>
-<div class="screen-clear" (click)="closeNav()"></div>
+
+  <button
+    class="nav-toggle"
+    [class.nav-hidden]="navHidden()"
+    type="button"
+    [attr.aria-expanded]="!navHidden()"
+    [attr.aria-label]="navHidden() ? 'Vis navigation' : 'Skjul navigation'"
+    (click)="toggleNavVisibility()"
+  >
+    {{ navHidden() ? 'Vis navigation ▲' : 'Skjul navigation ▼' }}
+  </button>
+
+  <nav class="mobile-nav" [class.open]="menuOpen()" aria-label="Mobile navigation">
+    <div class="mobile-nav-inner">
+      <a class="mobile-link hero-link" routerLink="/" (click)="closeNav()">Forside</a>
+      @for (route of routes; track route.path) {
+        @if (shouldShowPrimaryLink(route)) {
+          <a class="mobile-link" [routerLink]="route.path" (click)="handlePrimaryNavigation(route)">
+            {{ route.displayName }}
+          </a>
+        }
+      }
+
+      <div class="mobile-account-divider" aria-hidden="true"></div>
+
+      @if (isLoggedIn()) {
+        <a class="mobile-link" routerLink="/account-management" (click)="closeNav()">
+          Administrer konto
+        </a>
+        <button class="mobile-link" type="button" (click)="logOut()">Log ud</button>
+      } @else {
+        <button class="mobile-link" type="button" (click)="signUp()">Opret konto</button>
+        <button class="mobile-link" type="button" (click)="logIn()">Log ind</button>
+      }
+    </div>
+  </nav>
+</header>
+
+<div class="screen-clear" [class.open]="menuOpen()" (click)="closeNav()"></div>

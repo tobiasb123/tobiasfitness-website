@@ -12,14 +12,11 @@ h3 {
   background-image: url('../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
   background-size: cover;
-
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  margin-top: 60px;
+  padding: calc(var(--page-nav-offset) + 12px) 20px 80px;
 }
 
 .services {
@@ -51,84 +48,70 @@ h3 {
 
 .service {
   display: flex;
-
-  background-color: rgb(148, 170, 196);
-
-  align-items: start;
+  background: rgba(255, 255, 255, 0.95);
+  align-items: flex-start;
   justify-content: space-between;
   text-align: center;
-
-  padding: 10px;
-
-  border-radius: 15px;
-
-  box-shadow: 0 0 6px rgb(78, 78, 78);
+  padding: 20px;
+  border-radius: 24px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  border: 1px solid #cfe8ff;
+  backdrop-filter: blur(8px);
 }
 
 .to-contact {
-  width: 300px;
-  height: 100px;
-
-  background-color: rgb(69, 126, 201);
-
+  width: min(90%, 320px);
+  height: 54px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  font-size: 24px;
-  font-weight: bold;
-
+  font-size: 1rem;
+  font-weight: 700;
   text-decoration: none;
   color: white;
-
-  border-radius: 15px;
-  box-shadow: 0 0 6px rgb(42, 71, 110);
-
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
   margin-top: 15px;
-
   margin-bottom: 15px;
-
   user-select: none;
-
   cursor: pointer;
-
-  transition: 0.25s all ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
-    background-color: rgb(41, 89, 151);
-    box-shadow: 0 0 6px rgb(69, 126, 201);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
   }
 }
 
 .disc {
   display: flex;
   flex-direction: column;
-
   width: 100%;
-
   align-items: center;
   justify-content: center;
-
   padding: 10px;
+  gap: 6px;
 
   p {
-    margin: 5px;
+    margin: 0;
+    color: #475569;
   }
 
   #discription {
-    margin-top: 30px;
+    margin-top: 12px;
+    color: #334155;
   }
 }
 
 img {
-  width: 300px;
+  width: 260px;
   height: auto;
-
   object-fit: cover;
-
-  border-radius: 15px;
-  box-shadow: 0 0 3px rgb(78, 78, 78);
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
 }
 
 .administator-button {

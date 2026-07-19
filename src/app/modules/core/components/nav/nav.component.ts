@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
 import { RouteExt, routes } from '../../../../app.routes';
@@ -11,8 +11,30 @@ import { ToastService } from '../../services/toast/toast.service';
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })
-export class NavComponent implements OnInit {
-  routes: RouteExt[];
+export class NavComponent implements OnInit, OnDestroy {
+  routes: RouteExt[] = routes;
+  menuOpen = signal(false);
+  accountMenuOpen = signal(false);
+  navHidden = signal(false);
+
+  private lastScrollY = 0;
+  private readonly handleWindowScroll = () => {
+    const currentScrollY = window.scrollY;
+
+    if (this.menuOpen()) {
+      this.navHidden.set(false);
+      this.lastScrollY = currentScrollY;
+      return;
+    }
+
+    if (currentScrollY > this.lastScrollY && currentScrollY > 0) {
+      this.navHidden.set(true);
+    } else if (currentScrollY < this.lastScrollY) {
+      this.navHidden.set(false);
+    }
+
+    this.lastScrollY = currentScrollY;
+  };
 
   private toast = inject(ToastService);
   private authFunctions = inject(AuthFunctionsService);
@@ -22,59 +44,100 @@ export class NavComponent implements OnInit {
   currentUser = this.authFunctions.currentUserProfile;
 
   ngOnInit(): void {
-    this.routes = routes;
+    if (typeof window !== 'undefined') {
+      this.lastScrollY = window.scrollY;
+      window.addEventListener('scroll', this.handleWindowScroll, { passive: true });
+      this.handleWindowScroll();
+    }
   }
-
-  navList = document.getElementsByClassName('nav');
-  screenClearDiv = document.getElementsByClassName('screen-clear');
 
   isLoggedIn(): boolean {
     return this.authState() === 'loggedIn';
   }
 
-  openCloseNav() {
-    if (this.navList.item(0)?.classList.contains('open')) {
-      this.navList.item(0)?.classList.remove('open');
-      this.screenClearDiv[0].classList.remove('open');
-      this.accountAccessDiv[0].classList.remove('visible');
-    } else {
-      this.navList.item(0)?.classList.add('open');
-      this.screenClearDiv[0].classList.add('open');
+  shouldShowPrimaryLink(route: RouteExt): boolean {
+    if (!route.showInNavList) {
+      return false;
+    }
+
+    if (route.displayName === 'Konto') {
+      return false;
+    }
+
+    if (route.displayName === 'Bestil Tid') {
+      return true;
+    }
+
+    if (route.displayName === 'Opskrifter' || route.displayName === 'Admin-Menu') {
+      return !!this.currentUser()?.admin;
+    }
+
+    return true;
+  }
+
+  isCtaRoute(route: RouteExt): boolean {
+    return route.displayName === 'Bestil Tid';
+  }
+
+  handlePrimaryNavigation(route: RouteExt): void {
+    if (route.displayName === 'Bestil Tid' && !this.isLoggedIn()) {
+      this.router.navigate(['signin']);
+      this.closeNav();
+      return;
+    }
+
+    this.closeNav();
+  }
+
+  toggleMenu(): void {
+    this.menuOpen.update((isOpen) => !isOpen);
+
+    if (this.menuOpen()) {
+      this.navHidden.set(false);
+    }
+
+    if (!this.menuOpen()) {
+      this.accountMenuOpen.set(false);
+      this.handleWindowScroll();
     }
   }
 
-  closeNav() {
-    if (this.navList.item(0)?.classList.contains('open')) {
-      this.navList.item(0)?.classList.remove('open');
-      this.screenClearDiv[0].classList.remove('open');
-      this.accountAccessDiv[0].classList.remove('visible');
-    }
+  toggleNavVisibility(): void {
+    this.menuOpen.set(false);
+    this.accountMenuOpen.set(false);
+    this.navHidden.update((isHidden) => !isHidden);
   }
 
-  accountAccessDiv = document.getElementsByClassName('account-access');
-  accountAccess() {
-    if (this.accountAccessDiv[0].classList.contains('visible')) {
-      this.accountAccessDiv[0].classList.remove('visible');
-    } else {
-      this.accountAccessDiv[0].classList.add('visible');
-    }
+  closeNav(): void {
+    this.menuOpen.set(false);
+    this.accountMenuOpen.set(false);
   }
 
-  logOut() {
-    this.accountAccess();
+  toggleAccountMenu(): void {
+    this.accountMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  logOut(): void {
+    this.accountMenuOpen.set(false);
     this.authFunctions.logout();
     this.closeNav();
   }
 
-  logIn() {
-    this.accountAccess();
+  logIn(): void {
+    this.accountMenuOpen.set(false);
     this.router.navigate(['signin']);
     this.closeNav();
   }
 
-  signUp() {
-    this.accountAccess();
+  signUp(): void {
+    this.accountMenuOpen.set(false);
     this.router.navigate(['signup']);
     this.closeNav();
+  }
+
+  ngOnDestroy(): void {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', this.handleWindowScroll);
+    }
   }
 }
