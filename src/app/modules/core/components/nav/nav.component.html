@@ -59,17 +59,6 @@
     </div>
   </div>
 
-  <button
-    class="nav-toggle"
-    [class.nav-hidden]="navHidden()"
-    type="button"
-    [attr.aria-expanded]="!navHidden()"
-    [attr.aria-label]="navHidden() ? 'Vis navigation' : 'Skjul navigation'"
-    (click)="toggleNavVisibility()"
-  >
-    {{ navHidden() ? 'Vis navigation ▼' : 'Skjul navigation ▲' }}
-  </button>
-
   <nav class="mobile-nav" [class.open]="menuOpen()" aria-label="Mobile navigation">
     <div class="mobile-nav-inner">
       <a class="mobile-link hero-link" routerLink="/" (click)="closeNav()">Forside</a>
@@ -94,6 +83,18 @@
       }
     </div>
   </nav>
+
+  <button
+    class="nav-toggle"
+    [class.menu-open]="menuOpen()"
+    [class.nav-hidden]="navHidden()"
+    type="button"
+    [attr.aria-expanded]="!navHidden()"
+    [attr.aria-label]="navHidden() ? 'Vis navigation' : 'Skjul navigation'"
+    (click)="toggleNavVisibility()"
+  >
+    {{ navHidden() ? 'Vis navigation ▼' : 'Skjul navigation ▲' }}
+  </button>
 </header>
 
 <div class="screen-clear" [class.open]="menuOpen()" (click)="closeNav()"></div>

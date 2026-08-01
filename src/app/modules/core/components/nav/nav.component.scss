@@ -352,8 +352,13 @@
     min-width: 168px;
   }
 
-  .nav-toggle.nav-hidden {
-    top: 10px;
+  .nav-toggle.menu-open {
+    position: relative;
+    top: auto;
+    left: 50%;
+    margin: 12px 0 0;
+    transform: translateX(-50%);
+    z-index: auto;
   }
 
   .mobile-nav {
@@ -436,8 +441,12 @@
     letter-spacing: 0.05em;
   }
 
-  .nav-toggle.nav-hidden {
-    top: 8px;
+  .nav-toggle.menu-open {
+    margin-top: 10px;
+  }
+
+  .nav-toggle.menu-open.nav-hidden {
+    top: auto;
   }
 
   .nav-bar {
