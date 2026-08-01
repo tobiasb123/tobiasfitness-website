@@ -17,3 +17,5 @@ export const upsertRecipeAction = createAction(
   '[Recipes] Upsert Recipe',
   props<{ recipe: DocumentFile }>(),
 );
+
+export const removeRecipeAction = createAction('[Recipes] Remove Recipe', props<{ id: string }>());

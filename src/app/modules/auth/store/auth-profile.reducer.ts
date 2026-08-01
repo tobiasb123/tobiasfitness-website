@@ -15,9 +15,9 @@ export interface AuthProfileState {
   profile: UserProfile | null;
   loading: boolean;
   loaded: boolean;
-  error: string;
+  error: string | null;
   updating: boolean;
-  updateError: string;
+  updateError: string | null;
 }
 
 const initialState: AuthProfileState = {
@@ -35,14 +35,14 @@ export const authProfileReducer = createReducer(
     ...state,
     loading: true,
     loaded: false,
-    error: null as string,
+    error: null,
   })),
   on(loadAuthProfileSuccessAction, (state, action) => ({
     ...state,
     loading: false,
     loaded: true,
     profile: action.profile,
-    error: null as string,
+    error: null,
   })),
   on(loadAuthProfileFailAction, (state, action) => ({
     ...state,
@@ -56,7 +56,7 @@ export const authProfileReducer = createReducer(
     profile: action.profile,
     loaded: true,
     loading: false,
-    error: null as string,
+    error: null,
   })),
   on(clearAuthProfileAction, () => ({
     ...initialState,
@@ -64,7 +64,7 @@ export const authProfileReducer = createReducer(
   on(updateAuthProfileAction, (state) => ({
     ...state,
     updating: true,
-    updateError: null as string,
+    updateError: null,
   })),
   on(updateAuthProfileSuccessAction, (state, action) => ({
     ...state,
@@ -76,7 +76,7 @@ export const authProfileReducer = createReducer(
         }
       : (action.updates as UserProfile),
     updating: false,
-    updateError: null as string,
+    updateError: null,
   })),
   on(updateAuthProfileFailAction, (state, action) => ({
     ...state,

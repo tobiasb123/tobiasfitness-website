@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { DocumentFile } from '@models/storage';
 import { Store } from '@ngrx/store';
 import { filter, Observable, switchMap, tap } from 'rxjs';
-import { loadRecipesAction, upsertRecipeAction } from './recipes.actions';
+import { loadRecipesAction, removeRecipeAction, upsertRecipeAction } from './recipes.actions';
 import {
   selectLoadingRecipes,
   selectLoadingRecipesError,
@@ -28,6 +28,10 @@ export class RecipesFacade {
 
   public upsertRecipe(recipe: DocumentFile): void {
     this.store.dispatch(upsertRecipeAction({ recipe }));
+  }
+
+  public removeRecipe(id: string): void {
+    this.store.dispatch(removeRecipeAction({ id }));
   }
 
   public isLoadingRecipes(): Observable<boolean> {

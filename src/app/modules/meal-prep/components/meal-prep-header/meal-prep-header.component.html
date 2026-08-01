@@ -1,0 +1,12 @@
+<section class="intro hero-card">
+  <div class="hero-copy">
+    <p class="eyebrow">Opskrifter</p>
+    <h1>Opskrifter</h1>
+
+    @if (isAdmin()) {
+      <p class="lead">Opret og gennemse opskrifter i et enkelt overblik.</p>
+    } @else {
+      <p class="lead">Gennemse opskrifter i et enkelt overblik.</p>
+    }
+  </div>
+</section>

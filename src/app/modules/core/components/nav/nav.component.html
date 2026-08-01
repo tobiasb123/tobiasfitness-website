@@ -67,7 +67,7 @@
     [attr.aria-label]="navHidden() ? 'Vis navigation' : 'Skjul navigation'"
     (click)="toggleNavVisibility()"
   >
-    {{ navHidden() ? 'Vis navigation ▲' : 'Skjul navigation ▼' }}
+    {{ navHidden() ? 'Vis navigation ▼' : 'Skjul navigation ▲' }}
   </button>
 
   <nav class="mobile-nav" [class.open]="menuOpen()" aria-label="Mobile navigation">

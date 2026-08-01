@@ -32,7 +32,7 @@
       <h2>Min personlige erfaring:</h2>
       <label>
         Min personlige erfaring gør mig i stand til at sætte mig i andre folks sted. Det har også
-        gjort mig mere opmærksom på mennesker omkring mig. Jeg er super focuseret og gør mit bedste
+        gjort mig mere opmærksom på mennesker omkring mig. Jeg er super fokuseret og gør mit bedste
         på hver eneste opgave jeg tager mig for.</label
       >
 
@@ -53,11 +53,9 @@
   </section>
 
   <section class="section-3">
-    <!-- Remove when create-review works -->
     @if (userProfile?.admin) {
       <button (click)="createReview()">Opret Anmeldelse</button>
     }
-    <!-- Remove when create-review works -->
     <h2>Anmeldelser</h2>
     <ul class="carousel">
       @for (review of reviews; track $index) {

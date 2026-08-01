@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   inject,
   OnDestroy,
@@ -7,9 +8,8 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserProfile } from '@models/auth/interfaces';
-import { DocumentFile, Recipe } from '@models/storage';
+import { DocumentFile } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
 import { UploadTaskSnapshot } from 'firebase/storage';
@@ -17,12 +17,24 @@ import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
 import { AdminFacade } from '../admin-menu';
 import { ToastService } from '../core/services/toast/toast.service';
-import { ResumableRecipeUpload, StorageFunctions } from './services/storage-functions.service';
+import { MealPrepCarouselComponent } from './components/meal-prep-carousel/meal-prep-carousel.component';
+import {
+  MealPrepCreateComponent,
+  MealPrepCreatePayload,
+} from './components/meal-prep-create/meal-prep-create.component';
+import { MealPrepHeaderComponent } from './components/meal-prep-header/meal-prep-header.component';
+import { MealPrepViewComponent } from './components/meal-prep-view/meal-prep-view.component';
+import { ResumableUpload, StorageFunctions } from './services/storage-functions.service';
 import { RecipesFacade } from './store/recipes.facade';
 
 @Component({
   selector: 'app-meal-prep',
-  imports: [ReactiveFormsModule],
+  imports: [
+    MealPrepHeaderComponent,
+    MealPrepCreateComponent,
+    MealPrepViewComponent,
+    MealPrepCarouselComponent,
+  ],
   templateUrl: './meal-prep.component.html',
   styleUrl: './meal-prep.component.scss',
 })
@@ -35,62 +47,35 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   private adminFacade = inject(AdminFacade);
   private recipesFacade = inject(RecipesFacade);
 
-  titleControl = new FormControl<string>('');
-  recieverControl = new FormControl<string>('all');
-
-  formGroup = new FormGroup({
-    title: this.titleControl,
-    reciever: this.recieverControl,
-  });
-
   recieverOptions: WritableSignal<UserProfile[]> = signal([]);
 
-  selectedUserUid: WritableSignal<string> = signal('all');
-  title: WritableSignal<string> = signal('');
-  image: WritableSignal<string> = signal('');
-  ingredientList: WritableSignal<string[]> = signal([]);
-  instructionList: WritableSignal<string[]> = signal([]);
-  macroList: WritableSignal<string[]> = signal(['', '', '', '']);
-
-  selectedDocumentData: WritableSignal<DocumentFile> = signal(undefined);
+  selectedDocumentData: WritableSignal<DocumentFile | null> = signal(null);
 
   recipies: WritableSignal<DocumentFile[]> = signal([]);
   yourRecipies: WritableSignal<DocumentFile[]> = signal([]);
   allRecipes: WritableSignal<DocumentFile[]> = signal([]);
   recipesLoading = signal(false);
   recipesError = signal('');
+  createResetVersion = signal(0);
 
-  userProfile: UserProfile;
-
-  addMealPageActive = false;
+  userProfile = signal<UserProfile | undefined>(undefined);
+  isAdmin = computed(() => Boolean(this.userProfile()?.admin));
   viewMealPageActive = false;
 
-  editting = false;
   isUploading = signal(false);
   uploadProgress = signal(0);
   uploadEtaSeconds = signal<number | null>(null);
 
-  recipeData: Recipe;
-  private activeUpload: ResumableRecipeUpload | null = null;
+  private activeUpload: ResumableUpload | null = null;
   private uploadStartedAtMs: number | null = null;
 
   private readonly profileEffect = effect(() => {
     const profile = this.authFunctions.currentUserProfile();
-    this.userProfile = profile;
+    this.userProfile.set(profile);
     this.setRecipeCollections(this.allRecipes());
   });
 
   ngOnInit(): void {
-    this.userProfile = this.authFunctions.currentUserProfile();
-    this.subs.push(
-      this.recieverControl.valueChanges.subscribe((selectedUid) => {
-        this.selectedUserUid.set(selectedUid || 'all');
-      }),
-    );
-
-    this.recieverControl.setValue('all', { emitEvent: false });
-    this.selectedUserUid.set('all');
-
     this.subs.push(
       this.adminFacade.getUsers().subscribe((users) => {
         this.recieverOptions.update(() => users);
@@ -117,106 +102,44 @@ export class MealPrepComponent implements OnInit, OnDestroy {
     );
   }
 
-  toggleMealAddPage() {
-    this.addMealPageActive = !this.addMealPageActive;
-  }
-
-  toggleMealviewPage() {
-    this.viewMealPageActive = !this.viewMealPageActive;
-  }
-
-  addItem(item: string, list: string, input: HTMLInputElement) {
-    if (item !== '') {
-      if (list === 'I-list') {
-        this.ingredientList.update((items) => {
-          input.value = '';
-          return [...items, item];
-        });
-      }
-
-      if (list === 'P-list') {
-        this.instructionList.update((items) => {
-          input.value = '';
-          return [...items, item];
-        });
-      }
-    }
-  }
-
-  removeItem(item: string, list: string) {
-    if (list === 'I-list') {
-      this.ingredientList.update((items) => items.filter((x) => x !== item));
-    }
-    if (list === 'P-list') {
-      this.instructionList.update((items) => items.filter((x) => x !== item));
-    }
-  }
-
   openMeal(id: string) {
     const recipe = [...this.recipies(), ...this.yourRecipies()].find(
       (recipeItem) => recipeItem.id === id,
     );
+
+    if (!recipe) {
+      return;
+    }
+
     this.selectedDocumentData.set(recipe);
-    this.toggleMealviewPage();
+    this.viewMealPageActive = true;
   }
 
-  editMeal() {
-    this.toggleMealAddPage();
-    this.toggleMealviewPage();
-    this.editting = true;
-    const selectedDocument = this.selectedDocumentData();
-
-    this.titleControl.setValue(selectedDocument.title);
-    this.recieverControl.setValue(selectedDocument.uid || 'all', { emitEvent: false });
-    this.selectedUserUid.set(selectedDocument.uid || 'all');
-
-    this.ingredientList.set(selectedDocument.recipe.ingredients);
-    this.instructionList.set(selectedDocument.recipe.instructions);
-    this.macroList.set(selectedDocument.recipe.macros);
+  closeMealView(): void {
+    this.viewMealPageActive = false;
+    this.selectedDocumentData.set(null);
   }
 
-  async submitRecipe(macros: string[], img: HTMLInputElement): Promise<void> {
+  async submitRecipe(payload: MealPrepCreatePayload): Promise<void> {
     if (this.isUploading()) {
       return;
     }
 
-    this.macroList.set(macros);
-    const file = img.files?.[0] ?? null;
-
-    this.recipeData = {
-      ingredients: this.ingredientList(),
-      instructions: this.instructionList(),
-      macros: this.macroList(),
-    };
-
     try {
-      if (this.editting) {
-        await this.updateRecipe(file);
-        this.toast.open('Opskrift blev opdateret', 'success');
-      } else {
-        if (!file) {
-          throw new Error('Vælg et billede til opskriften');
-        }
+      this.startUpload();
+      this.activeUpload = this.storageService.saveRecipe(
+        payload.file,
+        payload.recipe,
+        payload.receiverUid,
+        (snapshot) => this.handleUploadProgress(snapshot),
+      );
 
-        this.startUpload();
-        this.activeUpload = this.storageService.startSaveRecipeUpload(
-          file,
-          this.titleControl.value ?? '',
-          this.recipeData,
-          this.selectedUserUid(),
-          (snapshot) => this.handleUploadProgress(snapshot),
-        );
+      const documentFile = await this.activeUpload.promise;
+      this.finishUpload();
 
-        const documentFile = await this.activeUpload.promise;
-        this.finishUpload();
-
-        this.upsertRecipe(documentFile);
-        this.toast.open('Opskrift blev oprettet', 'success');
-      }
-
-      img.value = '';
-      this.addMealPageActive = false;
-      this.resetValues();
+      this.upsertRecipe(documentFile);
+      this.createResetVersion.update((version) => version + 1);
+      this.toast.open('Opskrift blev oprettet', 'success');
     } catch (error) {
       this.finishUpload();
       const message = error instanceof FirebaseError || error instanceof Error ? error.message : '';
@@ -237,20 +160,6 @@ export class MealPrepComponent implements OnInit, OnDestroy {
     }));
   }
 
-  resetValues() {
-    this.cancelUpload(false);
-    this.selectedUserUid.set('all');
-    this.title.set('');
-    this.image.set('');
-    this.ingredientList.set([]);
-    this.instructionList.set([]);
-    this.titleControl.reset('');
-    this.recieverControl.reset('all');
-    this.macroList.set(['', '', '', '']);
-    this.editting = false;
-    this.selectedDocumentData.set(null);
-  }
-
   cancelUpload(showToast = true): void {
     if (!this.activeUpload) {
       return;
@@ -261,45 +170,6 @@ export class MealPrepComponent implements OnInit, OnDestroy {
     if (showToast) {
       this.toast.open('Annullerer upload...', 'success');
     }
-  }
-
-  private async updateRecipe(file: File | null): Promise<void> {
-    const selectedDocument = this.selectedDocumentData();
-
-    if (!selectedDocument) {
-      throw new Error('Opskrift blev ikke fundet');
-    }
-
-    const title = this.titleControl.value ?? '';
-
-    if (file) {
-      this.startUpload();
-      this.activeUpload = this.storageService.startReplaceRecipeFileUpload(
-        file,
-        selectedDocument.id,
-        title,
-        this.recipeData,
-        this.selectedUserUid(),
-        (snapshot) => this.handleUploadProgress(snapshot),
-      );
-
-      const updatedDocument = await this.activeUpload.promise;
-      this.finishUpload();
-
-      this.upsertRecipe(updatedDocument);
-      return;
-    }
-
-    const updatedDocument: DocumentFile = {
-      ...selectedDocument,
-      uid: this.selectedUserUid(),
-      title,
-      recipe: this.recipeData,
-    };
-
-    await this.storageService.editRecipe(updatedDocument);
-
-    this.upsertRecipe(updatedDocument);
   }
 
   private startUpload(): void {
@@ -379,7 +249,7 @@ export class MealPrepComponent implements OnInit, OnDestroy {
 
   private setRecipeCollections(recipes: DocumentFile[]): void {
     const allRecipies = recipes.filter((recipe) => recipe.uid === 'all');
-    const userUid = this.userProfile?.uid;
+    const userUid = this.userProfile()?.uid;
     const userRecipies = userUid ? recipes.filter((recipe) => recipe.uid === userUid) : [];
 
     this.recipies.set(this.formatRecipes(allRecipies));

@@ -101,8 +101,8 @@
 .footer-main {
   display: grid;
   grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.6fr);
-  gap: 22px;
   align-items: start;
+  gap: 12px;
 }
 
 .brand-column {
@@ -138,8 +138,9 @@
 
 .footer-columns {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, auto));
+  height: 100%;
+  gap: 24px;
 }
 
 .footer-section {
@@ -150,11 +151,16 @@
   padding: 10px 0;
 }
 
+.link-section {
+  width: 180px;
+}
+
 .social-section {
   padding: 18px 18px 16px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(191, 219, 254, 0.14);
+  align-items: center;
 }
 
 h3 {
@@ -314,5 +320,6 @@ h3 {
   .link,
   .info {
     text-align: center;
+    font-size: 10px;
   }
 }

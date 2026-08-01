@@ -17,7 +17,7 @@ export class RecipesEffects {
   loadRecipes = createEffect(() =>
     this.actions.pipe(
       ofType(loadRecipesAction),
-      exhaustMap(() => this.storageFunctions.getRecipies()),
+      exhaustMap(() => this.storageFunctions.getRecipes()),
       map((recipes) => loadRecipesSuccessAction({ recipes })),
       catchError((error: FirebaseError) => of(loadRecipesFailAction({ error: error.message }))),
     ),

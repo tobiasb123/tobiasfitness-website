@@ -9,15 +9,10 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import { HttpsError } from 'firebase-functions/https';
 import moment from 'moment-timezone';
-import { createAdminEndpoint, createAuthEndpoint } from '../../shared/http';
+import { createAdminEndpoint, createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
 import { getUser } from '../auth/common/auth.common';
 import { commonGetFileNameFromPath, commonGetFileTypePath } from './common/storage-path.common';
-import {
-  commonGetRecipe,
-  commonGetRecipies,
-  commonNormalizeFileName,
-  commonValidateIntentContentType,
-} from './common/storage.common';
+import { commonNormalizeFileName, commonValidateIntentContentType } from './common/storage.common';
 import { UploadIntentDocument } from './interfaces/upload-intent-document.interface';
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
@@ -25,6 +20,7 @@ const UPLOAD_INTENT_EXPIRY_MINUTES = 15;
 
 const firestore = getFirestore();
 const recipeCollection = firestore.collection('recipes');
+const reviewCollection = firestore.collection('reviews');
 const storage = getStorage();
 const bucket = storage.bucket();
 const uploadIntentCollection = firestore.collection('storage-upload-intents');
@@ -96,12 +92,8 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
     uploadIntentData.recipe = input.recipe;
   }
 
-  if (input.title) {
-    uploadIntentData.title = input.title;
-  }
-
-  if (input.reviewText) {
-    uploadIntentData.reviewText = input.reviewText;
+  if (input.review) {
+    uploadIntentData.review = input.review;
   }
 
   await uploadIntentRef.set(uploadIntentData);
@@ -213,6 +205,8 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
     const timeCreated =
       existingFile?.timeCreated ??
       moment(storageMetadata.timeCreated).tz('Europe/Copenhagen').toString();
+    const normalizedRecipe = normalizeRecipe(uploadIntent.recipe ?? existingFile?.recipe);
+    const normalizedReview = uploadIntent.review ?? existingFile?.review;
     const fileData: Omit<DocumentFile, 'id' | 'fileType' | 'fileName' | 'folderPath'> = {
       filePath: activeFile.name,
       fileUrl,
@@ -221,8 +215,8 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
           ? (uploadIntent.recipeUid ?? existingFile?.uid ?? 'all')
           : (existingFile?.uid ?? user.uid),
       timeCreated,
-      recipe: uploadIntent.recipe ?? existingFile?.recipe,
-      title: uploadIntent.title ?? existingFile?.title,
+      ...(normalizedRecipe ? { recipe: normalizedRecipe } : {}),
+      ...(normalizedReview ? { review: normalizedReview } : {}),
     };
 
     const collectionPath = commonGetFileTypePath(uploadIntent.fileType);
@@ -259,6 +253,26 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
   }
 });
 
+export const getRecipes = createAuthEndpoint(async (req, res) => {
+  const recipes = await recipeCollection.get().then((recipeSnap) => {
+    const recipes: DocumentFile[] = [];
+
+    for (const recipeDoc of recipeSnap.docs) {
+      const recipe = recipeDoc.data() as DocumentFile;
+
+      recipes.push({
+        ...recipe,
+        id: recipeDoc.id,
+        recipe: normalizeRecipe(recipe.recipe),
+      });
+    }
+
+    return recipes;
+  });
+
+  res.json(recipes);
+});
+
 export const editRecipe = createAdminEndpoint(async (req, res) => {
   const data = req.body as DocumentFile;
   const recipeDoc = await recipeCollection.doc(data.id).get();
@@ -281,24 +295,74 @@ export const editRecipe = createAdminEndpoint(async (req, res) => {
   await recipeDoc.ref
     .update({
       uid: normalizedRecipeUid,
-      title: data.title,
-      recipe: data.recipe,
+      recipe: normalizeRecipe(data.recipe),
     })
     .catch(() => {
-      throw new HttpsError('unknown', 'Opskrift blev ikke ændret');
+      throw new HttpsError('internal', 'Opskrift blev ikke ændret');
     });
 
   res.json();
 });
 
-export const getRecipe = createAuthEndpoint(async (req, res) => {
-  const recipe = await commonGetRecipe(req.body);
-  res.json(recipe);
+export const deleteRecipe = createAdminEndpoint(async (req, res) => {
+  const requestBody = req.body as unknown;
+  const rawId =
+    typeof requestBody === 'string'
+      ? requestBody
+      : typeof requestBody === 'object' && requestBody && 'id' in requestBody
+        ? String((requestBody as { id?: unknown }).id ?? '')
+        : '';
+
+  const id = rawId.trim();
+
+  if (!id) {
+    throw new HttpsError('invalid-argument', 'Opskrift id er påkrævet');
+  }
+
+  const recipeDoc = await recipeCollection.doc(id).get();
+
+  if (!recipeDoc.exists) {
+    throw new HttpsError('not-found', 'Opskrift findes ikke');
+  }
+
+  const recipe = recipeDoc.data() as DocumentFile;
+  const filePath = typeof recipe.filePath === 'string' ? recipe.filePath.trim() : '';
+
+  if (filePath) {
+    const file = bucket.file(filePath);
+    const [fileExists] = await file.exists();
+
+    if (fileExists) {
+      await file.delete().catch((error) => {
+        console.log('Could not delete file from storage', error);
+      });
+    }
+  }
+
+  await recipeDoc.ref.delete().catch(() => {
+    throw new HttpsError('internal', 'Opskrift kunne ikke slettes');
+  });
+
+  res.json({ deleted: true, id });
 });
 
-export const getRecipies = createAuthEndpoint(async (req, res) => {
-  const recipies = await commonGetRecipies();
-  res.json(recipies);
+export const getReviews = createPublicEndpoint(async (req, res) => {
+  const reviews = await reviewCollection.get().then((reviewSnap) => {
+    const reviews: DocumentFile[] = [];
+
+    for (const reviewDoc of reviewSnap.docs) {
+      const review = reviewDoc.data() as DocumentFile;
+
+      reviews.push({
+        ...review,
+        id: reviewDoc.id,
+      });
+    }
+
+    return reviews;
+  });
+
+  res.json(reviews);
 });
 
 const getFileInfoFromFirestoreById = async (
@@ -322,5 +386,211 @@ const getFileInfoFromFirestoreById = async (
     fileType,
     fileName,
     folderPath,
+    recipe: normalizeRecipe(data.recipe),
   };
+};
+
+const normalizeRecipe = (recipe: DocumentFile['recipe']): DocumentFile['recipe'] => {
+  if (!recipe) {
+    return undefined;
+  }
+
+  const title = String(recipe.title ?? '').trim();
+  const ingredientGroups = normalizeIngredientGroups(recipe.ingredientGroups);
+  const instructionSections = normalizeInstructionSections(recipe.instructionSections);
+  const storageNotes = normalizeStorageNotes(recipe.storageNotes);
+  const nutritionPerServing = normalizeNutritionRows(recipe.nutritionPerServing);
+
+  const flattenedIngredients = ingredientGroups.flatMap((group) => group.items);
+  const flattenedInstructions = instructionSections
+    .flatMap((section) => section.steps)
+    .map((step) => step.description || step.title)
+    .filter((step) => step.length > 0);
+
+  const ingredients =
+    flattenedIngredients.length > 0
+      ? flattenedIngredients
+      : normalizeStringArray(recipe.ingredients);
+  const instructions =
+    flattenedInstructions.length > 0
+      ? flattenedInstructions
+      : normalizeStringArray(recipe.instructions);
+
+  const macros = normalizeMacros(recipe.macros, nutritionPerServing);
+
+  return {
+    title,
+    ingredients,
+    instructions,
+    macros,
+    servings: normalizeNullableNumber(recipe.servings),
+    prepTimeMinutes: normalizeNullableNumber(recipe.prepTimeMinutes),
+    cookTimeMinutes: normalizeNullableNumber(recipe.cookTimeMinutes),
+    totalTimeMinutes: normalizeNullableNumber(recipe.totalTimeMinutes),
+    ingredientGroups,
+    instructionSections,
+    storageNotes,
+    nutritionPerServing,
+  };
+};
+
+const normalizeIngredientGroups = (
+  groups: DocumentFile['recipe'] extends { ingredientGroups?: infer T } ? T : never,
+) => {
+  const sourceGroups = Array.isArray(groups) ? (groups as unknown[]) : [];
+
+  const normalizedGroups = sourceGroups
+    .filter(
+      (group): group is Record<string, unknown> => typeof group === 'object' && group !== null,
+    )
+    .map((group) => ({
+      title: String(group.title ?? '').trim() || 'Ingredienser',
+      items: normalizeStringArray(group.items),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  return normalizedGroups;
+};
+
+const normalizeInstructionSections = (
+  sections: DocumentFile['recipe'] extends { instructionSections?: infer T } ? T : never,
+) => {
+  const sourceSections = Array.isArray(sections) ? (sections as unknown[]) : [];
+
+  const normalizedSections = sourceSections
+    .filter(
+      (section): section is Record<string, unknown> =>
+        typeof section === 'object' && section !== null,
+    )
+    .map((section) => ({
+      title: String(section.title ?? '').trim() || 'Fremgangsmåde',
+      steps: normalizeInstructionSteps(section.steps),
+    }))
+    .filter((section) => section.steps.length > 0);
+
+  return normalizedSections;
+};
+
+const normalizeInstructionSteps = (value: unknown): { title: string; description: string }[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((step) => {
+      if (typeof step === 'string') {
+        return {
+          title: '',
+          description: step.trim(),
+        };
+      }
+
+      if (typeof step === 'object' && step !== null) {
+        const stepRecord = step as Record<string, unknown>;
+
+        return {
+          title: String(stepRecord.title ?? '').trim(),
+          description: String(stepRecord.description ?? '').trim(),
+        };
+      }
+
+      return {
+        title: '',
+        description: '',
+      };
+    })
+    .filter((step) => step.title.length > 0 || step.description.length > 0);
+};
+
+const normalizeStorageNotes = (value: unknown): { title: string; description: string }[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((note) => {
+      if (typeof note === 'string') {
+        return {
+          title: '',
+          description: note.trim(),
+        };
+      }
+
+      if (typeof note === 'object' && note !== null) {
+        const noteRecord = note as Record<string, unknown>;
+
+        return {
+          title: String(noteRecord.title ?? '').trim(),
+          description: String(noteRecord.description ?? '').trim(),
+        };
+      }
+
+      return {
+        title: '',
+        description: '',
+      };
+    })
+    .filter((note) => note.title.length > 0 || note.description.length > 0);
+};
+
+const normalizeNutritionRows = (
+  rows: DocumentFile['recipe'] extends { nutritionPerServing?: infer T } ? T : never,
+) => {
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+
+  return (rows as unknown[])
+    .filter((row): row is Record<string, unknown> => typeof row === 'object' && row !== null)
+    .map((row) => ({
+      name: String(row.name ?? '').trim(),
+      value: String(row.value ?? '').trim(),
+      unit: String(row.unit ?? '').trim(),
+    }))
+    .filter((row) => row.name && row.value);
+};
+
+const normalizeStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((entry): entry is string => typeof entry === 'string')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+};
+
+const normalizeMacros = (
+  macros: unknown,
+  nutritionRows: { name: string; value: string }[],
+): string[] => {
+  const macroValues = normalizeStringArray(macros);
+
+  if (macroValues.length === 4) {
+    return macroValues;
+  }
+
+  const normalizedRows = new Map(
+    nutritionRows.map((row) => [row.name.trim().toLowerCase(), row.value.trim()]),
+  );
+
+  return [
+    macroValues[0] || normalizedRows.get('kalorier') || '',
+    macroValues[1] || normalizedRows.get('protein') || '',
+    macroValues[2] || normalizedRows.get('kulhydrat') || normalizedRows.get('kulhydrater') || '',
+    macroValues[3] || normalizedRows.get('fedt') || '',
+  ];
+};
+
+const normalizeNullableNumber = (value: unknown): number | null | undefined => {
+  if (value === null) {
+    return null;
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  return undefined;
 };

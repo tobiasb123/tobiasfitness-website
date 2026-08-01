@@ -1,5 +1,6 @@
 import { FileType } from '../types/file-type.type';
 import { Recipe } from './recipe.interface';
+import { Review } from './review.interface';
 
 export interface CreateUploadIntentInput {
   fileName: string;
@@ -7,9 +8,8 @@ export interface CreateUploadIntentInput {
   fileType: FileType;
   uid?: string;
   fileId?: string;
-  title?: string;
   recipe?: Recipe;
-  reviewText?: string;
+  review?: Review;
   contentType?: string;
   folderPath?: string;
 }

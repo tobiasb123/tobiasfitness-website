@@ -1,0 +1,127 @@
+<section class="recipe-sections">
+  <div class="carousel-section all-meals">
+    <div class="section-header">
+      <div>
+        <p class="eyebrow">Bibliotek</p>
+        <h2>Alle opskrifter</h2>
+      </div>
+
+      <p class="section-copy">
+        Her finder du hele biblioteket af opskrifter, samlet i et overblik.
+      </p>
+    </div>
+
+    @if (loading()) {
+      <p>Indlæser opskrifter...</p>
+    }
+
+    @if (error()) {
+      <p>{{ error() }}</p>
+    }
+
+    <div class="carousel-shell">
+      <button
+        type="button"
+        class="carousel-nav prev"
+        aria-label="Forrige opskrift i alle opskrifter"
+        (click)="scrollAll('left')"
+      >
+        &#8592;
+      </button>
+
+      <ul #allCarouselRef class="carousel" (scroll)="onAllScroll()">
+        @for (recipe of allRecipes(); track recipe.id) {
+          <li>
+            <app-meal-prep-recipe-card
+              [recipe]="recipe"
+              (selected)="selectRecipe($event)"
+            ></app-meal-prep-recipe-card>
+          </li>
+        }
+      </ul>
+
+      <button
+        type="button"
+        class="carousel-nav next"
+        aria-label="Næste opskrift i alle opskrifter"
+        (click)="scrollAll('right')"
+      >
+        &#8594;
+      </button>
+    </div>
+
+    <div class="carousel-markers" aria-label="Markører for alle opskrifter">
+      @for (index of getAllMarkerIndexes(); track index) {
+        <button
+          type="button"
+          class="marker"
+          [class.active]="activeAllIndex() === index"
+          [attr.aria-label]="'Gå til opskrift ' + (index + 1)"
+          (click)="scrollToAllIndex(index)"
+        ></button>
+      }
+    </div>
+  </div>
+
+  <div class="carousel-section user-meals">
+    <div class="section-header">
+      <div>
+        <p class="eyebrow">Personligt</p>
+        <h2>Dine opskrifter</h2>
+      </div>
+
+      <p class="section-copy">Denne del er kun til opskrifter, der er tilknyttet din bruger.</p>
+    </div>
+
+    <div class="carousel-shell">
+      <button
+        type="button"
+        class="carousel-nav prev"
+        aria-label="Forrige opskrift i dine opskrifter"
+        (click)="scrollPersonal('left')"
+      >
+        &#8592;
+      </button>
+
+      <ul #personalCarouselRef class="carousel" (scroll)="onPersonalScroll()">
+        @if (personalRecipes().length > 0) {
+          @for (recipe of personalRecipes(); track recipe.id) {
+            <li>
+              <app-meal-prep-recipe-card
+                [recipe]="recipe"
+                (selected)="selectRecipe($event)"
+              ></app-meal-prep-recipe-card>
+            </li>
+          }
+        } @else {
+          <li>
+            <div class="carousel-element empty">
+              <p>Du har ingen opskrifter</p>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <button
+        type="button"
+        class="carousel-nav next"
+        aria-label="Næste opskrift i dine opskrifter"
+        (click)="scrollPersonal('right')"
+      >
+        &#8594;
+      </button>
+    </div>
+
+    <div class="carousel-markers" aria-label="Markører for dine opskrifter">
+      @for (index of getPersonalMarkerIndexes(); track index) {
+        <button
+          type="button"
+          class="marker"
+          [class.active]="activePersonalIndex() === index"
+          [attr.aria-label]="'Gå til opskrift ' + (index + 1)"
+          (click)="scrollToPersonalIndex(index)"
+        ></button>
+      }
+    </div>
+  </div>
+</section>

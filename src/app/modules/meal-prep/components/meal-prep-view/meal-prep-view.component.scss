@@ -1,0 +1,244 @@
+.meal-view-section {
+  width: min(100%, 1200px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #dbeafe;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  border-radius: 24px;
+  color: #0f172a;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.meal-button {
+  appearance: none;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 18px;
+  color: white;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+}
+
+.time-created {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.meta-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.meta-chip {
+  border: 1px solid #cfe8ff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #f8fbff 0%, #e9f5ff 100%);
+  color: #334155;
+  font-weight: 600;
+  text-align: center;
+}
+
+img {
+  width: min(100%, 640px);
+  align-self: center;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 24px;
+  border: 1px solid #cfe8ff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.detail-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #f8fbff 0%, #e9f5ff 100%);
+  border: 1px solid #cfe8ff;
+
+  h3 {
+    margin: 0;
+  }
+
+  label {
+    color: #334155;
+  }
+
+  h4 {
+    margin: 0;
+    color: #1e293b;
+  }
+
+  &.span-full {
+    grid-column: 1 / -1;
+  }
+}
+
+.grouped-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.sub-group,
+.instruction-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredient-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ingredient-item-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #334155;
+}
+
+.instruction-section label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.instruction-section strong {
+  color: #0f172a;
+}
+
+.instruction-step-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.instruction-step-header {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.instruction-step-description {
+  margin: 0;
+  padding-left: 22px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.storage-note-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.storage-note-header {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.storage-note-description {
+  margin: 0;
+  padding-left: 22px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.instruction-section {
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.nutrition-table {
+  border: 1px solid #cfe8ff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.nutrition-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.8fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8fbff;
+  border-bottom: 1px solid #e2e8f0;
+
+  &.header {
+    background: #e9f5ff;
+    font-weight: 700;
+    color: #334155;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nutrition-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .meal-view-section {
+    padding: 16px;
+    border-radius: 20px;
+  }
+}

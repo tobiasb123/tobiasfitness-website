@@ -1,0 +1,84 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.carousel-element {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  border-radius: 24px;
+  background-color: rgb(110, 110, 110);
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+}
+
+.recipe-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.info {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: start;
+  width: calc(100% - 20px);
+  min-height: 42%;
+  max-height: 52%;
+  padding: 12px 12px 10px;
+  gap: 6px;
+  color: #0f172a;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 251, 255, 0.22) 0%,
+    rgba(233, 245, 255, 0.72) 55%,
+    rgba(226, 238, 252, 0.82) 100%
+  );
+  border: 1px solid rgba(207, 232, 255, 0.72);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+
+  h3 {
+    margin: 0;
+    text-align: left;
+    line-height: 1.2;
+    color: #0f172a;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    text-align: left;
+    color: #334155;
+    line-height: 1.35;
+    font-size: 0.92rem;
+  }
+}
+
+.time-created {
+  margin-top: 6px;
+  padding-top: 6px;
+  width: 100%;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #64748b;
+  font-size: 0.78rem;
+}

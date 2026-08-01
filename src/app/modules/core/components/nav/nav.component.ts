@@ -69,8 +69,12 @@ export class NavComponent implements OnInit, OnDestroy {
       return true;
     }
 
-    if (route.displayName === 'Opskrifter' || route.displayName === 'Admin-Menu') {
+    if (route.displayName === 'Admin-Menu') {
       return !!this.currentUser()?.admin;
+    }
+
+    if (route.displayName === 'Opskrifter') {
+      return !!this.isLoggedIn();
     }
 
     return true;

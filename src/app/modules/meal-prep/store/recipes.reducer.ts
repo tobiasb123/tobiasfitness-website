@@ -5,6 +5,7 @@ import {
   loadRecipesAction,
   loadRecipesFailAction,
   loadRecipesSuccessAction,
+  removeRecipeAction,
   upsertRecipeAction,
 } from './recipes.actions';
 
@@ -46,6 +47,11 @@ export const recipesReducer = createReducer(
   })),
   on(upsertRecipeAction, (state, action) =>
     recipesAdapter.upsertOne(action.recipe, {
+      ...state,
+    }),
+  ),
+  on(removeRecipeAction, (state, action) =>
+    recipesAdapter.removeOne(action.id, {
       ...state,
     }),
   ),

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
+﻿import { Component, inject, Input, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -9,6 +9,7 @@ import {
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { Booking, TimePeriod } from '@models/booking/interfaces';
+import { DocumentFile } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
 import { BookingFacade } from '@modules/booking';
 import { combineLatest, Subscription } from 'rxjs';
@@ -33,6 +34,11 @@ export class DataEditerComponent implements OnInit, OnDestroy {
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
+  ageControl = new FormControl<number>(null, [
+    Validators.required,
+    Validators.min(1),
+    Validators.max(120),
+  ]);
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
   phonenumberControl = new FormControl<string>('', [Validators.required, Validators.email]);
   addressControl = new FormControl<string>('', [Validators.required]);
@@ -46,6 +52,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   formGroup = new FormGroup({
     firstName: this.firstNameControl,
     lastName: this.lastNameControl,
+    age: this.ageControl,
     email: this.emailControl,
     phonenumber: this.phonenumberControl,
     address: this.addressControl,
@@ -66,6 +73,10 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   get selectedUser(): UserProfile {
     return this.selectedUserValue;
   }
+
+  @Input() selectedRecipeInput: DocumentFile;
+  @Input() users: UserProfile[] = [];
+  @Input() recipeOnlyMode = false;
 
   public bookings: WritableSignal<Booking[]> = signal([]);
   public selectedBooking: WritableSignal<Booking> = signal(undefined);
@@ -121,7 +132,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   }
 
   updateSelectedBooking(bookingId: string): void {
-    const booking = this.bookings().filter((booking) => booking.id === bookingId)[0];
+    const booking = this.bookings().filter((currentBooking) => currentBooking.id === bookingId)[0];
     this.selectedBooking.set(booking);
     this.isDeleteConfirmationOpen.set(false);
 
@@ -193,13 +204,15 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   private updateSelectedUser(user: UserProfile): void {
     if (!user) {
       this.formGroup.reset();
-      this.bookings.set([]);
+      this.selectedBooking.set(null);
+      this.isDeleteConfirmationOpen.set(false);
       return;
     }
 
     this.formGroup.patchValue({
       firstName: user.firstName,
       lastName: user.lastName,
+      age: user.age,
       email: user.email,
       phonenumber: user.phoneNumber,
       address: user.address.street,
@@ -221,6 +234,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
       uid,
       firstName: this.firstNameControl.value,
       lastName: this.lastNameControl.value,
+      age: this.ageControl.value,
       email: this.emailControl.value,
       phoneNumber: this.phonenumberControl.value,
       address,
@@ -230,7 +244,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   }
 
   private saveUserSettings(): void {
-    this.authfunctions.updateDetails(this.setSelectedUser()).then((user) => {
+    this.authfunctions.updateDetails(this.setSelectedUser()).then(() => {
       this.toast.open('Bruger Gemt', 'success');
     });
   }
@@ -251,18 +265,18 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   ];
 
   allButtons = document.getElementsByClassName('ebn');
-  setActiveEditerTabbn(event: any) {
+  setActiveEditerTabbn(event: Event) {
     for (let index = 0; index < this.allButtons.length; index++) {
       const element = this.allButtons[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-          break;
-        }
+      if (element && element.classList.contains('active')) {
+        element.classList.remove('active');
+        break;
       }
     }
-    event.target.classList.add('active');
-    this.setActiveEditerTab(event.target.innerHTML);
+
+    const target = event.target as HTMLElement;
+    target.classList.add('active');
+    this.setActiveEditerTab(target.innerHTML);
   }
 
   allTabs = document.getElementsByClassName('tab');
@@ -287,23 +301,24 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   resetTabs() {
     for (let index = 0; index < this.allTabs.length; index++) {
       const element = this.allTabs[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-        }
-      }
-    }
-    for (let index = 0; index < this.allButtons.length; index++) {
-      const element = this.allButtons[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-        }
+      if (element && element.classList.contains('active')) {
+        element.classList.remove('active');
       }
     }
 
-    this.allTabs[0].classList.add('active');
-    this.allButtons[0].classList.add('active');
+    for (let index = 0; index < this.allButtons.length; index++) {
+      const element = this.allButtons[index];
+      if (element && element.classList.contains('active')) {
+        element.classList.remove('active');
+      }
+    }
+
+    if (this.allTabs.length > 0) {
+      this.allTabs[0].classList.add('active');
+    }
+    if (this.allButtons.length > 0) {
+      this.allButtons[0].classList.add('active');
+    }
 
     this.selectedBooking.set(null);
     this.isDeleteConfirmationOpen.set(false);
@@ -312,11 +327,10 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   openTab(tabName: string) {
     for (let index = 0; index < this.allTabs.length; index++) {
       const element = this.allTabs[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-        }
+      if (element && element.classList.contains('active')) {
+        element.classList.remove('active');
       }
+
       if (element && element.classList.contains(tabName)) {
         element.classList.add('active');
       }

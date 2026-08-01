@@ -57,6 +57,11 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
+  ageControl = new FormControl<number>(null, [
+    Validators.required,
+    Validators.min(1),
+    Validators.max(120),
+  ]);
   emailControl = new FormControl<string>('', [Validators.required, Validators.email]);
   phonenumberControl = new FormControl<string>('');
   addressControl = new FormControl<string>('', [Validators.required]);
@@ -66,6 +71,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
   formGroup = new FormGroup({
     firstName: this.firstNameControl,
     lastName: this.lastNameControl,
+    age: this.ageControl,
     email: this.emailControl,
     phonenumber: this.phonenumberControl,
     address: this.addressControl,
@@ -194,6 +200,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     this.firstNameControl.setValue(profile.firstName ?? '');
     this.lastNameControl.setValue(profile.lastName ?? '');
+    this.ageControl.setValue(profile.age ?? null);
     this.emailControl.setValue(profile.email ?? '');
     this.phonenumberControl.setValue(profile.phoneNumber ?? '');
     this.addressControl.setValue(address?.street ?? '');
@@ -213,6 +220,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     const newData: Partial<UserProfile> = {
       firstName: this.firstNameControl.value ?? '',
       lastName: this.lastNameControl.value ?? '',
+      age: this.ageControl.value ?? null,
       email: this.emailControl.value ?? '',
       phoneNumber: this.phonenumberControl.value ?? '',
       address,

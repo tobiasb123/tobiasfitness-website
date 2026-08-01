@@ -20,6 +20,11 @@
           <input id="email" name="email" type="text" [formControl]="emailControl" />
         </div>
 
+        <div class="form-element full">
+          <label for="age">Alder</label>
+          <input id="age" name="age" type="number" min="1" max="120" [formControl]="ageControl" />
+        </div>
+
         <div class="form-group">
           <div class="form-element">
             <label for="phonenumber">Telefonnummer</label>

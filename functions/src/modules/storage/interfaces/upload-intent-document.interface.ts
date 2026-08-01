@@ -1,4 +1,4 @@
-import { FileType, Recipe } from '@models/storage';
+import { FileType, Recipe, Review } from '@models/storage';
 import { Timestamp } from 'firebase-admin/firestore';
 
 export interface UploadIntentDocument {
@@ -10,8 +10,7 @@ export interface UploadIntentDocument {
   folderPath: string;
   fileId?: string;
   recipe?: Recipe;
-  title?: string;
-  reviewText?: string;
+  review?: Review;
   contentType?: string;
   sizeBytes: number;
   maxSizeBytes: number;

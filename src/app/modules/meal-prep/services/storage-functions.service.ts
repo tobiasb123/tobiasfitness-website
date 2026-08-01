@@ -5,6 +5,7 @@ import {
   DocumentFile,
   FinalizeUploadInput,
   Recipe,
+  Review,
 } from '@models/storage';
 import { FirebaseService } from '@modules/firebase';
 import {
@@ -17,7 +18,7 @@ import {
 } from 'firebase/storage';
 import { FIREBASE_APP } from '../../firebase/tokens/firebase-app.token';
 
-export interface ResumableRecipeUpload {
+export interface ResumableUpload {
   cancel: () => void;
   promise: Promise<DocumentFile>;
 }
@@ -30,76 +31,68 @@ export class StorageFunctions {
   private firebaseApp = inject(FIREBASE_APP);
   private storage: FirebaseStorage | null = null;
 
-  public async saveRecipe(
-    file: File,
-    title: string,
-    recipe: Recipe,
-    uid: string,
-  ): Promise<DocumentFile> {
-    return this.startSaveRecipeUpload(file, title, recipe, uid).promise;
+  public async getRecipes(): Promise<DocumentFile[]> {
+    return this.firbaseService.httpGet<DocumentFile[]>('storage-getRecipes');
   }
 
-  public startSaveRecipeUpload(
+  public saveRecipe(
     file: File,
-    title: string,
     recipe: Recipe,
     uid: string,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
-  ): ResumableRecipeUpload {
-    return this.startRecipeUpload(file, title, recipe, uid, onProgress);
+  ): ResumableUpload {
+    return this.startUpload(file, uid, recipe, null, onProgress);
   }
 
-  public async replaceRecipeFile(
-    file: File,
-    fileId: string,
-    title: string,
+  public updateRecipeAndFile(
     recipe: Recipe,
     uid: string,
-  ): Promise<DocumentFile> {
-    return this.startReplaceRecipeFileUpload(file, fileId, title, recipe, uid).promise;
+    fileId: string,
+    file: File,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): ResumableUpload {
+    return this.startUpload(file, uid, recipe, null, onProgress, fileId);
   }
 
-  public startReplaceRecipeFileUpload(
+  public async updateRecipe(file: DocumentFile): Promise<void> {
+    await this.firbaseService.httpPost<DocumentFile, void>('storage-editRecipe', file);
+  }
+
+  public async deleteRecipe(id: string): Promise<void> {
+    await this.firbaseService.httpPost<{ id: string }, void>('storage-deleteRecipe', { id });
+  }
+
+  public async getReviews(): Promise<DocumentFile[]> {
+    return this.firbaseService.httpGet<DocumentFile[]>('storage-getReviews');
+  }
+
+  public saveReview(
     file: File,
-    fileId: string,
-    title: string,
-    recipe: Recipe,
+    review: Review,
     uid: string,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
-  ): ResumableRecipeUpload {
-    return this.startRecipeUpload(file, title, recipe, uid, onProgress, fileId);
+  ): ResumableUpload {
+    return this.startUpload(file, uid, null, review, onProgress);
   }
 
-  public async editRecipe(document: DocumentFile): Promise<void> {
-    await this.firbaseService.httpPost<DocumentFile, void>('storage-editRecipe', document);
-  }
-
-  public async getRecipies(): Promise<DocumentFile[]> {
-    return this.firbaseService.httpGet<DocumentFile[]>('storage-getRecipies');
-  }
-
-  public async getRecipe(name: string): Promise<DocumentFile> {
-    return this.firbaseService.httpGet<DocumentFile>('storage-getRecipe');
-  }
-
-  private startRecipeUpload(
+  private startUpload(
     file: File,
-    title: string,
-    recipe: Recipe,
     uid: string,
+    recipe?: Recipe,
+    review?: Review,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
     fileId?: string,
-  ): ResumableRecipeUpload {
+  ): ResumableUpload {
     let uploadTask: UploadTask | null = null;
 
     const promise = this.firbaseService
       .httpPost<CreateUploadIntentInput, CreateUploadIntentReturn>('storage-createUploadIntent', {
-        title,
         fileName: file.name,
         sizeBytes: file.size,
         fileType: 'recipe',
         uid,
         recipe,
+        review,
         fileId,
         contentType: file.type,
       })

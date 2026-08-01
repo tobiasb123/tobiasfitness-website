@@ -63,6 +63,7 @@ export class AuthFunctionsService {
     password: string,
     firstName: string,
     lastName: string,
+    age: number,
     phoneNumber: string,
     address: Address,
   ): Promise<UserProfile> {
@@ -73,6 +74,7 @@ export class AuthFunctionsService {
         const profile: BaseProfile = {
           firstName: firstName,
           lastName: lastName,
+          age: age,
           phoneNumber: phoneNumber,
           address: address,
         };

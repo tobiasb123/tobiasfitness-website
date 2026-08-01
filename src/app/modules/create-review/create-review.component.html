@@ -1,5 +1,5 @@
 <section class="review-shell">
-  <form class="review-card" (submit)="onSubmit($event)" [formGroup]="formGroup">
+  <form class="review-card" (submit)="onSubmit(file)" [formGroup]="formGroup">
     <div class="card-header">
       <p class="eyebrow">Review</p>
       <h1>Opret Anmeldelse</h1>
@@ -22,6 +22,21 @@
     <div class="form-element">
       <label for="review">Din Anmeldelse</label>
       <textarea name="review" id="review" [formControl]="reviewControl"></textarea>
+    </div>
+
+    <div class="form-element">
+      <label for="rating">Rating (1-5)</label>
+      <input
+        id="rating"
+        name="rating"
+        type="number"
+        min="1"
+        max="5"
+        [formControl]="ratingControl"
+      />
+      @if (ratingControl.invalid && ratingControl.touched) {
+        <small>*Rating skal vaere mellem 1 og 5.</small>
+      }
     </div>
 
     <button class="submitButton" type="submit">Anmeld</button>

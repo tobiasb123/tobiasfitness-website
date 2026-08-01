@@ -1,0 +1,18 @@
+<div class="carousel-element" (click)="selectRecipe()">
+  <img
+    class="recipe-image"
+    [src]="imageUrl()"
+    [alt]="recipe().recipe?.title || 'Opskrift billede'"
+    loading="lazy"
+    (error)="onImageError()"
+  />
+
+  <div class="info">
+    <h3>{{ recipe().recipe?.title || 'Opskrift' }}</h3>
+    <p>Kalorier: {{ recipe().recipe?.macros?.[0] || '-' }}</p>
+    <p>Protein: {{ recipe().recipe?.macros?.[1] || '-' }}</p>
+    <p>Kulhydrater: {{ recipe().recipe?.macros?.[2] || '-' }}</p>
+    <p>Fedt: {{ recipe().recipe?.macros?.[3] || '-' }}</p>
+    <p class="time-created">{{ recipe().timeCreated }}</p>
+  </div>
+</div>

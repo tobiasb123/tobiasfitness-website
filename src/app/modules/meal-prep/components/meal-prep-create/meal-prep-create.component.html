@@ -1,0 +1,270 @@
+<form [formGroup]="formGroup" (submit)="onSubmit($event)" class="meal-create-section">
+  <div class="section-header">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h2>Opret opskrift</h2>
+    </div>
+  </div>
+
+  <div class="editor-grid">
+    <div class="editor-card-block">
+      <h3>Opskrift info</h3>
+
+      <div class="field-group">
+        <label for="receiver">Modtager</label>
+        <select id="receiver" class="receiver" formControlName="receiver">
+          <option value="all">Alle</option>
+          @for (receiver of receiverOptions(); track receiver.uid) {
+            <option [value]="receiver.uid">{{ receiver.firstName }} {{ receiver.lastName }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="title">Opskrift navn</label>
+        <input id="title" type="text" formControlName="title" />
+      </div>
+
+      <div class="metadata-grid">
+        <div class="field-group">
+          <label for="servings">Portioner</label>
+          <input id="servings" type="number" min="1" formControlName="servings" />
+        </div>
+
+        <div class="field-group">
+          <label for="prepTimeMinutes">Forberedelse (min)</label>
+          <input id="prepTimeMinutes" type="number" min="0" formControlName="prepTimeMinutes" />
+        </div>
+
+        <div class="field-group">
+          <label for="cookTimeMinutes">Tilberedning (min)</label>
+          <input id="cookTimeMinutes" type="number" min="0" formControlName="cookTimeMinutes" />
+        </div>
+
+        <div class="field-group">
+          <label for="totalTimeMinutes">Samlet tid (min)</label>
+          <input id="totalTimeMinutes" type="number" min="0" formControlName="totalTimeMinutes" />
+        </div>
+      </div>
+    </div>
+
+    <div class="editor-card-block">
+      <h3>Billede</h3>
+      <input #fileInput type="file" class="file-input" />
+
+      @if (isUploading()) {
+        <div class="upload-progress">
+          <label>Uploader: {{ uploadProgress() }}%</label>
+          <small>{{ uploadEtaLabel() }}</small>
+          <progress [value]="uploadProgress()" max="100"></progress>
+          <button type="button" (click)="cancelUpload()">Annuller upload</button>
+        </div>
+      }
+    </div>
+
+    <div class="editor-card-block span-2">
+      <h3>Ingrediensgrupper</h3>
+
+      <div class="section-actions">
+        <button type="button" (click)="addIngredientGroup()">Tilføj gruppe</button>
+      </div>
+
+      <div class="lists single-column">
+        @for (group of ingredientGroups(); track $index; let groupIndex = $index) {
+          <div class="list-container">
+            <div class="list-header">
+              <div class="inline-title">
+                <label [for]="'ingredient-group-title-' + groupIndex">Gruppenavn</label>
+                <input
+                  #ingredientGroupTitleInput
+                  [id]="'ingredient-group-title-' + groupIndex"
+                  type="text"
+                  [value]="group.title"
+                  placeholder="Fx Kyllingefyld"
+                  (input)="updateIngredientGroupTitle(group, ingredientGroupTitleInput.value)"
+                />
+              </div>
+              <button type="button" class="danger-outline" (click)="removeIngredientGroupByRef(group)">Fjern gruppe</button>
+            </div>
+
+            <div class="list">
+              @for (ingredient of group.items; track $index; let itemIndex = $index) {
+                <div class="element">
+                  <span class="row-index">{{ itemIndex + 1 }}.</span>
+                  <input
+                    #ingredientInput
+                    type="text"
+                    [value]="ingredient"
+                    placeholder="Skriv ingrediens"
+                    (input)="updateIngredientItem(group, itemIndex, ingredientInput.value)"
+                  />
+                  <button type="button" (click)="removeIngredientFromGroup(group, itemIndex)">Fjern</button>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="ghost-action" (click)="addIngredientFieldToGroup(group)">
+              + Tilføj ingrediensfelt
+            </button>
+          </div>
+        }
+
+        @if (ingredientGroups().length === 0) {
+          <p class="empty-state-inline">Tilføj en ingrediensgruppe for at begynde.</p>
+        }
+      </div>
+    </div>
+
+    <div class="editor-card-block span-2">
+      <h3>Fremgangsmåde</h3>
+
+      <div class="section-actions">
+        <button type="button" (click)="addInstructionSection()">Tilføj sektion</button>
+      </div>
+
+      <div class="lists single-column">
+        @for (section of instructionSections(); track $index; let sectionIndex = $index) {
+          <div class="list-container">
+            <div class="list-header">
+              <div class="inline-title">
+                <label [for]="'instruction-section-title-' + sectionIndex">Sektionsnavn</label>
+                <input
+                  #instructionSectionTitleInput
+                  [id]="'instruction-section-title-' + sectionIndex"
+                  type="text"
+                  [value]="section.title"
+                  placeholder="Fx Tilberedning"
+                  (input)="updateInstructionSectionTitle(section, instructionSectionTitleInput.value)"
+                />
+              </div>
+              <button type="button" class="danger-outline" (click)="removeInstructionSectionByRef(section)">Fjern sektion</button>
+            </div>
+
+            <div class="list">
+              @for (instruction of section.steps; track $index; let stepIndex = $index) {
+                <div class="element">
+                  <span class="row-index">{{ stepIndex + 1 }}.</span>
+                  <div class="step-inputs">
+                    <input
+                      #instructionTitleInput
+                      type="text"
+                      [value]="instruction.title"
+                      placeholder="Trin titel (fx Marinering)"
+                      (input)="updateInstructionStepTitle(section, stepIndex, instructionTitleInput.value)"
+                    />
+                    <input
+                      #instructionDescriptionInput
+                      type="text"
+                      [value]="instruction.description"
+                      placeholder="Beskrivelse af trin"
+                      (input)="updateInstructionStepDescription(section, stepIndex, instructionDescriptionInput.value)"
+                    />
+                  </div>
+                  <button type="button" (click)="removeInstructionFromSection(section, stepIndex)">Fjern</button>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="ghost-action" (click)="addInstructionFieldToSection(section)">
+              + Tilføj trinfelt
+            </button>
+          </div>
+        }
+
+        @if (instructionSections().length === 0) {
+          <p class="empty-state-inline">Tilføj en sektion for at begynde.</p>
+        }
+      </div>
+    </div>
+
+    <div class="editor-card-block span-2">
+      <h3>Opbevaring og holdbarhed</h3>
+
+      <div class="section-actions">
+        <button type="button" (click)="addStorageNote()">Tilføj notefelt</button>
+      </div>
+
+      <div class="list">
+        @for (note of storageNotes(); track $index; let noteIndex = $index) {
+          <div class="element">
+            <span class="row-index">{{ noteIndex + 1 }}.</span>
+            <div class="step-inputs">
+              <input
+                #storageNoteTitleInput
+                type="text"
+                [value]="note.title"
+                placeholder="Titel (fx På køl)"
+                (input)="updateStorageNoteTitle(noteIndex, storageNoteTitleInput.value)"
+              />
+              <input
+                #storageNoteDescriptionInput
+                type="text"
+                [value]="note.description"
+                placeholder="Beskrivelse (fx Holder 3-4 dage)"
+                (input)="updateStorageNoteDescription(noteIndex, storageNoteDescriptionInput.value)"
+              />
+            </div>
+            <button type="button" (click)="removeStorageNote(noteIndex)">Fjern</button>
+          </div>
+        }
+
+        @if (storageNotes().length === 0) {
+          <p class="empty-state-inline">Tilføj en note for opbevaring og holdbarhed.</p>
+        }
+      </div>
+    </div>
+
+    <div class="editor-card-block span-2">
+      <h3>Næringsindhold pr. portion</h3>
+
+      <div class="section-actions">
+        <button type="button" (click)="addNutritionRow()">Tilføj næringsrække</button>
+      </div>
+
+      <div class="list">
+        @for (row of nutritionRows(); track $index; let rowIndex = $index) {
+          <div class="element nutrition-inline-row">
+            <span class="row-index">{{ rowIndex + 1 }}.</span>
+            <div class="step-inputs nutrition-step-inputs">
+              <input
+                #nutritionNameInput
+                type="text"
+                [value]="row.name"
+                placeholder="Makronæringsstof"
+                (input)="updateNutritionRowName(rowIndex, nutritionNameInput.value)"
+              />
+              <input
+                #nutritionValueInput
+                type="text"
+                [value]="row.value"
+                placeholder="Mængde"
+                (input)="updateNutritionRowValue(rowIndex, nutritionValueInput.value)"
+              />
+              <input
+                #nutritionUnitInput
+                type="text"
+                [value]="row.unit || ''"
+                placeholder="Enhed"
+                (input)="updateNutritionRowUnit(rowIndex, nutritionUnitInput.value)"
+              />
+            </div>
+            <button type="button" (click)="removeNutritionRow(rowIndex)">Fjern</button>
+          </div>
+        }
+
+        @if (nutritionRows().length === 0) {
+          <p class="empty-state-inline">Tilføj en næringsrække for at begynde.</p>
+        }
+      </div>
+
+    </div>
+  </div>
+
+  <button class="save-button" type="submit" [disabled]="isUploading()">
+    @if (isUploading()) {
+      Uploader...
+    } @else {
+      Gem
+    }
+  </button>
+</form>

@@ -58,6 +58,7 @@ export const updateDetails = createAuthEndpoint(async (req, res, user) => {
   const userProfileUpdate: Partial<UserProfile> = {
     firstName: data.firstName,
     lastName: data.lastName,
+    age: data.age,
     email: data.email,
     phoneNumber: data.phoneNumber,
     address: data.address,
@@ -89,6 +90,7 @@ export const updateDetails = createAuthEndpoint(async (req, res, user) => {
     uid: user.uid,
     firstName: refreshedProfile.firstName ?? data.firstName ?? '',
     lastName: refreshedProfile.lastName ?? data.lastName ?? '',
+    age: refreshedProfile.age ?? data.age ?? 0,
     email: refreshedProfile.email ?? data.email ?? user.email ?? '',
     phoneNumber: refreshedProfile.phoneNumber ?? data.phoneNumber ?? '',
     address: refreshedProfile.address ?? data.address ?? { city: '', postalCode: 0, street: '' },

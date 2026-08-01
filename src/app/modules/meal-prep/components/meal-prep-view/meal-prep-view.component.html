@@ -1,0 +1,116 @@
+@if (visible() && recipe(); as recipeData) {
+  <section class="meal-view-section">
+    <div class="section-header">
+      <div>
+        <p class="eyebrow">Detaljer</p>
+        <h2>{{ recipeData.recipe?.title || 'Opskrift' }}</h2>
+      </div>
+
+      <button class="meal-button" type="button" (click)="closeView()">Luk</button>
+    </div>
+
+    <p class="time-created">{{ recipeData.timeCreated }}</p>
+
+    <div class="meta-grid">
+      @if (recipeData.recipe?.servings) {
+        <div class="meta-chip">Portioner: {{ recipeData.recipe?.servings }}</div>
+      }
+      @if (recipeData.recipe?.prepTimeMinutes !== null && recipeData.recipe?.prepTimeMinutes !== undefined) {
+        <div class="meta-chip">Forberedelse: {{ recipeData.recipe?.prepTimeMinutes }} min</div>
+      }
+      @if (recipeData.recipe?.cookTimeMinutes !== null && recipeData.recipe?.cookTimeMinutes !== undefined) {
+        <div class="meta-chip">Tilberedning: {{ recipeData.recipe?.cookTimeMinutes }} min</div>
+      }
+      @if (recipeData.recipe?.totalTimeMinutes !== null && recipeData.recipe?.totalTimeMinutes !== undefined) {
+        <div class="meta-chip">Samlet tid: {{ recipeData.recipe?.totalTimeMinutes }} min</div>
+      }
+    </div>
+
+    <img [src]="recipeData.fileUrl" [alt]="recipeData.recipe?.title || 'Opskrift billede'" />
+
+    <div class="detail-grid">
+      @if (getIngredientGroups(recipeData.recipe).length > 0) {
+        <div class="info-card span-full">
+          <h3>Ingredienser</h3>
+
+          <div class="grouped-columns">
+            @for (group of getIngredientGroups(recipeData.recipe); track $index) {
+              <div class="sub-group">
+                <h4>{{ group.title }}</h4>
+                @for (ingredient of group.items; track $index; let itemIndex = $index) {
+                  <div class="ingredient-item">
+                    <label class="ingredient-item-label">{{ itemIndex + 1 }}. {{ ingredient }}</label>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (getInstructionSections(recipeData.recipe).length > 0) {
+        <div class="info-card span-full">
+          <h3>Instruktioner</h3>
+
+          @for (section of getInstructionSections(recipeData.recipe); track $index) {
+            <div class="instruction-section">
+              <h4>{{ section.title }}</h4>
+              @for (step of section.steps; track $index) {
+                <div class="instruction-step-item">
+                  <label class="instruction-step-header">
+                    {{ $index + 1 }}.
+                    @if (step.title.trim()) {
+                      <strong>{{ step.title }}</strong>
+                    }
+                  </label>
+                  @if (step.description.trim()) {
+                    <p class="instruction-step-description">{{ step.description }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div class="info-card span-full">
+        <h3>Næringsindhold (pr. portion)</h3>
+
+        <div class="nutrition-table" role="table" aria-label="Næringsindhold">
+          <div class="nutrition-row header" role="row">
+            <span>Makronæringsstof</span>
+            <span>Mængde</span>
+            <span>Enhed</span>
+          </div>
+
+          @for (row of getNutritionRows(recipeData.recipe); track $index) {
+            <div class="nutrition-row" role="row">
+              <span>{{ row.name }}</span>
+              <span>{{ row.value }}</span>
+              <span>{{ row.unit || '-' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (getStorageNotes(recipeData.recipe).length > 0) {
+        <div class="info-card span-full">
+          <h3>Opbevaring og holdbarhed</h3>
+          @for (note of getStorageNotes(recipeData.recipe); track $index) {
+            <div class="storage-note-item">
+              <label class="storage-note-header">
+                {{ $index + 1 }}.
+                @if (note.title.trim()) {
+                  <strong>{{ note.title }}</strong>
+                }
+              </label>
+              @if (note.description.trim()) {
+                <p class="storage-note-description">{{ note.description }}</p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

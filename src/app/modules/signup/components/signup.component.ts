@@ -20,6 +20,11 @@ export class SignupComponent implements OnInit {
 
   firstnameControl = new FormControl<string>('', [Validators.required]);
   lastnameControl = new FormControl<string>('', [Validators.required]);
+  ageControl = new FormControl<number>(null, [
+    Validators.required,
+    Validators.min(1),
+    Validators.max(120),
+  ]);
   phonenumberControl = new FormControl<string>('', [Validators.required]);
   streetControl = new FormControl<string>('', [Validators.required]);
   postalCodeControl = new FormControl<number>(null, [Validators.required]);
@@ -30,6 +35,7 @@ export class SignupComponent implements OnInit {
   formGroup = new FormGroup({
     firstname: this.firstnameControl,
     lastname: this.lastnameControl,
+    age: this.ageControl,
     phonenumber: this.phonenumberControl,
     street: this.streetControl,
     postalCode: this.postalCodeControl,
@@ -74,6 +80,7 @@ export class SignupComponent implements OnInit {
         this.passwordControl.value,
         this.firstnameControl.value,
         this.lastnameControl.value,
+        this.ageControl.value,
         this.phonenumberControl.value,
         this.address,
       )

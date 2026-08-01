@@ -90,6 +90,22 @@
         }
       </div>
 
+      <div class="form-element full">
+        <label for="age">Alder*</label>
+        <input
+          id="age"
+          name="age"
+          type="number"
+          min="1"
+          max="120"
+          placeholder="30"
+          [formControl]="ageControl"
+        />
+        @if (ageControl.invalid && ageControl.touched) {
+          <small>*Alder skal vaere mellem 1 og 120.</small>
+        }
+      </div>
+
       <div class="element-group">
         <div class="form-element">
           <label for="email">Email</label>
