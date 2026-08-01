@@ -84,7 +84,13 @@
                   (input)="updateIngredientGroupTitle(group, ingredientGroupTitleInput.value)"
                 />
               </div>
-              <button type="button" class="danger-outline" (click)="removeIngredientGroupByRef(group)">Fjern gruppe</button>
+              <button
+                type="button"
+                class="danger-outline"
+                (click)="removeIngredientGroupByRef(group)"
+              >
+                Fjern gruppe
+              </button>
             </div>
 
             <div class="list">
@@ -98,7 +104,9 @@
                     placeholder="Skriv ingrediens"
                     (input)="updateIngredientItem(group, itemIndex, ingredientInput.value)"
                   />
-                  <button type="button" (click)="removeIngredientFromGroup(group, itemIndex)">Fjern</button>
+                  <button type="button" (click)="removeIngredientFromGroup(group, itemIndex)">
+                    Fjern
+                  </button>
                 </div>
               }
             </div>
@@ -134,10 +142,18 @@
                   type="text"
                   [value]="section.title"
                   placeholder="Fx Tilberedning"
-                  (input)="updateInstructionSectionTitle(section, instructionSectionTitleInput.value)"
+                  (input)="
+                    updateInstructionSectionTitle(section, instructionSectionTitleInput.value)
+                  "
                 />
               </div>
-              <button type="button" class="danger-outline" (click)="removeInstructionSectionByRef(section)">Fjern sektion</button>
+              <button
+                type="button"
+                class="danger-outline"
+                (click)="removeInstructionSectionByRef(section)"
+              >
+                Fjern sektion
+              </button>
             </div>
 
             <div class="list">
@@ -150,22 +166,36 @@
                       type="text"
                       [value]="instruction.title"
                       placeholder="Trin titel (fx Marinering)"
-                      (input)="updateInstructionStepTitle(section, stepIndex, instructionTitleInput.value)"
+                      (input)="
+                        updateInstructionStepTitle(section, stepIndex, instructionTitleInput.value)
+                      "
                     />
                     <input
                       #instructionDescriptionInput
                       type="text"
                       [value]="instruction.description"
                       placeholder="Beskrivelse af trin"
-                      (input)="updateInstructionStepDescription(section, stepIndex, instructionDescriptionInput.value)"
+                      (input)="
+                        updateInstructionStepDescription(
+                          section,
+                          stepIndex,
+                          instructionDescriptionInput.value
+                        )
+                      "
                     />
                   </div>
-                  <button type="button" (click)="removeInstructionFromSection(section, stepIndex)">Fjern</button>
+                  <button type="button" (click)="removeInstructionFromSection(section, stepIndex)">
+                    Fjern
+                  </button>
                 </div>
               }
             </div>
 
-            <button type="button" class="ghost-action" (click)="addInstructionFieldToSection(section)">
+            <button
+              type="button"
+              class="ghost-action"
+              (click)="addInstructionFieldToSection(section)"
+            >
               + Tilføj trinfelt
             </button>
           </div>
@@ -215,7 +245,7 @@
     </div>
 
     <div class="editor-card-block span-2">
-      <h3>Næringsindhold pr. portion</h3>
+      <h3>Næringsindhold pr. 100 g</h3>
 
       <div class="section-actions">
         <button type="button" (click)="addNutritionRow()">Tilføj næringsrække</button>
@@ -256,7 +286,6 @@
           <p class="empty-state-inline">Tilføj en næringsrække for at begynde.</p>
         }
       </div>
-
     </div>
   </div>
 

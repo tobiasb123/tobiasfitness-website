@@ -15,13 +15,22 @@
       @if (recipeData.recipe?.servings) {
         <div class="meta-chip">Portioner: {{ recipeData.recipe?.servings }}</div>
       }
-      @if (recipeData.recipe?.prepTimeMinutes !== null && recipeData.recipe?.prepTimeMinutes !== undefined) {
+      @if (
+        recipeData.recipe?.prepTimeMinutes !== null &&
+        recipeData.recipe?.prepTimeMinutes !== undefined
+      ) {
         <div class="meta-chip">Forberedelse: {{ recipeData.recipe?.prepTimeMinutes }} min</div>
       }
-      @if (recipeData.recipe?.cookTimeMinutes !== null && recipeData.recipe?.cookTimeMinutes !== undefined) {
+      @if (
+        recipeData.recipe?.cookTimeMinutes !== null &&
+        recipeData.recipe?.cookTimeMinutes !== undefined
+      ) {
         <div class="meta-chip">Tilberedning: {{ recipeData.recipe?.cookTimeMinutes }} min</div>
       }
-      @if (recipeData.recipe?.totalTimeMinutes !== null && recipeData.recipe?.totalTimeMinutes !== undefined) {
+      @if (
+        recipeData.recipe?.totalTimeMinutes !== null &&
+        recipeData.recipe?.totalTimeMinutes !== undefined
+      ) {
         <div class="meta-chip">Samlet tid: {{ recipeData.recipe?.totalTimeMinutes }} min</div>
       }
     </div>
@@ -39,7 +48,7 @@
                 <h4>{{ group.title }}</h4>
                 @for (ingredient of group.items; track $index; let itemIndex = $index) {
                   <div class="ingredient-item">
-                    <label class="ingredient-item-label">{{ itemIndex + 1 }}. {{ ingredient }}</label>
+                    <label class="ingredient-item-label">{{ ingredient }}</label>
                   </div>
                 }
               </div>
@@ -74,7 +83,7 @@
       }
 
       <div class="info-card span-full">
-        <h3>Næringsindhold (pr. portion)</h3>
+        <h3>Næringsindhold (pr. 100 g)</h3>
 
         <div class="nutrition-table" role="table" aria-label="Næringsindhold">
           <div class="nutrition-row header" role="row">
