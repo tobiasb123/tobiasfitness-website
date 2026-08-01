@@ -155,8 +155,6 @@ img {
 
 .instruction-step-item {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .instruction-step-header {
@@ -168,7 +166,7 @@ img {
 
 .instruction-step-description {
   margin: 0;
-  padding-left: 22px;
+  padding-left: 8px;
   color: #475569;
   line-height: 1.5;
 }
