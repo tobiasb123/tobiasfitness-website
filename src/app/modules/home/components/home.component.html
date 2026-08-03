@@ -53,10 +53,12 @@
   </section>
 
   <section class="section-3">
-    @if (userProfile?.admin) {
-      <button (click)="createReview()">Opret Anmeldelse</button>
-    }
-    <h2>Anmeldelser</h2>
+    <div class="section-3-header">
+      <h2>Anmeldelser</h2>
+      <button class="create-review-button" type="button" (click)="createReview()">
+        Opret Anmeldelse
+      </button>
+    </div>
     @if (reviewsLoading()) {
       <p>Henter anmeldelser...</p>
     } @else if (reviewsLoadFailed()) {

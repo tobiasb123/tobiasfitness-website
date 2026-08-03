@@ -112,12 +112,17 @@ section {
 }
 
 .section-3 {
-  position: relative;
   padding: 24px 0 0;
 
+  .section-3-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
   h2 {
-    align-self: center;
-    justify-self: end;
     font-size: 30px;
     font-weight: bold;
     color: rgb(255, 255, 255);
@@ -130,20 +135,23 @@ section {
       -2px -2px 0 #313131,
       2px -2px 0 #313131,
       -2px 2px 0 #313131;
-    margin: 0 0 12px;
+    margin: 0;
+    grid-column: 2;
+    justify-self: center;
+    text-align: center;
   }
 
-  button {
+  .create-review-button {
     appearance: none;
     outline: none;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.45);
     box-sizing: border-box;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 150px;
-    height: 44px;
-    font-size: 16px;
+    min-height: 44px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: white;
     border-radius: 999px;
@@ -152,10 +160,17 @@ section {
       transform 0.2s ease,
       box-shadow 0.2s ease;
     box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+    grid-column: 3;
+    justify-self: end;
 
     &:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(255, 255, 255, 0.95);
+      outline-offset: 2px;
     }
   }
 }
@@ -499,6 +514,29 @@ a {
   .section-1 {
     margin-top: 0px;
     padding-bottom: 85px;
+  }
+
+  .section-3 {
+    .section-3-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      align-self: center;
+      text-align: center;
+    }
+
+    .create-review-button {
+      width: 100%;
+      max-width: 360px;
+      justify-content: center;
+      display: inline-flex;
+      align-items: center;
+    }
   }
 
   /* when nav moves to the right, free space on the right instead */
