@@ -12,7 +12,7 @@
         id="fileInput"
         type="file"
         style="display: none"
-        (input)="displayFileName(file.files[0].name)"
+        (input)="displayFileName(file.files?.[0]?.name)"
         [formControl]="imageControl"
       />
       <img src="upload image.png" id="uploadBtn" (click)="selectFile($event)" />
@@ -39,6 +39,8 @@
       }
     </div>
 
-    <button class="submitButton" type="submit">Anmeld</button>
+    <button class="submitButton" type="submit" [disabled]="isUploading()">
+      {{ isUploading() ? 'Oploader...' : 'Anmeld' }}
+    </button>
   </form>
 </section>

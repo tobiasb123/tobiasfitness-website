@@ -1,16 +1,29 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   effect,
   ElementRef,
   inject,
   OnInit,
   QueryList,
+  signal,
   ViewChildren,
 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
+import { DocumentFile } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
+import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
+
+interface HomeReview {
+  id: string;
+  image: string;
+  review: string;
+  name: string;
+  age: string;
+  stars: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -21,29 +34,25 @@ import { AuthFunctionsService } from '@modules/auth';
 export class HomeComponent implements OnInit, AfterViewInit {
   router = inject(Router);
   private authFunctions = inject(AuthFunctionsService);
+  private storageFunctions = inject(StorageFunctions);
   userProfile: UserProfile;
 
   private readonly profileEffect = effect(() => {
     this.userProfile = this.authFunctions.currentUserProfile();
   });
 
-  reviewText: boolean = false;
+  expandedReviewId = signal<string | null>(null);
 
-  reviews = [
-    {
-      image: '/Sandie%20Tolstrup.jpeg',
-      review:
-        'En rigtig god oplevelse med en meget grundig vejledning fra Tobias. Inden vi gik i gang, stillede han gode og relevante spørgsmål, så træningen og programmet kunne tilpasses mig og mine behov. Jeg fik en grundig vejledning i brugen af maskinerne, så jeg følte mig tryg ved øvelserne. Og så var det dejligt med lidt ros og opmuntring undervejs 😊 Kan klart anbefales!',
-      name: 'Sandie Tolstrup',
-      age: '45',
-      stars: '5',
-    },
-  ];
+  reviews = signal<HomeReview[]>([]);
+  reviewsLoading = signal(true);
+  reviewsLoadFailed = signal(false);
+  hasReviews = computed(() => this.reviews().length > 0);
 
   @ViewChildren('infoBox', { read: ElementRef }) infoBoxes!: QueryList<ElementRef<HTMLElement>>;
 
   ngOnInit(): void {
     this.scrollToTop();
+    void this.loadReviews();
   }
 
   ngAfterViewInit(): void {
@@ -90,8 +99,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  textReview() {
-    this.reviewText = !this.reviewText;
+  textReview(reviewId: string): void {
+    this.expandedReviewId.update((activeReviewId) =>
+      activeReviewId === reviewId ? null : reviewId,
+    );
+  }
+
+  isReviewExpanded(reviewId: string): boolean {
+    return this.expandedReviewId() === reviewId;
   }
 
   navigateTo(route: string) {
@@ -100,5 +115,38 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   createReview() {
     this.navigateTo('create-review');
+  }
+
+  private async loadReviews(): Promise<void> {
+    this.reviewsLoading.set(true);
+
+    try {
+      const reviewFiles = await this.storageFunctions.getReviews();
+
+      const mappedReviews = reviewFiles
+        .filter((reviewFile) => Boolean(reviewFile.review))
+        .map((reviewFile) => this.mapReviewFileToHomeReview(reviewFile));
+
+      this.reviews.set(mappedReviews);
+      this.reviewsLoadFailed.set(false);
+    } catch {
+      this.reviews.set([]);
+      this.reviewsLoadFailed.set(true);
+    } finally {
+      this.reviewsLoading.set(false);
+    }
+  }
+
+  private mapReviewFileToHomeReview(reviewFile: DocumentFile): HomeReview {
+    const review = reviewFile.review;
+
+    return {
+      id: reviewFile.id,
+      image: reviewFile.fileUrl,
+      review: review?.text || '',
+      name: review?.fullName || 'Anonym',
+      age: String(review?.age ?? '-'),
+      stars: String(review?.rating ?? '-'),
+    };
   }
 }

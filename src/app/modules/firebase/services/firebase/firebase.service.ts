@@ -10,6 +10,8 @@ import { FIREBASE_FUNCTIONS_BASE_URL } from '../../tokens/firebase-functions-bas
   providedIn: 'root',
 })
 export class FirebaseService {
+  private static readonly AUTH_INIT_FALLBACK_TIMEOUT_MS = 3000;
+
   private auth = inject(FIREBASE_AUTH);
   private functionsBaseUrl = inject(FIREBASE_FUNCTIONS_BASE_URL);
   private http = inject(HttpClient);
@@ -28,6 +30,13 @@ export class FirebaseService {
     });
   }
 
+  async httpGetPublic<TResult>(name: string): Promise<TResult> {
+    const url = `${this.functionsBaseUrl}/${name}`;
+    return firstValueFrom(this.http.get<TResult>(url)).catch((error) => {
+      throw this.normalizeHttpError(error);
+    });
+  }
+
   async httpPost<TBody, TResult>(name: string, body: TBody): Promise<TResult> {
     await this.waitForAuthInitialization();
     const url = `${this.functionsBaseUrl}/${name}`;
@@ -39,15 +48,47 @@ export class FirebaseService {
 
   private waitForAuthInitialization(): Promise<void> {
     if (!this.authInitializedPromise) {
-      this.authInitializedPromise = new Promise<void>((resolve) => {
-        const unsubscribe = onAuthStateChanged(this.auth, () => {
-          unsubscribe();
-          resolve();
-        });
-      });
+      this.authInitializedPromise = this.initializeAuthState();
     }
 
     return this.authInitializedPromise;
+  }
+
+  private initializeAuthState(): Promise<void> {
+    const authWithStateReady = this.auth as Auth & {
+      authStateReady?: () => Promise<void>;
+    };
+
+    if (typeof authWithStateReady.authStateReady === 'function') {
+      return Promise.race([
+        authWithStateReady.authStateReady().catch((): void => {}),
+        new Promise<void>((resolve) => {
+          setTimeout(resolve, FirebaseService.AUTH_INIT_FALLBACK_TIMEOUT_MS);
+        }),
+      ]);
+    }
+
+    return new Promise<void>((resolve) => {
+      let resolved = false;
+      const resolveOnce = () => {
+        if (resolved) {
+          return;
+        }
+
+        resolved = true;
+        resolve();
+      };
+
+      const unsubscribe = onAuthStateChanged(this.auth, () => {
+        unsubscribe();
+        resolveOnce();
+      });
+
+      setTimeout(() => {
+        unsubscribe();
+        resolveOnce();
+      }, FirebaseService.AUTH_INIT_FALLBACK_TIMEOUT_MS);
+    });
   }
 
   private normalizeHttpError(error: unknown): Error {

@@ -3,6 +3,7 @@ import {
   CreateUploadIntentInput,
   CreateUploadIntentReturn,
   DocumentFile,
+  FileType,
   FinalizeUploadInput,
   Recipe,
   Review,
@@ -63,7 +64,7 @@ export class StorageFunctions {
   }
 
   public async getReviews(): Promise<DocumentFile[]> {
-    return this.firbaseService.httpGet<DocumentFile[]>('storage-getReviews');
+    return this.firbaseService.httpGetPublic<DocumentFile[]>('storage-getReviews');
   }
 
   public saveReview(
@@ -84,12 +85,13 @@ export class StorageFunctions {
     fileId?: string,
   ): ResumableUpload {
     let uploadTask: UploadTask | null = null;
+    const fileType: FileType = review ? 'review' : 'recipe';
 
     const promise = this.firbaseService
       .httpPost<CreateUploadIntentInput, CreateUploadIntentReturn>('storage-createUploadIntent', {
         fileName: file.name,
         sizeBytes: file.size,
-        fileType: 'recipe',
+        fileType,
         uid,
         recipe,
         review,

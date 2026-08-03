@@ -57,10 +57,17 @@
       <button (click)="createReview()">Opret Anmeldelse</button>
     }
     <h2>Anmeldelser</h2>
+    @if (reviewsLoading()) {
+      <p>Henter anmeldelser...</p>
+    } @else if (reviewsLoadFailed()) {
+      <p>Kunne ikke hente anmeldelser lige nu.</p>
+    } @else if (!hasReviews()) {
+      <p>Der er endnu ingen anmeldelser.</p>
+    }
     <ul class="carousel">
-      @for (review of reviews; track $index) {
+      @for (review of reviews(); track review.id) {
         <li>
-          <div class="review-card" (click)="textReview()">
+          <div class="review-card" (click)="textReview(review.id)">
             <div class="img" [style.backgroundImage]="'url(' + review.image + ')'"></div>
 
             <div class="review-content">
@@ -73,7 +80,7 @@
                 <span class="review-stars">{{ review.stars }}★</span>
               </div>
 
-              <p class="text" [class.active]="reviewText">
+              <p class="text" [class.active]="isReviewExpanded(review.id)">
                 {{ review.review }}
               </p>
 

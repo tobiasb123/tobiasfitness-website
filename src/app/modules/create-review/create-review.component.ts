@@ -1,9 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Review } from '@models/storage';
 import { AuthFacade } from '@modules/auth';
+import { FirebaseError } from 'firebase/app';
 import { UploadTaskSnapshot } from 'firebase/storage';
+import { ToastService } from '../core/services/toast/toast.service';
 import { ResumableUpload, StorageFunctions } from '../meal-prep/services/storage-functions.service';
 
 @Component({
@@ -15,6 +17,8 @@ import { ResumableUpload, StorageFunctions } from '../meal-prep/services/storage
 export class CreateReviewComponent {
   private storageFunctions = inject(StorageFunctions);
   private authFacade = inject(AuthFacade);
+  private toast = inject(ToastService);
+  private router = inject(Router);
 
   private activeUpload: ResumableUpload = null;
   private uploadStartedAtMs: number = null;
@@ -41,16 +45,21 @@ export class CreateReviewComponent {
     event.target.parentElement.children[0].click();
   }
 
-  displayFileName(file: string) {
-    let fileDisplayName = document.getElementById('fileName');
-    if (file) {
-      fileDisplayName.textContent = file;
-    } else {
-      fileDisplayName.textContent = 'Ingen Fil';
+  displayFileName(fileName?: string | null): void {
+    const fileDisplayName = document.getElementById('fileName');
+
+    if (!fileDisplayName) {
+      return;
     }
+
+    fileDisplayName.textContent = fileName?.trim() || 'Ingen Fil';
   }
 
   onSubmit(img: HTMLInputElement): void {
+    if (this.isUploading()) {
+      return;
+    }
+
     if (!this.formGroup.valid) {
       this.formGroup.markAllAsTouched();
       return;
@@ -63,10 +72,10 @@ export class CreateReviewComponent {
       return;
     }
 
-    this.saveReview(file);
+    void this.saveReview(file);
   }
 
-  private async saveReview(file: File) {
+  private async saveReview(file: File): Promise<void> {
     const currentUser = this.authFacade.currentProfile();
 
     const review = <Review>{
@@ -84,8 +93,22 @@ export class CreateReviewComponent {
       (snapshot) => this.handleUploadProgress(snapshot),
     );
 
-    const updatedDocument = await this.activeUpload.promise;
-    this.finishUpload();
+    try {
+      await this.activeUpload.promise;
+      this.toast.open('Anmeldelse blev oprettet', 'success');
+      await this.router.navigate(['/']);
+    } catch (error: unknown) {
+      const message = error instanceof FirebaseError || error instanceof Error ? error.message : '';
+
+      if (error instanceof FirebaseError && error.code === 'storage/canceled') {
+        this.toast.open('Upload blev annulleret', 'success');
+        return;
+      }
+
+      this.toast.open(message || 'Der skete en ukendt fejl. Kunne ikke gemme anmeldelsen', 'error');
+    } finally {
+      this.finishUpload();
+    }
   }
 
   private handleUploadProgress(snapshot: UploadTaskSnapshot): void {
