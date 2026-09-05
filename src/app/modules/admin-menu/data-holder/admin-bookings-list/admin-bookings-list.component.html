@@ -1,0 +1,29 @@
+<div class="view Bookinger">
+  @if (!bookings().length) {
+    <div class="empty-state">
+      <h3>Ingen bookinger</h3>
+      @if (hasActiveSearch()) {
+        <p>Ingen resultater for den aktuelle søgning.</p>
+      } @else {
+        <p>Opdater for at hente data.</p>
+      }
+    </div>
+  } @else {
+    @for (booking of bookings(); track booking.id) {
+      <button class="apointment element" (click)="selectBooking(booking.uid)">
+        <div class="card-main">
+          <span class="card-label">Booking</span>
+          <strong>{{ booking.firstName }} {{ booking.lastName }}</strong>
+        </div>
+        <div class="card-meta">
+          <span>{{ booking.date }}</span>
+          <small>
+            {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }} -
+            {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
+          </small>
+        </div>
+        <span class="service-pill">{{ booking.service }}</span>
+      </button>
+    }
+  }
+</div>

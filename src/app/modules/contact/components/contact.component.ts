@@ -19,10 +19,21 @@ import { ToastService } from '../../core/services/toast/toast.service';
 import { ContactFunctionsService } from '../services/contact-functions/contact-functions.service';
 import { BookingFacade } from '../store/booking.facade';
 import { ServicesFacade } from '../store/services.facade';
+import { ContactHeaderComponent } from './contact-header/contact-header.component';
+import { ContactScheduleStepComponent } from './contact-schedule-step/contact-schedule-step.component';
+import { ContactServiceStepComponent } from './contact-service-step/contact-service-step.component';
+
+type ContactStep = 'service' | 'schedule';
 
 @Component({
   selector: 'app-contact',
-  imports: [RouterModule, ReactiveFormsModule],
+  imports: [
+    RouterModule,
+    ReactiveFormsModule,
+    ContactHeaderComponent,
+    ContactServiceStepComponent,
+    ContactScheduleStepComponent,
+  ],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
 })
@@ -40,7 +51,9 @@ export class ContactComponent implements OnInit, OnDestroy {
     this.userProfile = this.authFunctions.currentUserProfile();
   });
 
-  showButtonGroup: boolean = false;
+  currentStep = signal<ContactStep>('service');
+  showButtonGroup = signal(false);
+  selectedService = signal<Service | null>(null);
 
   dateControl = new FormControl<string>('', [Validators.required]);
   timeControl = new FormControl<string>('', [Validators.required]);
@@ -59,20 +72,6 @@ export class ContactComponent implements OnInit, OnDestroy {
   serviceFormComponents: WritableSignal<Service[]> = signal([]);
   servicesLoading = signal(false);
   servicesError = signal('');
-
-  serviceOverview: Service[] = [
-    {
-      id: '',
-      title: 'Ingen service',
-      price: 'Pris: 0kr',
-      time: 'Tid: 0',
-      description: '',
-      image: 'Priser_Billede_2.jpeg',
-    },
-  ];
-
-  time_period = document.getElementsByClassName('time-period');
-  service = document.getElementsByClassName('service');
 
   async ngOnInit(): Promise<void> {
     this.scrollToTop();
@@ -152,68 +151,31 @@ export class ContactComponent implements OnInit, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  open_Service_Options() {
-    if (this.time_period[0]) {
-      this.time_period[0].classList.remove('focus');
-      this.time_period[0].parentElement.classList.add('inside');
-      this.showButtonGroup = false;
-    }
-    if (this.service[0]) {
-      this.service[0].classList.add('focus');
-      this.scrollToTop();
-    }
-  }
+  onServiceSelected(service: Service): void {
+    this.selectedService.set(service);
 
-  open_Time_Period() {
-    if (this.serviceControl.valid) {
-      if (this.time_period[0]) {
-        this.time_period[0].classList.add('focus');
-        this.time_period[0].parentElement.classList.add('inside');
-        this.scrollToTop();
-        this.showButtonGroup = true;
-      }
-      if (this.service[0]) {
-        this.service[0].classList.remove('focus');
-      }
+    if (service.title === 'Personligt Coachingforløb') {
+      this.serviceControl.setValue(service.title + ' - ' + service.time);
     } else {
-      this.toast.open('Vælg en service', 'error');
+      this.serviceControl.setValue(service.title);
     }
   }
 
-  select_service(event: any) {
-    var selectedServiceElement;
+  goToService(): void {
+    this.currentStep.set('service');
+    this.showButtonGroup.set(false);
+    this.scrollToTop();
+  }
 
-    var serviceElements = this.service[0].children[0].children;
-
-    for (let index = 0; index < this.serviceFormComponents().length; index++) {
-      const element = this.serviceFormComponents()[index];
-      var children = event.target.children;
-
-      if (children) {
-        if (children[1].innerHTML === element.title) {
-          if (children[2].innerHTML === element.time) {
-            this.serviceOverview = [element];
-            selectedServiceElement = event.target;
-            event.target.classList.add('selected');
-
-            if (element.title === 'Personligt Coachingforløb') {
-              this.serviceControl.setValue(element.title + ' - ' + element.time);
-            } else {
-              this.serviceControl.setValue(element.title);
-            }
-          }
-        }
-      }
+  goToSchedule(): void {
+    if (!this.serviceControl.valid) {
+      this.toast.open('Vælg en service', 'error');
+      return;
     }
-    for (let index = 0; index < serviceElements.length; index++) {
-      const element = serviceElements[index];
 
-      if (element !== selectedServiceElement) {
-        if (element.classList.contains('selected')) {
-          element.classList.remove('selected');
-        }
-      }
-    }
+    this.currentStep.set('schedule');
+    this.showButtonGroup.set(true);
+    this.scrollToTop();
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,30 @@
+<label class="title">Kommende Tider</label>
+<div class="future-apointments">
+  @for (booking of bookings(); track booking.id) {
+    @if (booking.uid === selectedUserUid()) {
+      @if (clickable()) {
+        <div class="apointment clickable" (click)="selectBooking(booking.id)">
+          <label>{{ booking.firstName }} {{ booking.lastName }}</label>
+          <label>
+            {{ booking.date }} <br />
+            {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }}
+            -
+            {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
+          </label>
+          <label>{{ booking.service }}</label>
+        </div>
+      } @else {
+        <div class="apointment">
+          <label>{{ booking.firstName }} {{ booking.lastName }}</label>
+          <label>
+            {{ booking.date }} <br />
+            {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }}
+            -
+            {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
+          </label>
+          <label>{{ booking.service }}</label>
+        </div>
+      }
+    }
+  }
+</div>

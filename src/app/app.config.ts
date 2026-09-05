@@ -54,7 +54,7 @@ export const appConfig: ApplicationConfig = {
       provide: AUTH_STATE,
       useValue: signal<AuthState>('loading'),
     },
-    provideHotToastConfig(),
+    provideHotToastConfig({ dismissible: true }),
     provideStore(
       {
         [adminFeature]: adminReducer,

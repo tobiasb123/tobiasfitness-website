@@ -1,160 +1,47 @@
 <div class="body">
-  <aside class="options">
-    <div class="sidebar-header">
-      <p class="eyebrow">Admin</p>
-      <h2>Kontrolpanel</h2>
-      <p>Få overblik over brugere, bookinger og kundedata.</p>
-    </div>
-
-    <div class="view-options">
-      <button class="view-option active" (click)="selectView('Profiler', $event)">Profiler</button>
-      <button class="view-option" (click)="selectView('Bookinger', $event)">Bookinger</button>
-      <button class="view-option" (click)="selectView('Opskrifter', $event)">Opskrifter</button>
-    </div>
-
-    <div class="search-box">
-      <label for="admin-search">Søg bruger</label>
-      <input
-        id="admin-search"
-        type="search"
-        [value]="searchQuery()"
-        (input)="onSearchInput($event)"
-        placeholder="Navn, e-mail, telefon eller UID"
-      />
-    </div>
-
-    <div class="selected-profile">
-      @if (selectedUser()) {
-        <div class="profile-summary">
-          <span class="label">Valgt profil</span>
-          <strong>{{ selectedUser().firstName }} {{ selectedUser().lastName }}</strong>
-          <p>Alder: {{ selectedUser().age }}</p>
-          <p>{{ selectedUser().email }}</p>
-        </div>
-      } @else {
-        <div class="profile-summary empty">
-          <span class="label">Valgt profil</span>
-          @if (isLibraryRecipeSelected()) {
-            <strong>Bibliotek</strong>
-            <p>Denne opskrift er i biblioteket.</p>
-          } @else {
-            <strong>Ingen valgt</strong>
-            <p>Vælg en bruger i listen for at se detaljerne.</p>
-          }
-        </div>
-      }
-    </div>
-
-    <button class="primary-button" (click)="openEditer()">Åbn redigering</button>
-  </aside>
+  <app-admin-sidebar
+    [activeView]="activeView()"
+    [searchQuery]="searchQuery()"
+    [selectedUser]="selectedUser()"
+    [isLibraryRecipeSelected]="isLibraryRecipeSelected()"
+    (viewSelected)="selectView($event)"
+    (searchChanged)="searchQuery.set($event)"
+    (openEditorRequested)="openEditer()"
+  ></app-admin-sidebar>
 
   <div class="list-container">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">Brugere</span>
-        <strong>{{ allUsers().length }}</strong>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Bookinger</span>
-        <strong>{{ bookings().length }}</strong>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Opskrifter</span>
-        <strong>{{ recipes().length }}</strong>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Valgt</span>
-        <strong>{{ selectedUser() ? selectedUser().firstName?.charAt(0) || '—' : '—' }}</strong>
-      </div>
-    </div>
+    <app-admin-stats
+      [usersCount]="allUsers().length"
+      [bookingsCount]="bookings().length"
+      [recipesCount]="recipes().length"
+      [selectedUserInitial]="selectedUser() ? selectedUser()!.firstName?.charAt(0) || '—' : '—'"
+    ></app-admin-stats>
 
-    <div class="view Profiler active">
-      @if (!filteredUsers().length) {
-        <div class="empty-state">
-          <h3>Ingen brugere</h3>
-          @if (hasActiveSearch()) {
-            <p>Ingen resultater for den aktuelle søgning.</p>
-          } @else {
-            <p>Opdater for at hente data.</p>
-          }
-        </div>
-      } @else {
-        @for (profile of filteredUsers(); track profile.uid) {
-          <button class="profile element" (click)="selectUser(profile.uid)">
-            <div class="card-main">
-              <span class="card-label">Bruger</span>
-              <strong>{{ profile.firstName }} {{ profile.lastName }}</strong>
-            </div>
-            <div class="card-meta">
-              <span>{{ profile.email }}</span>
-              <small>UID: {{ profile.uid }}</small>
-            </div>
-          </button>
-        }
+    @switch (activeView()) {
+      @case ('Profiler') {
+        <app-admin-profiles-list
+          [profiles]="filteredUsers()"
+          [hasActiveSearch]="hasActiveSearch()"
+          (profileSelected)="selectUser($event)"
+        ></app-admin-profiles-list>
       }
-    </div>
-
-    <div class="view Bookinger">
-      @if (!filteredBookings().length) {
-        <div class="empty-state">
-          <h3>Ingen bookinger</h3>
-          @if (hasActiveSearch()) {
-            <p>Ingen resultater for den aktuelle søgning.</p>
-          } @else {
-            <p>Opdater for at hente data.</p>
-          }
-        </div>
-      } @else {
-        @for (booking of filteredBookings(); track booking.id) {
-          <button class="apointment element" (click)="selectUser(booking.uid)">
-            <div class="card-main">
-              <span class="card-label">Booking</span>
-              <strong>{{ booking.firstName }} {{ booking.lastName }}</strong>
-            </div>
-            <div class="card-meta">
-              <span>{{ booking.date }}</span>
-              <small>
-                {{ booking.timePeriod.start.hour }}:{{ booking.timePeriod.start.minute }} -
-                {{ booking.timePeriod.end.hour }}:{{ booking.timePeriod.end.minute }}
-              </small>
-            </div>
-            <span class="service-pill">{{ booking.service }}</span>
-          </button>
-        }
+      @case ('Bookinger') {
+        <app-admin-bookings-list
+          [bookings]="filteredBookings()"
+          [hasActiveSearch]="hasActiveSearch()"
+          (bookingSelected)="selectUser($event)"
+        ></app-admin-bookings-list>
       }
-    </div>
-
-    <div class="view Opskrifter">
-      @if (!filteredRecipes().length) {
-        <div class="empty-state">
-          <h3>Ingen opskrifter</h3>
-          @if (hasActiveSearch()) {
-            <p>Ingen resultater for den aktuelle søgning.</p>
-          } @else {
-            <p>Opdater for at hente data.</p>
-          }
-        </div>
-      } @else {
-        @for (recipe of filteredRecipes(); track recipe.id) {
-          <button
-            class="element recipe-card"
-            type="button"
-            (click)="selectRecipe(recipe.id)"
-            [class.selected]="isRecipeSelected(recipe.id)"
-          >
-            <div class="card-main">
-              <span class="card-label">Opskrift</span>
-              <strong>{{ recipe.recipe.title }}</strong>
-            </div>
-            <div class="card-meta">
-              <span>Modtager: {{ getRecipeOwnerLabel(recipe.uid) }}</span>
-              <small>{{ recipe.fileName }}</small>
-              <small>{{ recipe.timeCreated }}</small>
-            </div>
-          </button>
-        }
+      @case ('Opskrifter') {
+        <app-admin-recipes-list
+          [recipes]="filteredRecipes()"
+          [hasActiveSearch]="hasActiveSearch()"
+          [selectedRecipeId]="selectedRecipe()?.id"
+          [allUsers]="allUsers()"
+          (recipeSelected)="selectRecipe($event)"
+        ></app-admin-recipes-list>
       }
-    </div>
+    }
   </div>
 </div>
 

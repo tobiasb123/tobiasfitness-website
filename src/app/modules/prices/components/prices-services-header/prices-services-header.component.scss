@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+h1 {
+  /* Override the global h1's justify-self: end, which shifts block-level headings right. */
+  justify-self: center;
+  text-align: center;
+}

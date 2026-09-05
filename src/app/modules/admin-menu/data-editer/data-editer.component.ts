@@ -15,10 +15,24 @@ import { BookingFacade } from '@modules/booking';
 import { combineLatest, Subscription } from 'rxjs';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { AdminFacade } from '../store/admin.facade';
+import { DataEditerBookingEditTabComponent } from './data-editer-booking-edit-tab/data-editer-booking-edit-tab.component';
+import { DataEditerOverviewTabComponent } from './data-editer-overview-tab/data-editer-overview-tab.component';
+import { DataEditerProfileTabComponent } from './data-editer-profile-tab/data-editer-profile-tab.component';
+import { DataEditerScheduleTabComponent } from './data-editer-schedule-tab/data-editer-schedule-tab.component';
+
+export type DataEditerTab = 'Oversigt' | 'Tider' | 'Profil' | 'Edit';
 
 @Component({
   selector: 'app-data-editer',
-  imports: [RouterModule, ɵInternalFormsSharedModule, ReactiveFormsModule],
+  imports: [
+    RouterModule,
+    ɵInternalFormsSharedModule,
+    ReactiveFormsModule,
+    DataEditerOverviewTabComponent,
+    DataEditerScheduleTabComponent,
+    DataEditerProfileTabComponent,
+    DataEditerBookingEditTabComponent,
+  ],
   templateUrl: './data-editer.component.html',
   styleUrl: './data-editer.component.scss',
 })
@@ -31,6 +45,8 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   private bookingFacade = inject(BookingFacade);
   private selectedUserValue: UserProfile;
   private activeCommand: 'edit' | 'delete' | null = null;
+
+  activeTab = signal<DataEditerTab>('Oversigt');
 
   firstNameControl = new FormControl<string>('', [Validators.required]);
   lastNameControl = new FormControl<string>('', [Validators.required]);
@@ -264,78 +280,14 @@ export class DataEditerComponent implements OnInit, OnDestroy {
     'Personligt Coachingforløb - 6 Måneder',
   ];
 
-  allButtons = document.getElementsByClassName('ebn');
-  setActiveEditerTabbn(event: Event) {
-    for (let index = 0; index < this.allButtons.length; index++) {
-      const element = this.allButtons[index];
-      if (element && element.classList.contains('active')) {
-        element.classList.remove('active');
-        break;
-      }
-    }
-
-    const target = event.target as HTMLElement;
-    target.classList.add('active');
-    this.setActiveEditerTab(target.innerHTML);
-  }
-
-  allTabs = document.getElementsByClassName('tab');
-  setActiveEditerTab(name: string) {
-    for (let index = 0; index < this.allTabs.length; index++) {
-      const element = this.allTabs[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-        }
-
-        if (element.classList.contains(name)) {
-          element.classList.add('active');
-        }
-      }
-    }
-
-    this.selectedBooking.set(null);
-    this.isDeleteConfirmationOpen.set(false);
-  }
-
   resetTabs() {
-    for (let index = 0; index < this.allTabs.length; index++) {
-      const element = this.allTabs[index];
-      if (element && element.classList.contains('active')) {
-        element.classList.remove('active');
-      }
-    }
-
-    for (let index = 0; index < this.allButtons.length; index++) {
-      const element = this.allButtons[index];
-      if (element && element.classList.contains('active')) {
-        element.classList.remove('active');
-      }
-    }
-
-    if (this.allTabs.length > 0) {
-      this.allTabs[0].classList.add('active');
-    }
-    if (this.allButtons.length > 0) {
-      this.allButtons[0].classList.add('active');
-    }
-
+    this.activeTab.set('Oversigt');
     this.selectedBooking.set(null);
     this.isDeleteConfirmationOpen.set(false);
   }
 
-  openTab(tabName: string) {
-    for (let index = 0; index < this.allTabs.length; index++) {
-      const element = this.allTabs[index];
-      if (element && element.classList.contains('active')) {
-        element.classList.remove('active');
-      }
-
-      if (element && element.classList.contains(tabName)) {
-        element.classList.add('active');
-      }
-    }
-
+  openTab(tabName: DataEditerTab) {
+    this.activeTab.set(tabName);
     this.selectedBooking.set(null);
     this.isDeleteConfirmationOpen.set(false);
   }
@@ -346,14 +298,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    for (let index = 0; index < this.allTabs.length; index++) {
-      const element = this.allTabs[index];
-      if (element.classList.contains('Edit')) {
-        element.classList.add('active');
-      } else {
-        element.classList.remove('active');
-      }
-    }
+    this.activeTab.set('Edit');
   }
 
   editer = document.getElementsByClassName('data-editer');

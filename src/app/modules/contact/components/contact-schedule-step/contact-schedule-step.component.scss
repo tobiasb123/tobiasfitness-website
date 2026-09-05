@@ -1,0 +1,160 @@
+@use '../contact-buttons' as buttons;
+
+:host {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#time-period {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: auto;
+  width: min(90%, 720px);
+  min-width: 280px;
+  transition: 0.5s all ease;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(8px);
+
+  &.focus {
+    .time-period-overview {
+      display: none;
+    }
+
+    .form-element {
+      display: flex;
+    }
+
+    h2 {
+      display: flex;
+    }
+
+    button {
+      display: block;
+      width: min(100%, 320px);
+    }
+
+    small {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+  }
+
+  h2 {
+    display: none;
+    margin: 0;
+    color: #0f172a;
+  }
+
+  button {
+    display: none;
+  }
+
+  small {
+    display: none;
+    width: 100%;
+    color: #64748b;
+    text-align: center;
+  }
+
+  .form-element {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 420px;
+
+    label {
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      appearance: none;
+      border: 1px solid #dbe3ec;
+      outline: none;
+      box-sizing: border-box;
+      width: 100%;
+      height: 46px;
+      background-color: #f8fafc;
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: all 0.2s ease;
+
+      &:focus {
+        background-color: white;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      }
+    }
+
+    small {
+      margin-top: 6px;
+      color: #dc2626;
+      font-weight: 600;
+      text-align: left;
+    }
+  }
+
+  .time-period-overview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    width: 90%;
+    background: linear-gradient(135deg, #f8fbff 0%, #e9f5ff 100%);
+    border: 1px solid #cfe8ff;
+    border-radius: 16px;
+    padding: 20px;
+    gap: 8px;
+
+    label {
+      pointer-events: none;
+      color: #0f172a;
+      font-weight: 600;
+    }
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    width: 100%;
+    align-items: center;
+
+    button {
+      @include buttons.primary-button;
+    }
+  }
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  outline: 2px solid red;
+}
+input.ng-valid,
+select.ng-valid {
+  outline: none;
+}
+input.ng-untouched,
+select.ng-untouched {
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  #time-period {
+    width: min(96%, 760px);
+    padding: 20px;
+  }
+}

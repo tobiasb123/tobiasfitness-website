@@ -1,81 +1,23 @@
 <div class="form-container">
-  <h1>Book din tid</h1>
+  <app-contact-header></app-contact-header>
   <form [formGroup]="formGroup" (submit)="onSubmit($event)">
-    <div id="service" class="service focus">
-      <div class="container">
-        @if (servicesLoading()) {
-          <p>Indlæser ydelser...</p>
-        }
+    <app-contact-service-step
+      [services]="serviceFormComponents()"
+      [loading]="servicesLoading()"
+      [error]="servicesError()"
+      [active]="currentStep() === 'service'"
+      [selectedService]="selectedService()"
+      (serviceSelected)="onServiceSelected($event)"
+      (nextRequested)="goToSchedule()"
+    ></app-contact-service-step>
 
-        @if (servicesError()) {
-          <p>{{ servicesError() }}</p>
-        }
-
-        @for (service of serviceFormComponents(); track $index) {
-          <div class="service-element service-options" (click)="select_service($event)">
-            <img src="{{ service.image }}" />
-            <label class="service-label">{{ service.title }}</label>
-            <label class="service-label">{{ service.time }}</label>
-            <label class="service-label">{{ service.price }}</label>
-            <img class="check-mark" src="service-checkmark.png" />
-          </div>
-        }
-
-        <button type="button" (click)="open_Time_Period()">Næste</button>
-      </div>
-
-      @for (service of serviceOverview; track $index) {
-        <div class="service-element service-overview">
-          @if (service.title !== 'Ingen service') {
-            <label>{{ service.title }}</label>
-            <label>{{ service.time }}</label>
-            <label>{{ service.price }}</label>
-          } @else {
-            <label>{{ service.title }}</label>
-          }
-        </div>
-      }
-    </div>
-
-    <div id="time-period" class="time-period">
-      <h2>Dato & Tid</h2>
-      <small>du kan ikke vælge onsdage og du kan tidligst vælge 2 dage efter nuværende dato</small>
-
-      <div class="form-element">
-        <label for="date">Start Dato*</label>
-        <input id="date" type="date" [formControl]="dateControl" />
-
-        @if (dateControl.invalid && dateControl.touched) {
-          <small>*Start Dato er påkrævet.</small>
-        }
-      </div>
-
-      <div class="form-element">
-        <label for="time">Ønsket Tid*</label>
-        <select id="time" [formControl]="timeControl">
-          @for (hour of hourOptions; track $index) {
-            <option value="{{ hour }}">{{ hour }}</option>
-          }
-        </select>
-
-        @if (timeControl.invalid && timeControl.touched) {
-          <small>*Ønsket Tid er påkrævet.</small>
-        }
-      </div>
-
-      @if (showButtonGroup) {
-        <div class="button-group">
-          <button id="submit-button" type="submit">Book Tid</button>
-          <button type="button" (click)="scrollToTop()" (click)="open_Service_Options()">
-            Tilbage
-          </button>
-        </div>
-      }
-
-      <div class="time-period-overview">
-        <label>Start Dato: {{ dateControl.value }}</label>
-        <label>Ønsket Tid: {{ timeControl.value }}</label>
-      </div>
-    </div>
+    <app-contact-schedule-step
+      [active]="currentStep() === 'schedule'"
+      [showButtonGroup]="showButtonGroup()"
+      [hourOptions]="hourOptions"
+      [dateControl]="dateControl"
+      [timeControl]="timeControl"
+      (backRequested)="goToService()"
+    ></app-contact-schedule-step>
   </form>
 </div>

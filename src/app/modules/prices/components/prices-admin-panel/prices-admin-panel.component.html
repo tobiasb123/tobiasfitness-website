@@ -1,0 +1,30 @@
+<button class="administator-button" (click)="onToggle()" [disabled]="open()">
+  adminstrer tilbud
+</button>
+
+<div class="adminitrative-options" [class.active]="open()">
+  <button class="administator-button inside" (click)="onToggle()">Luk</button>
+
+  <h1>Adminstrer Tilbud</h1>
+  <div class="option-container">
+    @for (service of services(); track service.id) {
+      <div class="option">
+        <div class="info-nondesc">
+          <h2>{{ service.title }}</h2>
+          <p>
+            <strong>{{ service.time }}</strong>
+          </p>
+          <p>
+            <strong>{{ service.price }}</strong>
+          </p>
+        </div>
+        <p id="discription">{{ service.description }}</p>
+
+        <div class="button-container">
+          <button class="delete deafault-button">Fjern</button>
+          <button class="delete deafault-button">Ændre</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,100 +1,11 @@
 <div class="home-page">
-  <section class="section-1">
-    <label class="headline">TobiasFitness</label>
-    <img src="Forbillede.jpeg" width="600px" height="800px" class="forbilede" />
-    <div class="socials">
-      <a
-        class="instagram social-button"
-        (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
-      ></a>
-      <a class="ig-label" (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
-        >TobiasBastholmFitness</a
-      >
-      <a
-        class="facebook social-button"
-        (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
-      ></a>
-      <a
-        class="fb-label"
-        (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
-        >TobiasBastholm</a
-      >
-    </div>
-  </section>
-
-  <section class="section-2">
-    <div #infoBox class="about-me info-box">
-      <h2>Om Mig:</h2>
-      <label
-        >Jeg hedder Tobias og har gennemført Grundforløb 2 på fitnessuddannelsen. Jeg har trænet
-        styrketræning i 5-6 år og har gennem flere år beskæftiget mig med personlig træning, kost og
-        sund livsstil. Min passion er at hjælpe andre med at skabe sunde vaner og opnå deres mål
-        gennem en realistisk og individuel tilgang.
-      </label>
-      <h2>Mine personlige kompetencer:</h2>
-      <label>
-        Jeg lægger stor vægt på at lytte til den enkelte og forstå deres mål, udfordringer og behov.
-        Derfor tager jeg altid udgangspunkt i dig og din hverdag, så vi sammen kan finde en løsning,
-        der er både realistisk og motiverende. Jeg arbejder målrettet, er ansvarsbevidst og gør mig
-        umage for at give den bedst mulige vejledning og støtte gennem hele forløbet.</label
-      >
-    </div>
-
-    <div #infoBox class="my-services info-box">
-      <h2>Hvad kan jeg hjælpe dig med?</h2>
-      <label
-        >Jeg tilbyder personlig træning, skræddersyede træningsprogrammer og kostvejledning, der
-        tager udgangspunkt i dine mål, dit niveau og din hverdag. Sammen skaber vi en plan, der er
-        realistisk og giver varige resultater.
-      </label>
-      <div class="prices">
-        <h2>Se mine priser her.</h2>
-        <a routerLink="/prices">Priser</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section-3">
-    <div class="section-3-header">
-      <h2>Anmeldelser</h2>
-      <button class="create-review-button" type="button" (click)="createReview()">
-        Opret Anmeldelse
-      </button>
-    </div>
-    @if (reviewsLoading()) {
-      <p>Henter anmeldelser...</p>
-    } @else if (reviewsLoadFailed()) {
-      <p>Kunne ikke hente anmeldelser lige nu.</p>
-    } @else if (!hasReviews()) {
-      <p>Der er endnu ingen anmeldelser.</p>
-    }
-    <ul class="carousel">
-      @for (review of reviews(); track review.id) {
-        <li>
-          <div class="review-card" (click)="textReview(review.id)">
-            <div class="img" [style.backgroundImage]="'url(' + review.image + ')'"></div>
-
-            <div class="review-content">
-              <div class="review-header">
-                <div class="review-avatar">{{ review.name?.charAt(0) || 'T' }}</div>
-                <div class="review-meta">
-                  <strong>{{ review.name }}</strong>
-                  <span>{{ review.age }} år</span>
-                </div>
-                <span class="review-stars">{{ review.stars }}★</span>
-              </div>
-
-              <p class="text" [class.active]="isReviewExpanded(review.id)">
-                {{ review.review }}
-              </p>
-
-              <div class="overview">
-                <small>klik for at læse hele anmeldelsen</small>
-              </div>
-            </div>
-          </div>
-        </li>
-      }
-    </ul>
-  </section>
+  <app-home-hero></app-home-hero>
+  <app-home-intro></app-home-intro>
+  <app-home-reviews
+    [reviews]="reviews()"
+    [loading]="reviewsLoading()"
+    [loadFailed]="reviewsLoadFailed()"
+    [hasReviews]="hasReviews()"
+    (createReviewRequested)="createReview()"
+  ></app-home-reviews>
 </div>

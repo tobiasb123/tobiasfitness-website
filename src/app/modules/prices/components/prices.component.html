@@ -1,68 +1,17 @@
 <div class="prices-page">
   @if (userProfile?.admin) {
-    <button
-      class="administator-button"
-      (click)="adminitrateOptions()"
-      [disabled]="adminitrateEnabled"
-    >
-      adminstrer tilbud
-    </button>
-
-    <div class="adminitrative-options" [class.active]="adminitrateEnabled">
-      <button class="administator-button inside" (click)="adminitrateOptions()">Luk</button>
-
-      <h1>Adminstrer Tilbud</h1>
-      <div class="option-container">
-        @for (service of generalServices(); track service.id) {
-          <div class="option">
-            <div class="info-nondesc">
-              <h2>{{ service.title }}</h2>
-              <p>
-                <strong>{{ service.time }}</strong>
-              </p>
-              <p>
-                <strong>{{ service.price }}</strong>
-              </p>
-            </div>
-            <p id="discription">{{ service.description }}</p>
-
-            <div class="button-container">
-              <button class="delete deafault-button">Fjern</button>
-              <button class="delete deafault-button">Ændre</button>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
+    <app-prices-admin-panel
+      [services]="generalServices()"
+      [open]="adminPanelOpen()"
+      (toggleRequested)="toggleAdminPanel()"
+    ></app-prices-admin-panel>
   }
 
-  <h1>Ydelser</h1>
-
-  @if (servicesLoading()) {
-    <p>Indlæser ydelser...</p>
-  }
-
-  @if (servicesError()) {
-    <p>{{ servicesError() }}</p>
-  }
-
-  <div class="services">
-    @for (service of generalServices(); track service.id) {
-      <div class="service">
-        <img [src]="service.image" />
-        <div class="disc">
-          <h2>{{ service.title }}</h2>
-          <p>
-            <strong>{{ service.price }}</strong>
-          </p>
-          <p>
-            <strong>{{ service.time }}</strong>
-          </p>
-          <p id="discription">{{ service.description }}</p>
-        </div>
-      </div>
-    }
-  </div>
+  <app-prices-services-list
+    [services]="generalServices()"
+    [loading]="servicesLoading()"
+    [error]="servicesError()"
+  ></app-prices-services-list>
 
   @if (isLoggedIn()) {
     <a class="to-contact" (click)="navigateTo('contact')">Bestil Tid</a>

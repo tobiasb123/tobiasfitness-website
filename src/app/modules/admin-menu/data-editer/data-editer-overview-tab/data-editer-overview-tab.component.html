@@ -1,0 +1,16 @@
+<div class="Oversigt tab active">
+  <div class="overview-info tab-part">
+    <label class="title">Profilinformation</label>
+    <label>{{ selectedUser()?.firstName }} {{ selectedUser()?.lastName }}</label>
+    <label>Alder: {{ selectedUser()?.age }}</label>
+    <label>{{ selectedUser()?.phoneNumber }}</label>
+    <label>{{ selectedUser()?.email }}</label>
+  </div>
+  <div class="overview-apointments tab-part">
+    <app-admin-appointments-list
+      [bookings]="bookings()"
+      [selectedUserUid]="selectedUser()?.uid"
+      [clickable]="false"
+    ></app-admin-appointments-list>
+  </div>
+</div>

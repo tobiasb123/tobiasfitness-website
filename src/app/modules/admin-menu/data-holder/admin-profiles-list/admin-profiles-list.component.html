@@ -1,0 +1,25 @@
+<div class="view Profiler">
+  @if (!profiles().length) {
+    <div class="empty-state">
+      <h3>Ingen brugere</h3>
+      @if (hasActiveSearch()) {
+        <p>Ingen resultater for den aktuelle søgning.</p>
+      } @else {
+        <p>Opdater for at hente data.</p>
+      }
+    </div>
+  } @else {
+    @for (profile of profiles(); track profile.uid) {
+      <button class="profile element" (click)="selectProfile(profile.uid)">
+        <div class="card-main">
+          <span class="card-label">Bruger</span>
+          <strong>{{ profile.firstName }} {{ profile.lastName }}</strong>
+        </div>
+        <div class="card-meta">
+          <span>{{ profile.email }}</span>
+          <small>UID: {{ profile.uid }}</small>
+        </div>
+      </button>
+    }
+  }
+</div>

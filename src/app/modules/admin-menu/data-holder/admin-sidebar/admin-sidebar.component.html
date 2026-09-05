@@ -1,0 +1,64 @@
+<div class="sidebar-header">
+  <p class="eyebrow">Admin</p>
+  <h2>Kontrolpanel</h2>
+  <p>Få overblik over brugere, bookinger og kundedata.</p>
+</div>
+
+<div class="view-options">
+  <button
+    class="view-option"
+    [class.active]="activeView() === 'Profiler'"
+    (click)="selectView('Profiler')"
+  >
+    Profiler
+  </button>
+  <button
+    class="view-option"
+    [class.active]="activeView() === 'Bookinger'"
+    (click)="selectView('Bookinger')"
+  >
+    Bookinger
+  </button>
+  <button
+    class="view-option"
+    [class.active]="activeView() === 'Opskrifter'"
+    (click)="selectView('Opskrifter')"
+  >
+    Opskrifter
+  </button>
+</div>
+
+<div class="search-box">
+  <label for="admin-search">Søg bruger</label>
+  <input
+    id="admin-search"
+    type="search"
+    [value]="searchQuery()"
+    (input)="onSearchInput($event)"
+    placeholder="Navn, e-mail, telefon eller UID"
+  />
+</div>
+
+<div class="selected-profile">
+  @if (selectedUser()) {
+    <div class="profile-summary">
+      <span class="label">Valgt profil</span>
+      <strong>{{ selectedUser()!.firstName }} {{ selectedUser()!.lastName }}</strong>
+      <p>Alder: {{ selectedUser()!.age }}</p>
+      <p>{{ selectedUser()!.email }}</p>
+    </div>
+  } @else {
+    <div class="profile-summary empty">
+      <span class="label">Valgt profil</span>
+      @if (isLibraryRecipeSelected()) {
+        <strong>Bibliotek</strong>
+        <p>Denne opskrift er i biblioteket.</p>
+      } @else {
+        <strong>Ingen valgt</strong>
+        <p>Vælg en bruger i listen for at se detaljerne.</p>
+      }
+    </div>
+  }
+</div>
+
+<button class="primary-button" (click)="openEditer()">Åbn redigering</button>

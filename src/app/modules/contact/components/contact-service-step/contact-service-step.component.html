@@ -1,0 +1,37 @@
+<div id="service" class="service" [class.focus]="active()">
+  <div class="container">
+    @if (loading()) {
+      <p>Indlæser ydelser...</p>
+    }
+
+    @if (error()) {
+      <p>{{ error() }}</p>
+    }
+
+    @for (service of services(); track service.id) {
+      <div
+        class="service-element service-options"
+        [class.selected]="isSelected(service)"
+        (click)="selectService(service)"
+      >
+        <img src="{{ service.image }}" />
+        <label class="service-label">{{ service.title }}</label>
+        <label class="service-label">{{ service.time }}</label>
+        <label class="service-label">{{ service.price }}</label>
+        <img class="check-mark" src="service-checkmark.png" />
+      </div>
+    }
+
+    <button type="button" (click)="onNext()">Næste</button>
+  </div>
+
+  <div class="service-element service-overview">
+    @if (overviewService().title !== 'Ingen service') {
+      <label>{{ overviewService().title }}</label>
+      <label>{{ overviewService().time }}</label>
+      <label>{{ overviewService().price }}</label>
+    } @else {
+      <label>{{ overviewService().title }}</label>
+    }
+  </div>
+</div>

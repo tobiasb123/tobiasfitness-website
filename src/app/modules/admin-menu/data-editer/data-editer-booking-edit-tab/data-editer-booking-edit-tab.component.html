@@ -1,0 +1,59 @@
+<div class="Edit tab">
+  <div class="apointment-edit tab-part">
+    <form>
+      <h2 class="form-element">Ændre Tid</h2>
+      <div class="form-element">
+        <label for="service">Service</label>
+        <select id="service" class="input" [formControl]="serviceControl()">
+          @for (service of serviceOptions(); track $index) {
+            <option value="{{ service }}">{{ service }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-element">
+        <label for="time">Tid</label>
+        <select id="time" class="input" [formControl]="timeControl()">
+          @for (hour of hourOptions(); track $index) {
+            <option value="{{ hour }}">{{ hour }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-element">
+        <label for="date">Dato</label>
+        <input id="date" class="input" name="date" type="date" [formControl]="dateControl()" />
+      </div>
+    </form>
+    <div class="button-holder">
+      <button class="confirm" type="button" [disabled]="isBookingCommandLoading()" (click)="save()">
+        Gem
+      </button>
+      <button
+        class="danger"
+        type="button"
+        [disabled]="isBookingCommandLoading()"
+        (click)="requestDelete()"
+      >
+        Slet booking
+      </button>
+      <button
+        class="cancel"
+        type="button"
+        [disabled]="isBookingCommandLoading()"
+        (click)="goBack()"
+      >
+        Tilbage
+      </button>
+    </div>
+    @if (isDeleteConfirmationOpen()) {
+      <div class="delete-confirmation inline-confirmation">
+        <p>Er du sikker på, at du vil slette denne booking?</p>
+        <div class="confirmation-actions">
+          <button class="danger" type="button" (click)="confirmDelete()">Ja, slet</button>
+          <button class="cancel" type="button" (click)="cancelDelete()">Annuller</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

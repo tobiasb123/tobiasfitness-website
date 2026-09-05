@@ -1,0 +1,43 @@
+@use '../admin-list-shared' as shared;
+
+:host {
+  display: contents;
+}
+
+.view {
+  @include shared.list-view;
+}
+
+.empty-state {
+  @include shared.empty-state;
+}
+
+.element {
+  @include shared.list-element;
+}
+
+.recipe-card {
+  align-items: flex-start;
+  text-align: left;
+
+  .card-meta {
+    align-items: flex-start;
+    text-align: left;
+    max-width: 100%;
+
+    span,
+    small {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      white-space: normal;
+    }
+  }
+
+  &.selected {
+    border-color: #1d4ed8;
+    box-shadow:
+      0 0 0 2px rgba(29, 78, 216, 0.2),
+      0 10px 20px rgba(15, 23, 42, 0.1);
+  }
+}

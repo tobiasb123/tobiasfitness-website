@@ -1,0 +1,38 @@
+<div id="time-period" class="time-period" [class.focus]="active()">
+  <h2>Dato & Tid</h2>
+  <small>du kan ikke vælge onsdage og du kan tidligst vælge 2 dage efter nuværende dato</small>
+
+  <div class="form-element">
+    <label for="date">Start Dato*</label>
+    <input id="date" type="date" [formControl]="dateControl()" />
+
+    @if (dateControl().invalid && dateControl().touched) {
+      <small>*Start Dato er påkrævet.</small>
+    }
+  </div>
+
+  <div class="form-element">
+    <label for="time">Ønsket Tid*</label>
+    <select id="time" [formControl]="timeControl()">
+      @for (hour of hourOptions(); track $index) {
+        <option value="{{ hour }}">{{ hour }}</option>
+      }
+    </select>
+
+    @if (timeControl().invalid && timeControl().touched) {
+      <small>*Ønsket Tid er påkrævet.</small>
+    }
+  </div>
+
+  @if (showButtonGroup()) {
+    <div class="button-group">
+      <button id="submit-button" type="submit">Book Tid</button>
+      <button type="button" (click)="onBack()">Tilbage</button>
+    </div>
+  }
+
+  <div class="time-period-overview">
+    <label>Start Dato: {{ dateControl().value }}</label>
+    <label>Ønsket Tid: {{ timeControl().value }}</label>
+  </div>
+</div>

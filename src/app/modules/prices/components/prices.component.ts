@@ -14,10 +14,12 @@ import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
 import { ToastService } from '@modules/core';
 import { Subscription } from 'rxjs';
 import { ServicesFacade } from '../../contact';
+import { PricesAdminPanelComponent } from './prices-admin-panel/prices-admin-panel.component';
+import { PricesServicesListComponent } from './prices-services-list/prices-services-list.component';
 
 @Component({
   selector: 'app-prices',
-  imports: [RouterModule],
+  imports: [RouterModule, PricesAdminPanelComponent, PricesServicesListComponent],
   templateUrl: './prices.component.html',
   styleUrl: './prices.component.scss',
 })
@@ -29,7 +31,7 @@ export class PricesComponent implements OnInit, OnDestroy {
   toast = inject(ToastService);
   servicesFacade = inject(ServicesFacade);
 
-  adminitrateEnabled: boolean = false;
+  adminPanelOpen = signal(false);
 
   generalServices: WritableSignal<Service[]> = signal([]);
   servicesLoading = signal(false);
@@ -65,8 +67,8 @@ export class PricesComponent implements OnInit, OnDestroy {
     return this.authState() === 'loggedIn';
   }
 
-  adminitrateOptions() {
-    this.adminitrateEnabled = !this.adminitrateEnabled;
+  toggleAdminPanel(): void {
+    this.adminPanelOpen.update((open) => !open);
   }
 
   navigateTo(route: string) {

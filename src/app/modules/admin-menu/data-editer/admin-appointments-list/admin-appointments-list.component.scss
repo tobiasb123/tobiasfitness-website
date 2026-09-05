@@ -1,0 +1,62 @@
+:host {
+  display: contents;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.future-apointments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.apointment {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+  border: 1px solid #dbeafe;
+  color: #0f172a;
+  font-family: Poppins;
+
+  label {
+    font-family: Poppins;
+    font-size: 0.95rem;
+    color: #334155;
+  }
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span,
+  small {
+    color: #475569;
+    line-height: 1.45;
+  }
+
+  &.clickable {
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    label {
+      pointer-events: none;
+      cursor: pointer;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.1);
+    }
+  }
+}

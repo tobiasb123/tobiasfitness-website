@@ -1,0 +1,66 @@
+<div class="Tider tab">
+  <div class="apointment-options tab-part">
+    <label class="title">Valgt Dato og Tid</label>
+    <label>
+      @if (selectedBooking()) {
+        {{ selectedBooking()!.date }}
+      } @else {
+        Dato
+      }
+    </label>
+    <label>
+      @if (selectedBooking()) {
+        {{ selectedBooking()!.timePeriod.start.hour }}:{{
+          selectedBooking()!.timePeriod.start.minute
+        }}
+        -
+        {{ selectedBooking()!.timePeriod.end.hour }}:{{ selectedBooking()!.timePeriod.end.minute }}
+      } @else {
+        Tid
+      }
+    </label>
+    <label class="title">Valgt Service</label>
+    <label>
+      @if (selectedBooking()) {
+        {{ selectedBooking()!.service }}
+      } @else {
+        Service
+      }
+    </label>
+    @if (isDeleteConfirmationOpen()) {
+      <div class="delete-confirmation">
+        <p>Er du sikker på, at du vil slette denne booking?</p>
+        <div class="confirmation-actions">
+          <button class="danger" type="button" (click)="confirmDelete()">Ja, slet</button>
+          <button class="cancel" type="button" (click)="cancelDelete()">Annuller</button>
+        </div>
+      </div>
+    }
+    <div class="buttons">
+      <button
+        class="confirm"
+        type="button"
+        [disabled]="isBookingCommandLoading()"
+        (click)="openEdit()"
+      >
+        Rediger
+      </button>
+      <button
+        class="danger"
+        type="button"
+        [disabled]="!selectedBooking() || isBookingCommandLoading()"
+        (click)="requestDelete()"
+      >
+        Slet
+      </button>
+    </div>
+  </div>
+  <div class="apointments tab-part">
+    <app-admin-appointments-list
+      [bookings]="bookings()"
+      [selectedUserUid]="selectedUserUid()"
+      [clickable]="true"
+      (bookingSelected)="selectBooking($event)"
+    ></app-admin-appointments-list>
+  </div>
+</div>

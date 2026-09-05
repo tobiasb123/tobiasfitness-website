@@ -1,0 +1,17 @@
+@use '../admin-list-shared' as shared;
+
+:host {
+  display: contents;
+}
+
+.view {
+  @include shared.list-view;
+}
+
+.empty-state {
+  @include shared.empty-state;
+}
+
+.element {
+  @include shared.list-element;
+}

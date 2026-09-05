@@ -1,0 +1,27 @@
+<app-prices-services-header></app-prices-services-header>
+
+@if (loading()) {
+  <p>Indlæser ydelser...</p>
+}
+
+@if (error()) {
+  <p>{{ error() }}</p>
+}
+
+<div class="services">
+  @for (service of services(); track service.id) {
+    <div class="service">
+      <img [src]="service.image" />
+      <div class="disc">
+        <h2>{{ service.title }}</h2>
+        <p>
+          <strong>{{ service.price }}</strong>
+        </p>
+        <p>
+          <strong>{{ service.time }}</strong>
+        </p>
+        <p id="discription">{{ service.description }}</p>
+      </div>
+    </div>
+  }
+</div>

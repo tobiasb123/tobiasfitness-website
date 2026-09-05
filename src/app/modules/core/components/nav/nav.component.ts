@@ -73,10 +73,6 @@ export class NavComponent implements OnInit, OnDestroy {
       return !!this.currentUser()?.admin;
     }
 
-    if (route.displayName === 'Opskrifter') {
-      return !!this.isLoggedIn();
-    }
-
     return true;
   }
 
@@ -85,8 +81,12 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   handlePrimaryNavigation(route: RouteExt): void {
-    if (route.displayName === 'Bestil Tid' && !this.isLoggedIn()) {
+    if (
+      (route.displayName === 'Bestil Tid' || route.displayName === 'Opskrifter') &&
+      !this.isLoggedIn()
+    ) {
       this.router.navigate(['signin']);
+      this.toast.open('Du skal logge ind først', 'info');
       this.closeNav();
       return;
     }

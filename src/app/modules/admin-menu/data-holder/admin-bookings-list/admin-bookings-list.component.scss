@@ -1,0 +1,27 @@
+@use '../admin-list-shared' as shared;
+
+:host {
+  display: contents;
+}
+
+.view {
+  @include shared.list-view;
+}
+
+.empty-state {
+  @include shared.empty-state;
+}
+
+.element {
+  @include shared.list-element;
+}
+
+.service-pill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}

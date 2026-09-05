@@ -17,10 +17,24 @@ import { Subscription } from 'rxjs';
 import { DataEditerComponent } from '../data-editer/data-editer.component';
 import { RecipeEditerComponent } from '../recipe-editer/recipe-editer.component';
 import { AdminFacade } from '../store/admin.facade';
+import { AdminBookingsListComponent } from './admin-bookings-list/admin-bookings-list.component';
+import { AdminProfilesListComponent } from './admin-profiles-list/admin-profiles-list.component';
+import { AdminRecipesListComponent } from './admin-recipes-list/admin-recipes-list.component';
+import { AdminSidebarComponent, AdminView } from './admin-sidebar/admin-sidebar.component';
+import { AdminStatsComponent } from './admin-stats/admin-stats.component';
 
 @Component({
   selector: 'app-data-holder',
-  imports: [RouterModule, DataEditerComponent, RecipeEditerComponent],
+  imports: [
+    RouterModule,
+    DataEditerComponent,
+    RecipeEditerComponent,
+    AdminSidebarComponent,
+    AdminStatsComponent,
+    AdminProfilesListComponent,
+    AdminBookingsListComponent,
+    AdminRecipesListComponent,
+  ],
   templateUrl: './data-holder.component.html',
   styleUrl: './data-holder.component.scss',
 })
@@ -36,6 +50,7 @@ export class DataHolderComponent implements OnInit, OnDestroy {
   selectedRecipe = signal<DocumentFile>(undefined);
   recipeEditorOpen = signal(false);
   searchQuery = signal('');
+  activeView = signal<AdminView>('Profiler');
 
   public bookings: WritableSignal<Booking[]> = signal([]);
   public recipes: WritableSignal<DocumentFile[]> = signal([]);
@@ -137,27 +152,9 @@ export class DataHolderComponent implements OnInit, OnDestroy {
     return !!this.selectedRecipe();
   }
 
-  isRecipeSelected(recipeId: string): boolean {
-    return this.selectedRecipe()?.id === recipeId;
-  }
-
   isLibraryRecipeSelected(): boolean {
     const selectedRecipe = this.selectedRecipe();
     return !!selectedRecipe && (!selectedRecipe.uid || selectedRecipe.uid === 'all');
-  }
-
-  getRecipeOwnerLabel(uid: string): string {
-    if (!uid || uid === 'all') {
-      return 'Alle';
-    }
-
-    const user = this.allUsers().find((item) => item.uid === uid);
-
-    if (!user) {
-      return 'Ukendt bruger';
-    }
-
-    return `${user.firstName} ${user.lastName}`;
   }
 
   editer = document.getElementsByClassName('editer');
@@ -183,6 +180,10 @@ export class DataHolderComponent implements OnInit, OnDestroy {
     this.searchQuery.set(target.value || '');
   }
 
+  selectView(view: AdminView): void {
+    this.activeView.set(view);
+  }
+
   closeRecipeEditor(): void {
     this.recipeEditorOpen.set(false);
     this.selectedRecipe.set(undefined);
@@ -192,38 +193,6 @@ export class DataHolderComponent implements OnInit, OnDestroy {
     this.recipes.update((recipes) => recipes.filter((recipe) => recipe.id !== recipeId));
     this.recipeEditorOpen.set(false);
     this.selectedRecipe.set(undefined);
-  }
-
-  viewButtons = document.getElementsByClassName('view-option');
-  selectView(viewName: string, event: Event) {
-    for (let index = 0; index < this.viewButtons.length; index++) {
-      const element = this.viewButtons[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-          break;
-        }
-      }
-    }
-    const target = event.target as HTMLElement;
-    target.classList.add('active');
-    this.setActiveEditerTab(viewName);
-  }
-
-  allViews = document.getElementsByClassName('view');
-  setActiveEditerTab(name: string) {
-    for (let index = 0; index < this.allViews.length; index++) {
-      const element = this.allViews[index];
-      if (element) {
-        if (element.classList.contains('active')) {
-          element.classList.remove('active');
-        }
-
-        if (element.classList.contains(name)) {
-          element.classList.add('active');
-        }
-      }
-    }
   }
 
   private normalizeForSearch(value: string): string {

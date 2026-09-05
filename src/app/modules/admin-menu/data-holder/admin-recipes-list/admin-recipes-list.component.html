@@ -1,0 +1,31 @@
+<div class="view Opskrifter">
+  @if (!recipes().length) {
+    <div class="empty-state">
+      <h3>Ingen opskrifter</h3>
+      @if (hasActiveSearch()) {
+        <p>Ingen resultater for den aktuelle søgning.</p>
+      } @else {
+        <p>Opdater for at hente data.</p>
+      }
+    </div>
+  } @else {
+    @for (recipe of recipes(); track recipe.id) {
+      <button
+        class="element recipe-card"
+        type="button"
+        (click)="selectRecipe(recipe.id)"
+        [class.selected]="isRecipeSelected(recipe.id)"
+      >
+        <div class="card-main">
+          <span class="card-label">Opskrift</span>
+          <strong>{{ recipe.recipe.title }}</strong>
+        </div>
+        <div class="card-meta">
+          <span>Modtager: {{ getRecipeOwnerLabel(recipe.uid) }}</span>
+          <small>{{ recipe.fileName }}</small>
+          <small>{{ recipe.timeCreated }}</small>
+        </div>
+      </button>
+    }
+  }
+</div>
