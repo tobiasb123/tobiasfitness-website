@@ -1,7 +1,6 @@
 @if (isAuthLoading()) {
   <div class="spinner-container">
-    <span class="loader"></span>
-    <span>Tjekker loginoplysninger...</span>
+    <app-loading-spinner text="Tjekker loginoplysninger..."></app-loading-spinner>
   </div>
 } @else {
   <app-core></app-core>

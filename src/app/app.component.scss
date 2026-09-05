@@ -3,30 +3,5 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 10px;
   min-height: 100dvh;
-}
-
-.loader {
-  --color-1: #ababab;
-  --color-2: #0085ff;
-  --size: 1px;
-
-  width: calc(48 * var(--size));
-  height: calc(48 * var(--size));
-  border: calc(5 * var(--size)) solid var(--color-1);
-  border-bottom-color: var(--color-2);
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
