@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
 import { CoreComponent } from './modules/core/pages/core/core.component';
-import { AuthFunctionsService } from '@modules/auth';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +10,13 @@ import { AuthFunctionsService } from '@modules/auth';
 })
 export class App implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
+  private authState = inject(AUTH_STATE);
 
   ngOnInit(): void {
     this.authFunctions.initialize();
+  }
+
+  isAuthLoading(): boolean {
+    return this.authState() === 'loading';
   }
 }
