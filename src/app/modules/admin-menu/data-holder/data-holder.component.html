@@ -23,6 +23,7 @@
           [profiles]="filteredUsers()"
           [hasActiveSearch]="hasActiveSearch()"
           (profileSelected)="selectUser($event)"
+          (profileOpened)="openUserEditor($event)"
         ></app-admin-profiles-list>
       }
       @case ('Bookinger') {
@@ -30,6 +31,7 @@
           [bookings]="filteredBookings()"
           [hasActiveSearch]="hasActiveSearch()"
           (bookingSelected)="selectUser($event)"
+          (bookingOpened)="openUserEditor($event)"
         ></app-admin-bookings-list>
       }
       @case ('Opskrifter') {

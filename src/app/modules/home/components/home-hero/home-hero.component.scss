@@ -3,135 +3,145 @@
   width: 100%;
 }
 
-section {
+.section-1 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: calc(100% + 40px);
+  min-height: calc(clamp(540px, 62vw, 720px) + var(--page-nav-offset) + 12px);
+  margin: 0 -20px;
+  padding: calc(72px + var(--page-nav-offset) + 12px) clamp(28px, 8vw, 120px) 72px;
+  box-sizing: border-box;
+  background-image: url('../../../../../../public/Forbillede.jpeg');
+  background-repeat: no-repeat;
+  background-position: center 42%;
+  background-size: cover;
+  isolation: isolate;
+
+  &::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: rgba(12, 20, 22, 0.32);
+    content: '';
+  }
+}
+
+.hero-content {
+  width: min(100%, 560px);
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+.headline {
+  margin: 18px 0 12px;
+  color: #fff;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 1;
+  text-shadow:
+    3px 0 0 #123b63,
+    -3px 0 0 #123b63,
+    0 3px 0 #123b63,
+    0 -3px 0 #123b63,
+    2px 2px 0 #123b63,
+    -2px -2px 0 #123b63,
+    2px -2px 0 #123b63,
+    -2px 2px 0 #123b63;
+}
+
+.hero-intro {
+  max-width: 520px;
+  margin: 0 0 26px;
+  font-family: Poppins, sans-serif;
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  line-height: 1.6;
+}
+
+.contact-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 4px;
+  background: #2563eb;
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-shadow: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+  }
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-links {
   display: flex;
   flex-direction: column;
-  width: min(100%, 1200px);
-  margin-inline: auto;
-}
-
-label {
-  font-family: Poppins;
-  font-size: 20px;
-}
-
-a {
-  font-family: Poppins;
-  font-size: 20px;
-}
-
-.section-1 {
-  align-items: center;
-  gap: 24px;
-  padding: 24px 0 12px;
-
-  .headline {
-    align-self: center;
-    justify-self: end;
-    font-size: 50px;
-    font-weight: bold;
-    color: rgb(255, 255, 255);
-    text-shadow:
-      3px 0 0 #313131,
-      -3px 0 0 #313131,
-      0 3px 0 #313131,
-      0 -3px 0 #313131,
-      2px 2px 0 #313131,
-      -2px -2px 0 #313131,
-      2px -2px 0 #313131,
-      -2px 2px 0 #313131;
-    margin: 0;
-  }
-
-  .forbilede {
-    width: min(100%, 520px);
-    height: auto;
-    background-repeat: no-repeat;
-    background-size: cover;
-    align-self: center;
-    justify-self: center;
-    border-radius: 24px;
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-  }
-
-  .socials {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 14px;
-    align-items: center;
-    padding: 8px 0 0;
-
-    .instagram,
-    .facebook {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: none;
-      justify-self: center;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
-      transition: transform 0.2s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-      }
-    }
-
-    .instagram {
-      background-image: url('../../../../../../public/Instagram_Logo.png');
-      background-size: cover;
-      background-position: center center;
-    }
-
-    .facebook {
-      background-image: url('../../../../../../public/Facebook_Logo.png');
-      background-size: cover;
-      background-position: center center;
-    }
-
-    .ig-label,
-    .fb-label {
-      cursor: pointer;
-      color: #0f172a;
-      font-weight: 700;
-      font-size: 1rem;
-      text-decoration: none;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-    }
-  }
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .social-button {
-  width: 80px;
-  height: 80px;
-  border-radius: 15px;
-  border: none;
-  justify-self: center;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
   cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 }
 
-@media (max-width: 1220px) {
-  .forbilede {
-    max-width: 90%;
-    height: auto;
-  }
+.instagram {
+  background-image: url('../../../../../../public/Instagram_Logo.png');
+}
 
-  .section-1 {
-    display: flex;
-    flex-direction: column;
+.facebook {
+  background-image: url('../../../../../../public/Facebook_Logo.png');
+}
 
-    min-height: unset;
-  }
+.social-label {
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {
   .section-1 {
-    margin-top: 0px;
-    padding-bottom: 85px;
+    min-height: calc(560px + var(--page-nav-offset) + 12px);
+    padding: calc(48px + var(--page-nav-offset) + 12px) 24px 72px;
+    background-position: 58% center;
+  }
+
+  .hero-content {
+    align-self: flex-end;
+  }
+
+  .headline {
+    font-size: 3rem;
   }
 }

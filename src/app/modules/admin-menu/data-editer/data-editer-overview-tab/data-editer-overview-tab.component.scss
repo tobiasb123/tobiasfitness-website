@@ -34,6 +34,20 @@
   min-width: 280px;
 }
 
+@media (max-width: 720px) {
+  .tab {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .overview-info,
+  .overview-apointments {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 label {
   font-family: Poppins;
   font-size: 0.95rem;

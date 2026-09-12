@@ -2,11 +2,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-image: url('../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   width: 100dvw;
-  padding: calc(var(--page-nav-offset) + 12px) 20px 80px;
+  padding: 0 20px 80px;
   box-sizing: border-box;
 }
 

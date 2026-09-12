@@ -10,7 +10,11 @@
     </div>
   } @else {
     @for (profile of profiles(); track profile.uid) {
-      <button class="profile element" (click)="selectProfile(profile.uid)">
+      <button
+        class="profile element"
+        (click)="selectProfile(profile.uid)"
+        (dblclick)="openProfile(profile.uid)"
+      >
         <div class="card-main">
           <span class="card-label">Bruger</span>
           <strong>{{ profile.firstName }} {{ profile.lastName }}</strong>

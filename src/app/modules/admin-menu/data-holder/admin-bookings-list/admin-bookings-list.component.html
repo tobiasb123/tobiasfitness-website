@@ -10,7 +10,11 @@
     </div>
   } @else {
     @for (booking of bookings(); track booking.id) {
-      <button class="apointment element" (click)="selectBooking(booking.uid)">
+      <button
+        class="apointment element"
+        (click)="selectBooking(booking.uid)"
+        (dblclick)="openBooking(booking.uid)"
+      >
         <div class="card-main">
           <span class="card-label">Booking</span>
           <strong>{{ booking.firstName }} {{ booking.lastName }}</strong>

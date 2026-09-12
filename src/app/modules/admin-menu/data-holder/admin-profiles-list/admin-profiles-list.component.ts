@@ -11,8 +11,13 @@ export class AdminProfilesListComponent {
   hasActiveSearch = input(false);
 
   profileSelected = output<string>();
+  profileOpened = output<string>();
 
   selectProfile(uid: string): void {
     this.profileSelected.emit(uid);
+  }
+
+  openProfile(uid: string): void {
+    this.profileOpened.emit(uid);
   }
 }

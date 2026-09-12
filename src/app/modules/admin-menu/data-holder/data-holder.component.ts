@@ -136,6 +136,12 @@ export class DataHolderComponent implements OnInit, OnDestroy {
     }
   }
 
+  openUserEditor(uid: string): void {
+    this.selectUser(uid);
+    // wait for the editor modal to render into the DOM before toggling it active
+    setTimeout(() => this.openEditer());
+  }
+
   selectRecipe(recipeId: string): void {
     const recipe = this.recipes().find((item) => item.id === recipeId);
 

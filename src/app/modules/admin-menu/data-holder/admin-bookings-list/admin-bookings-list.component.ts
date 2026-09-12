@@ -11,8 +11,13 @@ export class AdminBookingsListComponent {
   hasActiveSearch = input(false);
 
   bookingSelected = output<string>();
+  bookingOpened = output<string>();
 
   selectBooking(uid: string): void {
     this.bookingSelected.emit(uid);
+  }
+
+  openBooking(uid: string): void {
+    this.bookingOpened.emit(uid);
   }
 }

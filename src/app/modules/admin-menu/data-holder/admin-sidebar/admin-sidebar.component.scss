@@ -11,6 +11,7 @@
   border: 1px solid #dbeafe;
   box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
 }
 
 .sidebar-header {
@@ -150,4 +151,29 @@ button {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.2);
+}
+
+@media (max-width: 900px) {
+  :host {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .view-options {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .view-option {
+      width: auto;
+      flex: 1 1 140px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  :host {
+    padding: 16px;
+    gap: 14px;
+    border-radius: 18px;
+  }
 }

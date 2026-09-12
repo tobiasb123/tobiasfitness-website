@@ -12,10 +12,29 @@
   flex: 1;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
   padding: 24px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid #dbeafe;
   box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(10px);
+}
+
+@media (max-width: 900px) {
+  .body {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .list-container {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-container {
+    padding: 14px;
+    border-radius: 18px;
+  }
 }

@@ -80,7 +80,8 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
   const bookingEndHour = String(data.timePeriod.end.hour).padStart(2, '0');
   const bookingEndMinute = String(data.timePeriod.end.minute).padStart(2, '0');
   const bookingTime = `kl. ${bookingStartHour}:${bookingStartMinute} - ${bookingEndHour}:${bookingEndMinute}`;
-  const accountManagementUrl = 'https://tobiasbastholmfitness.dk/account-management';
+  const accountManagementUrl =
+    'https://tobiasbastholmfitness.dk/account-management#bookings-section';
 
   const booking = await bookingsCollection
     .add(data)

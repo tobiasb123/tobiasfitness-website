@@ -30,6 +30,13 @@
   padding-right: 8px;
 }
 
+@media (max-width: 720px) {
+  .tab {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
 label {
   font-family: Poppins;
   font-size: 0.95rem;

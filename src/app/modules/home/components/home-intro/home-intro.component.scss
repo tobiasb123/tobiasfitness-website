@@ -3,97 +3,145 @@
   width: 100%;
 }
 
-section {
+.section-2 {
   display: flex;
   flex-direction: column;
-  width: min(100%, 1200px);
-  margin-inline: auto;
-}
-
-label {
-  font-family: Poppins;
-  font-size: 20px;
-}
-
-a {
-  font-family: Poppins;
-  font-size: 20px;
-}
-
-.section-2 {
-  flex-direction: row;
-  justify-content: center;
+  width: calc(100% + 40px);
+  gap: 32px;
+  margin-left: -20px;
+  padding: 56px max(20px, calc((100% - 1200px) / 2)) 24px;
   box-sizing: border-box;
-  padding: 24px 0 0;
-  gap: 24px;
-  flex-wrap: wrap;
+  background: #fff;
 }
 
 .info-box {
-  height: auto;
-  width: min(100%, 520px);
-  padding: 24px 26px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
-  border: 1px solid #cfe8ff;
-  backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid rgba(78, 119, 91, 0.22);
+  border-left: 5px solid #2563eb;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+}
 
-  h2 {
-    margin: 0 0 10px;
-    color: #0f172a;
-    font-size: 1.3rem;
-  }
+.info-box-reversed {
+  border-right: 5px solid #2563eb;
+  border-left: 1px solid rgba(37, 99, 235, 0.22);
+}
 
-  label {
-    display: block;
-    color: #475569;
-    line-height: 1.6;
-  }
+.info-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 54px clamp(30px, 5vw, 72px);
+}
 
-  .prices {
-    margin-top: 18px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+.eyebrow {
+  margin: 0 0 12px;
+  color: #2563eb;
+  font-family: Poppins, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
-    a {
-      width: min(100%, 220px);
-      height: 48px;
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      font-weight: 700;
-      text-decoration: none;
-      color: white;
-      border-radius: 999px;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
-      user-select: none;
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-      cursor: pointer;
+h2 {
+  margin: 0 0 18px;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.08;
+}
 
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
-      }
-    }
+.info-copy p:not(.eyebrow) {
+  max-width: 560px;
+  margin: 0 0 16px;
+  color: #475569;
+  font-family: Poppins, sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.info-media {
+  position: relative;
+  min-height: 420px;
+  background: #e5eefb;
+}
+
+.info-media img {
+  object-fit: cover;
+}
+
+.about-me .info-media img {
+  object-position: center 38%;
+}
+
+.services-media img {
+  object-position: center;
+}
+
+.prices-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 46px;
+  margin-top: 8px;
+  padding: 0 20px;
+  border-radius: 4px;
+  background: #2563eb;
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
   }
 }
 
 @media (max-width: 1220px) {
   .section-2 {
+    padding-inline: 20px;
+  }
+
+  .info-box,
+  .info-box-reversed {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  }
+
+  .info-box-reversed {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .section-2 {
+    width: 100%;
+    margin-left: 0;
+    gap: 24px;
+    padding-top: 40px;
+  }
+
+  .info-box,
+  .info-box-reversed {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    border-right: 0;
+    border-left: 4px solid #2563eb;
+  }
 
-    .info-box {
-      height: auto;
-      width: calc(100% - 50px);
-    }
+  .info-copy {
+    padding: 36px 26px 30px;
+  }
+
+  .info-media {
+    min-height: 300px;
+    order: 2;
   }
 }

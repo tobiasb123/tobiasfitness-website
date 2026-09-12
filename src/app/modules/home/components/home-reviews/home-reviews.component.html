@@ -1,6 +1,6 @@
 <section class="section-3">
   <div class="section-3-header">
-    <h2>Anmeldelser</h2>
+    <h2>Hvad siger mine klienter</h2>
     <button class="create-review-button" type="button" (click)="createReview()">
       Opret Anmeldelse
     </button>
@@ -12,28 +12,47 @@
   } @else if (!hasReviews()) {
     <p>Der er endnu ingen anmeldelser.</p>
   }
-  <ul class="carousel">
+  <ul
+    class="carousel"
+    [class.dragging]="isDragging()"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)"
+  >
     @for (review of reviews(); track review.id) {
       <li>
-        <div class="review-card" (click)="textReview(review.id)">
-          <div class="img" [style.backgroundImage]="'url(' + review.image + ')'"></div>
-
+        <div class="review-card" (click)="handleCardClick(review.id)">
+          <div
+            class="review-image"
+            [style.backgroundImage]="'url(' + review.image + ')'"
+            role="img"
+            [attr.aria-label]="'Billede af ' + review.name"
+          ></div>
           <div class="review-content">
-            <div class="review-header">
-              <div class="review-avatar">{{ review.name?.charAt(0) || 'T' }}</div>
-              <div class="review-meta">
-                <strong>{{ review.name }}</strong>
-                <span>{{ review.age }} år</span>
-              </div>
-              <span class="review-stars">{{ review.stars }}★</span>
-            </div>
-
             <p class="text" [class.active]="isReviewExpanded(review.id)">
               {{ review.review }}
             </p>
+            <button
+              class="read-more"
+              type="button"
+              (click)="textReview(review.id); $event.stopPropagation()"
+              [attr.aria-expanded]="isReviewExpanded(review.id)"
+            >
+              {{ isReviewExpanded(review.id) ? 'Vis mindre' : 'Læs mere' }}
+              <span
+                class="read-more-icon"
+                [class.expanded]="isReviewExpanded(review.id)"
+                aria-hidden="true"
+              ></span>
+            </button>
+          </div>
 
-            <div class="overview">
-              <small>klik for at læse hele anmeldelsen</small>
+          <div class="review-footer">
+            <span class="review-stars" aria-hidden="true">★</span>
+            <div class="review-meta">
+              <strong>{{ review.name }}</strong>
+              <span>{{ review.age }} år</span>
             </div>
           </div>
         </div>

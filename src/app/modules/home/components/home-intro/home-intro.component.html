@@ -1,31 +1,38 @@
-<section class="section-2">
-  <div #infoBox class="about-me info-box">
-    <h2>Om Mig:</h2>
-    <label
-      >Jeg hedder Tobias og har gennemført Grundforløb 2 på fitnessuddannelsen. Jeg har trænet
-      styrketræning i 5-6 år og har gennem flere år beskæftiget mig med personlig træning, kost og
-      sund livsstil. Min passion er at hjælpe andre med at skabe sunde vaner og opnå deres mål
-      gennem en realistisk og individuel tilgang.
-    </label>
-    <h2>Mine personlige kompetencer:</h2>
-    <label>
-      Jeg lægger stor vægt på at lytte til den enkelte og forstå deres mål, udfordringer og behov.
-      Derfor tager jeg altid udgangspunkt i dig og din hverdag, så vi sammen kan finde en løsning,
-      der er både realistisk og motiverende. Jeg arbejder målrettet, er ansvarsbevidst og gør mig
-      umage for at give den bedst mulige vejledning og støtte gennem hele forløbet.</label
-    >
-  </div>
-
-  <div #infoBox class="my-services info-box">
-    <h2>Hvad kan jeg hjælpe dig med?</h2>
-    <label
-      >Jeg tilbyder personlig træning, skræddersyede træningsprogrammer og kostvejledning, der tager
-      udgangspunkt i dine mål, dit niveau og din hverdag. Sammen skaber vi en plan, der er
-      realistisk og giver varige resultater.
-    </label>
-    <div class="prices">
-      <h2>Se mine priser her.</h2>
-      <a routerLink="/prices">Priser</a>
+<section class="section-2" aria-label="Om Tobias og hans træning">
+  <article #infoBox class="about-me info-box">
+    <div class="info-copy">
+      <p class="eyebrow">Personlig træning med nærvær</p>
+      <h2>Om mig</h2>
+      <p>
+        Jeg hedder Tobias og har gennemført Grundforløb 2 på fitnessuddannelsen. Jeg har trænet
+        styrketræning i 5-6 år og brænder for at hjælpe andre med at skabe sunde vaner.
+      </p>
+      <p>
+        Jeg tager altid udgangspunkt i dig, din hverdag og dine mål. Sammen finder vi en realistisk
+        tilgang, der giver plads til både fremgang og et liv, der skal fungere.
+      </p>
     </div>
-  </div>
+    <div class="info-media">
+      <img ngSrc="Forbillede.jpeg" fill alt="Tobias foran en trævæg" />
+    </div>
+  </article>
+
+  <article #infoBox class="my-services info-box info-box-reversed">
+    <div class="info-media services-media">
+      <img ngSrc="GymBackground.jpg" fill alt="Træningsmiljø i et fitnesscenter" />
+    </div>
+    <div class="info-copy">
+      <p class="eyebrow">Et forløb til din hverdag</p>
+      <h2>Hvad kan jeg hjælpe dig med?</h2>
+      <p>
+        Jeg tilbyder personlig træning, skræddersyede træningsprogrammer og kostvejledning, der
+        tager udgangspunkt i dit niveau og dine ambitioner.
+      </p>
+      <p>
+        Vi skaber en plan, der er overskuelig, motiverende og realistisk, så du kan opbygge
+        resultater, der holder over tid.
+      </p>
+      <a class="prices-link" routerLink="/prices">Se mine priser</a>
+    </div>
+  </article>
 </section>

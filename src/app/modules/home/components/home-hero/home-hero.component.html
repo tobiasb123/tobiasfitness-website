@@ -1,22 +1,38 @@
-<section class="section-1">
-  <label class="headline">TobiasFitness</label>
-  <img src="Forbillede.jpeg" width="600px" height="800px" class="forbilede" />
-  <div class="socials">
-    <a
-      class="instagram social-button"
-      (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
-    ></a>
-    <a class="ig-label" (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
-      >TobiasBastholmFitness</a
-    >
-    <a
-      class="facebook social-button"
-      (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
-    ></a>
-    <a
-      class="fb-label"
-      (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
-      >TobiasBastholm</a
-    >
+<section class="section-1" aria-labelledby="hero-title">
+  <div class="hero-content">
+    <h1 id="hero-title" class="headline">TobiasFitness</h1>
+    <p class="hero-intro">
+      Personlig træning, kostvejledning og realistiske vaner, der hjælper dig med at skabe
+      resultater, som holder.
+    </p>
+    <button class="contact-button" type="button" (click)="bookAppointment()">Bestil en tid</button>
+
+    <div class="social-links">
+      <div class="socials">
+        <a
+          class="instagram social-button"
+          aria-label="Åbn TobiasBastholmFitness på Instagram"
+          (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
+        ></a>
+        <a
+          class="social-label"
+          (click)="goToLink('https://www.instagram.com/tobiasbastholmfitness/')"
+          >Instagram</a
+        >
+      </div>
+
+      <div class="socials">
+        <a
+          class="facebook social-button"
+          aria-label="Åbn TobiasBastholm på Facebook"
+          (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
+        ></a>
+        <a
+          class="social-label"
+          (click)="goToLink('https://www.facebook.com/profile.php?id=100018336181484')"
+          >Facebook</a
+        >
+      </div>
+    </div>
   </div>
 </section>

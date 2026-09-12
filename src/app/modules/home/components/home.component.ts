@@ -6,11 +6,12 @@ import { AuthFunctionsService } from '@modules/auth';
 import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
 import { HomeHeroComponent } from './home-hero/home-hero.component';
 import { HomeIntroComponent } from './home-intro/home-intro.component';
+import { HomeProcessComponent } from './home-process/home-process.component';
 import { HomeReview, HomeReviewsComponent } from './home-reviews/home-reviews.component';
 
 @Component({
   selector: 'app-home',
-  imports: [HomeHeroComponent, HomeIntroComponent, HomeReviewsComponent],
+  imports: [HomeHeroComponent, HomeProcessComponent, HomeIntroComponent, HomeReviewsComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
