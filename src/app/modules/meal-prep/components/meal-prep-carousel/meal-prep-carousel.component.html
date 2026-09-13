@@ -12,7 +12,7 @@
     </div>
 
     @if (loading()) {
-      <p>Indlæser opskrifter...</p>
+      <app-loading-spinner text="Indlæser opskrifter..."></app-loading-spinner>
     }
 
     @if (error()) {

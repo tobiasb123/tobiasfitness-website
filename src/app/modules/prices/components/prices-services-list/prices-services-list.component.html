@@ -1,7 +1,7 @@
 <app-prices-services-header></app-prices-services-header>
 
 @if (loading()) {
-  <p>Indlæser ydelser...</p>
+  <app-loading-spinner text="Indlæser ydelser..."></app-loading-spinner>
 }
 
 @if (error()) {

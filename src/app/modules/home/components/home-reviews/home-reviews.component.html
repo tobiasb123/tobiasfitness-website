@@ -6,7 +6,7 @@
     </button>
   </div>
   @if (loading()) {
-    <p>Henter anmeldelser...</p>
+    <app-loading-spinner text="Henter anmeldelser..."></app-loading-spinner>
   } @else if (loadFailed()) {
     <p>Kunne ikke hente anmeldelser lige nu.</p>
   } @else if (!hasReviews()) {

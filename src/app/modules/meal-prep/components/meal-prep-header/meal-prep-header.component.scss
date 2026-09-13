@@ -1,94 +1,63 @@
-.intro {
-  width: min(100%, 1200px);
-  box-sizing: border-box;
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-start;
-  min-height: 150px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #dbeafe;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
-  border-radius: 24px;
-  padding: 20px 24px 28px;
+:host {
+  display: block;
+  width: 100%;
 }
 
-.hero-copy {
-  min-width: 0;
+.hero {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 10px;
-  width: 100%;
-  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% + 40px);
+  min-height: calc(clamp(320px, 32vw, 420px) + var(--page-nav-offset) + 12px);
+  margin: 0 -20px;
+  padding: calc(56px + var(--page-nav-offset) + 12px) clamp(28px, 8vw, 120px) 56px;
+  box-sizing: border-box;
+  background-image: url('../../../../../../public/GymBackground.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  isolation: isolate;
+
+  &::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: rgba(12, 20, 22, 0.5);
+    content: '';
+  }
+}
+
+.hero-content {
+  width: min(100%, 620px);
+  text-align: center;
+  color: #fff;
 }
 
 .eyebrow {
-  margin: 0 0 6px;
-  font-size: 0.78rem;
+  margin: 0 0 12px;
+  color: #93c5fd;
+  font-family: Poppins, sans-serif;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #2563eb;
 }
 
-h1 {
-  position: absolute;
-  top: 40px;
-  margin: 0;
-  font-size: clamp(2rem, 3.4vw, 3.1rem);
-  color: white;
-  text-shadow:
-    3px 0 0 #313131,
-    -3px 0 0 #313131,
-    0 3px 0 #313131,
-    0 -3px 0 #313131,
-    2px 2px 0 #313131,
-    -2px -2px 0 #313131,
-    2px -2px 0 #313131,
-    -2px 2px 0 #313131;
+.headline {
+  margin: 0 0 16px;
+  justify-self: center;
+  text-align: center;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.05;
 }
 
-.lead {
-  position: relative;
-  top: 60px;
-  align-self: center;
-  margin: 0;
-  max-width: 56ch;
-  color: #475569;
+.hero-intro {
+  max-width: 520px;
+  margin: 0 auto;
+  color: #e2e8f0;
+  font-family: Poppins, sans-serif;
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
   line-height: 1.6;
-}
-
-@media (max-width: 900px) {
-  .intro {
-    flex-direction: column;
-    align-items: flex-start;
-    min-height: 0;
-    padding: 16px;
-  }
-
-  h1,
-  .lead {
-    position: static;
-    top: auto;
-  }
-
-  h1 {
-    font-size: clamp(2rem, 7vw, 2.6rem);
-    color: #0f172a;
-    text-shadow: none;
-    line-height: 1.1;
-  }
-
-  .lead {
-    align-self: flex-start;
-    max-width: 38ch;
-  }
-}
-
-@media (max-width: 600px) {
-  h1 {
-    font-size: clamp(1.75rem, 8.5vw, 2.2rem);
-  }
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }

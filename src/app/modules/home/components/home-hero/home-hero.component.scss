@@ -35,6 +35,8 @@
 
 .headline {
   margin: 18px 0 12px;
+  text-align: left;
+  justify-self: start;
   color: #fff;
   font-size: clamp(2.8rem, 6vw, 5rem);
   line-height: 1;

@@ -1,3 +1,63 @@
-h1 {
-  margin: 40px 0 24px;
+:host {
+  display: block;
+  width: 100%;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% + 40px);
+  min-height: calc(clamp(320px, 32vw, 420px) + var(--page-nav-offset) + 12px);
+  margin: 0 -20px;
+  padding: calc(56px + var(--page-nav-offset) + 12px) clamp(28px, 8vw, 120px) 56px;
+  box-sizing: border-box;
+  background-image: url('../../../../../../public/GymBackground.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  isolation: isolate;
+
+  &::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: rgba(12, 20, 22, 0.5);
+    content: '';
+  }
+}
+
+.hero-content {
+  width: min(100%, 620px);
+  text-align: center;
+  color: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #93c5fd;
+  font-family: Poppins, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.headline {
+  margin: 0 0 16px;
+  justify-self: center;
+  text-align: center;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.05;
+}
+
+.hero-intro {
+  max-width: 520px;
+  margin: 0 auto;
+  color: #e2e8f0;
+  font-family: Poppins, sans-serif;
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.6;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }

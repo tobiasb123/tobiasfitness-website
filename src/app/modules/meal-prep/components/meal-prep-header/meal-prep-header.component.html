@@ -1,12 +1,12 @@
-<section class="intro hero-card">
-  <div class="hero-copy">
+<section class="hero" aria-labelledby="meal-prep-hero-title">
+  <div class="hero-content">
     <p class="eyebrow">Opskrifter</p>
-    <h1>Opskrifter</h1>
+    <h1 id="meal-prep-hero-title" class="headline">Opskrifter</h1>
 
     @if (isAdmin()) {
-      <p class="lead">Opret og gennemse opskrifter i et enkelt overblik.</p>
+      <p class="hero-intro">Opret og gennemse opskrifter i et enkelt overblik.</p>
     } @else {
-      <p class="lead">Gennemse opskrifter i et enkelt overblik.</p>
+      <p class="hero-intro">Gennemse opskrifter i et enkelt overblik.</p>
     }
   </div>
 </section>

@@ -2,10 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--page-nav-offset) + 12px) 20px 100px;
-  background-image: url('../../../../../public/GymBackground.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: #fff;
 }
 
 form {
@@ -14,5 +11,6 @@ form {
   align-items: center;
   justify-content: center;
   width: 100%;
+  padding: 56px 20px 100px;
   gap: 25px;
 }

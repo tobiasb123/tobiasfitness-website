@@ -1,7 +1,7 @@
 <div id="service" class="service" [class.focus]="active()">
   <div class="container">
     @if (loading()) {
-      <p>Indlæser ydelser...</p>
+      <app-loading-spinner text="Indlæser ydelser..."></app-loading-spinner>
     }
 
     @if (error()) {

@@ -1,5 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Service } from '@models/booking/interfaces';
+import { LoadingSpinnerComponent } from '../../../core/components/loading-spinner/loading-spinner.component';
 
 const NO_SERVICE_SELECTED: Service = {
   id: '',
@@ -12,6 +13,7 @@ const NO_SERVICE_SELECTED: Service = {
 
 @Component({
   selector: 'app-contact-service-step',
+  imports: [LoadingSpinnerComponent],
   templateUrl: './contact-service-step.component.html',
   styleUrl: './contact-service-step.component.scss',
 })

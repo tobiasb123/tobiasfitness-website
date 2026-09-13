@@ -1,4 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
+import { LoadingSpinnerComponent } from '../../../core/components/loading-spinner/loading-spinner.component';
 
 export interface HomeReview {
   id: string;
@@ -11,6 +12,7 @@ export interface HomeReview {
 
 @Component({
   selector: 'app-home-reviews',
+  imports: [LoadingSpinnerComponent],
   templateUrl: './home-reviews.component.html',
   styleUrl: './home-reviews.component.scss',
 })

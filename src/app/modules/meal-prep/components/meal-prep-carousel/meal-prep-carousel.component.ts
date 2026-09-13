@@ -1,10 +1,11 @@
 import { Component, ElementRef, input, output, signal, viewChild } from '@angular/core';
 import { DocumentFile } from '@models/storage';
+import { LoadingSpinnerComponent } from '../../../core/components/loading-spinner/loading-spinner.component';
 import { MealPrepRecipeCardComponent } from '../meal-prep-recipe-card/meal-prep-recipe-card.component';
 
 @Component({
   selector: 'app-meal-prep-carousel',
-  imports: [MealPrepRecipeCardComponent],
+  imports: [MealPrepRecipeCardComponent, LoadingSpinnerComponent],
   templateUrl: './meal-prep-carousel.component.html',
   styleUrl: './meal-prep-carousel.component.scss',
 })

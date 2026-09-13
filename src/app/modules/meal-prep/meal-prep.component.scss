@@ -4,15 +4,11 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  padding: calc(var(--page-nav-offset) + 12px) 20px 100px;
+  padding: 0 20px 100px;
   box-sizing: border-box;
-  background-image: url('../../../../public/GymBackground.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center top;
+  background: #fff;
 }
 
-app-meal-prep-header,
 app-meal-prep-create,
 app-meal-prep-view,
 app-meal-prep-carousel {
