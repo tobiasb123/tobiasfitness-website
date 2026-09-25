@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, input, output, signal } from '@angular/core';
 import { LoadingSpinnerComponent } from '../../../core/components/loading-spinner/loading-spinner.component';
 
@@ -12,7 +13,7 @@ export interface HomeReview {
 
 @Component({
   selector: 'app-home-reviews',
-  imports: [LoadingSpinnerComponent],
+  imports: [LoadingSpinnerComponent, CommonModule],
   templateUrl: './home-reviews.component.html',
   styleUrl: './home-reviews.component.scss',
 })
@@ -30,6 +31,14 @@ export class HomeReviewsComponent {
   private dragStartX = 0;
   private scrollStartLeft = 0;
   private suppressCardClick = false;
+
+  toNumber(i: string) {
+    return Number(i);
+  }
+
+  starCount(i: string) {
+    return new Array(this.toNumber(i));
+  }
 
   createReview(): void {
     this.createReviewRequested.emit();

@@ -180,8 +180,7 @@ section {
       }
 
       .review-stars {
-        margin-left: auto;
-        font-size: 0.9rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #2563eb;
       }
@@ -451,6 +450,7 @@ section {
 .section-3 .review-footer {
   display: flex;
   align-items: center;
+  justify-content: right;
   gap: 14px;
   margin: 0 14px 14px;
   padding: 18px 20px;
