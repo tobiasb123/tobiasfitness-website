@@ -14,10 +14,11 @@
 
 .nav-bar {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 20px;
+  gap: clamp(8px, 1.6vw, 20px);
   width: min(100%, 1220px);
+  box-sizing: border-box;
   margin: 0 auto;
   min-height: 78px;
   padding: 12px 18px;
@@ -84,8 +85,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: clamp(2px, 0.7vw, 8px);
+  min-width: 0;
 }
 
 .nav-link,
@@ -129,6 +131,8 @@
     background: rgba(59, 130, 246, 0.18);
     box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.14);
   }
+
+  white-space: nowrap;
 }
 
 .cta-link {
@@ -315,25 +319,8 @@
 
 @media (max-width: 980px) {
   .nav-bar {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
-  }
-
-  .desktop-nav {
-    justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-
-  .desktop-nav::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-@media (max-width: 860px) {
-  .nav-bar {
-    grid-template-columns: auto auto;
   }
 
   .desktop-nav,
@@ -363,7 +350,8 @@
 
   .mobile-nav {
     display: block;
-    width: calc(100% - 24px);
+    width: 100%;
+    box-sizing: border-box;
     margin: 0 auto;
     max-height: 0;
     overflow: hidden;
@@ -431,7 +419,7 @@
 
 @media (max-width: 640px) {
   .nav-shell {
-    padding: 10px 14px 0;
+    padding: 10px 12px 0;
   }
 
   .nav-toggle {
@@ -451,28 +439,37 @@
 
   .nav-bar {
     min-height: 68px;
-    width: 90%;
-    padding: 10px 12px;
-    border-radius: 20px;
+    width: 100%;
+    padding: 8px clamp(10px, 3vw, 16px);
+    border-radius: clamp(16px, 5vw, 20px);
   }
 
   .brand-mark {
-    width: 42px;
-    height: 42px;
+    width: clamp(38px, 11vw, 44px);
+    height: clamp(38px, 11vw, 44px);
     border-radius: 14px;
   }
 
   .brand-link {
-    gap: 12px;
+    min-width: 0;
+    gap: clamp(8px, 3vw, 12px);
+  }
+
+  .brand-text strong {
+    font-size: clamp(0.8rem, 4vw, 1rem);
+  }
+
+  .brand-text small {
+    font-size: clamp(0.62rem, 2.8vw, 0.74rem);
   }
 
   .account-cluster {
-    gap: 10px;
+    gap: 8px;
   }
 
   .menu-button {
-    width: 48px;
-    height: 48px;
+    width: clamp(42px, 12vw, 48px);
+    height: clamp(42px, 12vw, 48px);
   }
 
   .mobile-link,

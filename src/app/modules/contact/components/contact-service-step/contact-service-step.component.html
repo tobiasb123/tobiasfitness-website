@@ -17,7 +17,15 @@
         <img src="{{ service.image }}" />
         <label class="service-label">{{ service.title }}</label>
         <label class="service-label">{{ service.time }}</label>
-        <label class="service-label">{{ service.price }}</label>
+        <div class="service-pricing">
+          <label class="service-label">{{ service.price }}</label>
+          @if (discountedPrice(service); as salePrice) {
+            <div class="discount-price">
+              <strong>Tilbudspris: {{ salePrice }}</strong>
+              <span>{{ service.discountPercent }}% rabat</span>
+            </div>
+          }
+        </div>
         <img class="check-mark" src="service-checkmark.png" />
       </div>
     }
@@ -29,7 +37,15 @@
     @if (overviewService().title !== 'Ingen service') {
       <label>{{ overviewService().title }}</label>
       <label>{{ overviewService().time }}</label>
-      <label>{{ overviewService().price }}</label>
+      <div class="service-pricing">
+        <label>{{ overviewService().price }}</label>
+        @if (discountedPrice(overviewService()); as salePrice) {
+          <div class="discount-price">
+            <strong>Tilbudspris: {{ salePrice }}</strong>
+            <span>{{ overviewService().discountPercent }}% rabat</span>
+          </div>
+        }
+      </div>
     } @else {
       <label>{{ overviewService().title }}</label>
     }

@@ -35,6 +35,20 @@ export class ContactServiceStepComponent {
     );
   }
 
+  discountedPrice(service: Service): string | null {
+    const discountPercent = service.discountPercent ?? 0;
+    const originalPrice = Number(service.price.replace(/\D/g, ''));
+    if (discountPercent <= 0 || !Number.isFinite(originalPrice) || originalPrice <= 0) {
+      return null;
+    }
+
+    return new Intl.NumberFormat('da-DK', {
+      style: 'currency',
+      currency: 'DKK',
+      maximumFractionDigits: 0,
+    }).format(Math.round((originalPrice * (100 - discountPercent)) / 100));
+  }
+
   selectService(service: Service): void {
     this.serviceSelected.emit(service);
   }

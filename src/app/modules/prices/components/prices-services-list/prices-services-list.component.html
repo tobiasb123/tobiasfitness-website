@@ -26,7 +26,12 @@
         <p>
           <strong>{{ service.time }}</strong>
         </p>
-        <p id="discription">{{ service.description }}</p>
+        <textarea
+          class="service-description"
+          readonly
+          [value]="service.description"
+          [attr.aria-label]="'Beskrivelse af ' + service.title"
+        ></textarea>
         @if (isAdmin()) {
           <div class="admin-actions" aria-label="Administrer ydelse">
             <button class="edit-button" type="button" (click)="openEditor(service)">Rediger</button>

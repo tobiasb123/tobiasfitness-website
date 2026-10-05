@@ -56,24 +56,28 @@ h2 {
 
 .adminitrative-options {
   position: fixed;
-  top: calc(50% - 400px);
+  z-index: 40;
+  top: 50%;
+  left: 50%;
 
   display: none;
   flex-direction: column;
 
   align-items: center;
 
-  height: 800px;
-  width: 80%;
-  min-width: 400px;
+  width: min(80vw, 900px);
+  height: min(800px, calc(100dvh - 32px));
+  min-width: 0;
+  box-sizing: border-box;
 
   gap: 10px;
 
-  padding: 10px;
+  padding: 48px 16px 16px;
 
   border-radius: 10px;
 
   background-color: rgb(48, 48, 48);
+  transform: translate(-50%, -50%);
 
   .deafault-button {
     appearance: none;
@@ -126,8 +130,9 @@ h2 {
       display: flex;
       flex-direction: column;
 
-      height: 200px;
-      width: calc(100% - 10px);
+      min-height: 200px;
+      width: 100%;
+      box-sizing: border-box;
 
       padding: 10px;
 
@@ -141,13 +146,10 @@ h2 {
 
       .info-nondesc {
         display: flex;
-        flex-direction: row;
-
-        height: 50px;
-
+        flex-wrap: wrap;
         align-items: center;
 
-        gap: 50px;
+        gap: 8px 24px;
       }
 
       .button-container {
@@ -159,6 +161,27 @@ h2 {
         width: 100%;
 
         gap: 10px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .adminitrative-options {
+        width: calc(100vw - 24px);
+        height: calc(100dvh - 24px);
+        padding: 48px 12px 12px;
+      }
+
+      .adminitrative-options .option-container {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        flex: 1;
+        box-sizing: border-box;
+      }
+
+      .adminitrative-options .option-container .option {
+        height: auto;
+        min-height: 200px;
       }
     }
   }

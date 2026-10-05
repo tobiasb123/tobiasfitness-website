@@ -97,7 +97,4 @@ export class SignupComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  navigateTo(route: string) {
-    this.router.navigate([route]);
-  }
 }

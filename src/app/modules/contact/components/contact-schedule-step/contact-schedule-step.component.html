@@ -3,8 +3,88 @@
   <small>du kan ikke vælge onsdage og du kan tidligst vælge 2 dage efter nuværende dato</small>
 
   <div class="form-element">
-    <label for="date">Start Dato*</label>
-    <input id="date" type="date" [formControl]="dateControl()" />
+    <span class="field-label" id="date-label">Start Dato*</span>
+    <div class="date-picker" (keydown.escape)="closeCalendar()">
+      <button
+        id="date"
+        class="date-input"
+        type="button"
+        [class.invalid]="dateControl().invalid && dateControl().touched"
+        aria-labelledby="date-label"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="calendarOpen()"
+        aria-controls="booking-calendar"
+        (click)="toggleCalendar()"
+      >
+        <span>{{ selectedDateLabel() || 'Vælg en dato' }}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M7 2v4m10-4v4M4 9h16M5 4h14a1 1 0 0 1 1 1v14H4V5a1 1 0 0 1 1-1Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"
+          />
+        </svg>
+      </button>
+
+      @if (calendarOpen()) {
+        <div
+          id="booking-calendar"
+          class="calendar-popover"
+          role="dialog"
+          aria-label="Vælg startdato"
+        >
+          <div class="calendar-header">
+            <button
+              class="month-navigation"
+              type="button"
+              aria-label="Forrige måned"
+              [disabled]="!canGoToPreviousMonth()"
+              (click)="goToPreviousMonth()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+            <h3>{{ monthLabel() }}</h3>
+            <button
+              class="month-navigation"
+              type="button"
+              aria-label="Næste måned"
+              (click)="goToNextMonth()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="calendar-grid" role="group" aria-label="Kalender">
+            @for (weekDay of weekDays; track weekDay) {
+              <span class="weekday">{{ weekDay }}</span>
+            }
+            @for (day of calendarDays(); track day.value) {
+              <button
+                class="calendar-day"
+                [class.other-month]="!day.inCurrentMonth"
+                [class.selected]="dateControl().value === day.value"
+                type="button"
+                [attr.aria-label]="day.label"
+                [attr.aria-pressed]="dateControl().value === day.value"
+                [disabled]="day.disabled"
+                (click)="selectDate(day)"
+              >
+                {{ day.day }}
+              </button>
+            }
+          </div>
+
+          <p class="calendar-note">Tidligste dato: {{ minimumDateLabel }}</p>
+        </div>
+      }
+    </div>
 
     @if (dateControl().invalid && dateControl().touched) {
       <small>*Start Dato er påkrævet.</small>
@@ -12,12 +92,48 @@
   </div>
 
   <div class="form-element">
-    <label for="time">Ønsket Tid*</label>
-    <select id="time" [formControl]="timeControl()">
-      @for (hour of hourOptions(); track $index) {
-        <option value="{{ hour }}">{{ hour }}</option>
+    <span class="field-label" id="time-label">Ønsket Tid*</span>
+    <div class="time-picker" (keydown.escape)="closeTimeMenu()">
+      <button
+        id="time"
+        class="time-input"
+        type="button"
+        [class.invalid]="timeControl().invalid && timeControl().touched"
+        aria-labelledby="time-label"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="timeMenuOpen()"
+        aria-controls="booking-times"
+        (click)="toggleTimeMenu()"
+      >
+        <span>{{ timeControl().value || 'Vælg et tidspunkt' }}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="m7 10 5 5 5-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"
+          />
+        </svg>
+      </button>
+
+      @if (timeMenuOpen()) {
+        <div id="booking-times" class="time-options" role="dialog" aria-label="Vælg ønsket tid">
+          @for (hour of hourOptions(); track hour) {
+            <button
+              class="time-option"
+              type="button"
+              [class.selected]="timeControl().value === hour"
+              [attr.aria-pressed]="timeControl().value === hour"
+              (click)="selectTime(hour)"
+            >
+              {{ hour }}
+            </button>
+          }
+        </div>
       }
-    </select>
+    </div>
 
     @if (timeControl().invalid && timeControl().touched) {
       <small>*Ønsket Tid er påkrævet.</small>

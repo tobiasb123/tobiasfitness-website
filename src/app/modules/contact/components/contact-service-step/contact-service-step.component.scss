@@ -90,6 +90,32 @@
       font-weight: 600;
     }
 
+    .service-pricing {
+      display: flex;
+      flex: 0 1 25%;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+
+      label {
+        width: 100%;
+      }
+    }
+
+    .discount-price {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px 8px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: #fff1f2;
+      color: #a61b1b;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
     &.selected {
       background: #e8f1ff;
       border-color: #2563eb;
@@ -124,6 +150,26 @@
       font-weight: 600;
     }
 
+    .service-pricing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .discount-price {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px 8px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: #fff1f2;
+      color: #a61b1b;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
     img {
       height: 110px;
       width: 110px;
@@ -139,6 +185,11 @@
   #service {
     .service-element {
       flex-direction: column;
+
+      .service-pricing {
+        width: 100%;
+      }
+
       label {
         text-align: center;
         width: 100%;

@@ -1,18 +1,20 @@
-<section>
-  <h1>Log Ind</h1>
-  <div>
-    <form [formGroup]="formGroup" (submit)="onSubmit($event)">
+<section class="auth-page" aria-labelledby="signin-title">
+  <div class="auth-card">
+    <h1 id="signin-title">Log Ind</h1>
+    <p class="auth-intro">Log ind for at fortsætte til din konto.</p>
+    <form class="auth-form" [formGroup]="formGroup" (submit)="onSubmit($event)">
       <div class="form-element">
         <label for="email">Email</label>
         <input
           id="email"
           name="email"
-          type="text"
+          type="email"
+          autocomplete="email"
           placeholder="john.doe@example.com"
           [formControl]="emailControl"
         />
         @if (emailControl.invalid && emailControl.touched) {
-          <small>*Email er inkorrect.</small>
+          <small class="form-error">*Email er inkorrect.</small>
         }
       </div>
 
@@ -21,12 +23,13 @@
         <input
           id="password"
           name="password"
-          type="text"
+          type="password"
+          autocomplete="current-password"
           placeholder="kodeord"
           [formControl]="passwordControl"
         />
         @if (passwordControl.invalid && passwordControl.touched) {
-          <small>*Kodeord er påkrævet.</small>
+          <small class="form-error">*Kodeord er påkrævet.</small>
         }
       </div>
 
@@ -42,7 +45,7 @@
 
       <button type="submit">Log ind</button>
 
-      <small class="sign-up" (click)="navigateTo('signup')">Ingen konto? Opret nu.</small>
+      <a class="auth-switch" routerLink="/signup">Opret konto</a>
     </form>
   </div>
 </section>

@@ -1,7 +1,8 @@
-<section>
-  <h1>Opret Konto</h1>
-  <div>
-    <form [formGroup]="formGroup" (submit)="onSubmit($event)">
+<section class="auth-page" aria-labelledby="signup-title">
+  <div class="auth-card signup-card">
+    <h1 id="signup-title">Opret Konto</h1>
+    <p class="auth-intro">Udfyld dine oplysninger for at oprette din konto.</p>
+    <form class="auth-form signup-form" [formGroup]="formGroup" (submit)="onSubmit($event)">
       <div class="element-group">
         <div class="form-element">
           <label for="firstName">Fornavn*</label>
@@ -9,11 +10,12 @@
             id="firstName"
             name="firstName"
             type="text"
+            autocomplete="given-name"
             placeholder="John"
             [formControl]="firstnameControl"
           />
           @if (firstnameControl.invalid && firstnameControl.touched) {
-            <small>*Fornavn er påkrævet.</small>
+            <small class="form-error">*Fornavn er påkrævet.</small>
           }
         </div>
 
@@ -23,11 +25,12 @@
             id="lastName"
             name="lastName"
             type="text"
+            autocomplete="family-name"
             placeholder="Doe"
             [formControl]="lastnameControl"
           />
           @if (lastnameControl.invalid && lastnameControl.touched) {
-            <small>*Efternavn er påkrævet.</small>
+            <small class="form-error">*Efternavn er påkrævet.</small>
           }
         </div>
       </div>
@@ -38,11 +41,12 @@
           id="street"
           name="street"
           type="text"
+          autocomplete="street-address"
           placeholder="vejnavn 00"
           [formControl]="streetControl"
         />
         @if (streetControl.invalid && streetControl.touched) {
-          <small>*Adresse er påkrævet.</small>
+          <small class="form-error">*Adresse er påkrævet.</small>
         }
       </div>
 
@@ -53,11 +57,12 @@
             id="postalCode"
             name="postalCode"
             type="text"
+            autocomplete="postal-code"
             placeholder="1234"
             [formControl]="postalCodeControl"
           />
           @if (postalCodeControl.invalid && postalCodeControl.touched) {
-            <small>*Postnummer er påkrævet.</small>
+            <small class="form-error">*Postnummer er påkrævet.</small>
           }
         </div>
 
@@ -67,11 +72,12 @@
             id="city"
             name="city"
             type="text"
+            autocomplete="address-level2"
             placeholder="Bynavn"
             [formControl]="cityControl"
           />
           @if (cityControl.invalid && cityControl.touched) {
-            <small>*By er påkrævet.</small>
+            <small class="form-error">*By er påkrævet.</small>
           }
         </div>
       </div>
@@ -81,12 +87,13 @@
         <input
           id="phonenumber"
           name="phonenumber"
-          type="text"
+          type="tel"
+          autocomplete="tel"
           placeholder="12345678"
           [formControl]="phonenumberControl"
         />
         @if (phonenumberControl.invalid && phonenumberControl.touched) {
-          <small>*Telefonnummer er påkrævet.</small>
+          <small class="form-error">*Telefonnummer er påkrævet.</small>
         }
       </div>
 
@@ -102,7 +109,7 @@
           [formControl]="ageControl"
         />
         @if (ageControl.invalid && ageControl.touched) {
-          <small>*Alder skal vaere mellem 1 og 120.</small>
+          <small class="form-error">*Alder skal vaere mellem 1 og 120.</small>
         }
       </div>
 
@@ -112,12 +119,13 @@
           <input
             id="email"
             name="email"
-            type="text"
+            type="email"
+            autocomplete="email"
             placeholder="john.doe@example.com"
             [formControl]="emailControl"
           />
           @if (emailControl.invalid && emailControl.touched) {
-            <small>*Email er inkorrect.</small>
+            <small class="form-error">*Email er inkorrect.</small>
           }
         </div>
 
@@ -126,19 +134,20 @@
           <input
             id="password"
             name="password"
-            type="text"
+            type="password"
+            autocomplete="new-password"
             placeholder="kodeord"
             [formControl]="passwordControl"
           />
           @if (passwordControl.invalid && passwordControl.touched) {
-            <small>*Kodeord er påkrævet.</small>
+            <small class="form-error">*Kodeord er påkrævet.</small>
           }
         </div>
       </div>
 
       <button type="submit">Opret</button>
 
-      <small class="sign-in" (click)="navigateTo('signin')">Allerede en konto? Log ind.</small>
+      <a class="auth-switch" routerLink="/signin">Har du en konto? Log ind</a>
     </form>
   </div>
 </section>
