@@ -11,7 +11,7 @@ import {
   getBlockedDays,
   getTimePeriods as getTimePeriodsConfig,
 } from '../../shared/config/config.shared';
-import { createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
+import { createAdminEndpoint, createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
 import { getUser } from '../auth/common/auth.common';
 import { sendMail } from '../mail/common/mail.common';
 import { commonGetBookings, doesPeriodMatch } from './common/booking.common';
@@ -184,6 +184,84 @@ export const getServices = createPublicEndpoint(async (req, res) => {
   }
 
   res.json(services);
+});
+
+export const updateService = createAdminEndpoint(async (req, res) => {
+  const input = req.body as Partial<Service>;
+  const id = typeof input.id === 'string' ? input.id.trim() : '';
+  const title = typeof input.title === 'string' ? input.title.trim() : '';
+  const price = typeof input.price === 'string' ? input.price.trim() : '';
+  const time = typeof input.time === 'string' ? input.time.trim() : '';
+  const description = typeof input.description === 'string' ? input.description.trim() : '';
+  const image = typeof input.image === 'string' ? input.image.trim() : '';
+  const discountPercent = input.discountPercent ?? 0;
+
+  if (!id || !title || !price || !time || !description || !image || image.startsWith('data:')) {
+    throw new HttpsError('invalid-argument', 'Ydelsens oplysninger er ugyldige');
+  }
+
+  if (!Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+    throw new HttpsError('invalid-argument', 'Rabatten skal være mellem 0 og 100 procent');
+  }
+
+  const updatedFields: Omit<Service, 'id'> = {
+    title,
+    price,
+    time,
+    description,
+    image,
+    discountPercent,
+  };
+  const servicesSnapshot = await servicesCollection.get();
+  const serviceDocument = servicesSnapshot.docs.find((document) => {
+    const data = document.data();
+    if (Array.isArray(data.data)) {
+      return data.data.some(
+        (service: unknown) =>
+          typeof service === 'object' &&
+          service !== null &&
+          'id' in service &&
+          (service as { id?: unknown }).id === id,
+      );
+    }
+
+    return document.id === id;
+  });
+
+  if (!serviceDocument) {
+    throw new HttpsError('not-found', 'Ydelsen findes ikke');
+  }
+
+  await firestore.runTransaction(async (transaction) => {
+    const currentDocument = await transaction.get(serviceDocument.ref);
+    const data = currentDocument.data();
+
+    if (!data) {
+      throw new HttpsError('not-found', 'Ydelsen findes ikke');
+    }
+
+    if (Array.isArray(data.data)) {
+      const currentServices = data.data as Service[];
+      if (!currentServices.some((service) => service.id === id)) {
+        throw new HttpsError('not-found', 'Ydelsen findes ikke');
+      }
+
+      transaction.update(serviceDocument.ref, {
+        data: currentServices.map((service) =>
+          service.id === id ? { ...service, ...updatedFields } : service,
+        ),
+      });
+      return;
+    }
+
+    if (serviceDocument.id !== id) {
+      throw new HttpsError('not-found', 'Ydelsen findes ikke');
+    }
+
+    transaction.update(serviceDocument.ref, updatedFields);
+  });
+
+  res.json({ id, ...updatedFields });
 });
 
 export const sendRescheduleMail = createAuthEndpoint(async (req, res, user) => {

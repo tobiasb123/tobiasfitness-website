@@ -42,7 +42,7 @@ export class StorageFunctions {
     uid: string,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): ResumableUpload {
-    return this.startUpload(file, uid, recipe, null, onProgress);
+    return this.startUpload(file, 'recipe', { uid, recipe, onProgress });
   }
 
   public updateRecipeAndFile(
@@ -52,7 +52,15 @@ export class StorageFunctions {
     file: File,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): ResumableUpload {
-    return this.startUpload(file, uid, recipe, null, onProgress, fileId);
+    return this.startUpload(file, 'recipe', { uid, recipe, onProgress, fileId });
+  }
+
+  public uploadServiceImage(
+    file: File,
+    serviceId: string,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): ResumableUpload {
+    return this.startUpload(file, 'service', { fileId: serviceId, onProgress });
   }
 
   public async updateRecipe(file: DocumentFile): Promise<void> {
@@ -73,29 +81,31 @@ export class StorageFunctions {
     uid: string,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): ResumableUpload {
-    return this.startUpload(file, uid, null, review, onProgress);
+    return this.startUpload(file, 'review', { uid, review, onProgress });
   }
 
   private startUpload(
     file: File,
-    uid: string,
-    recipe?: Recipe,
-    review?: Review,
-    onProgress?: (snapshot: UploadTaskSnapshot) => void,
-    fileId?: string,
+    fileType: FileType,
+    options: {
+      uid?: string;
+      recipe?: Recipe;
+      review?: Review;
+      onProgress?: (snapshot: UploadTaskSnapshot) => void;
+      fileId?: string;
+    } = {},
   ): ResumableUpload {
     let uploadTask: UploadTask | null = null;
-    const fileType: FileType = review ? 'review' : 'recipe';
 
     const promise = this.firbaseService
       .httpPost<CreateUploadIntentInput, CreateUploadIntentReturn>('storage-createUploadIntent', {
         fileName: file.name,
         sizeBytes: file.size,
         fileType,
-        uid,
-        recipe,
-        review,
-        fileId,
+        ...(options.uid ? { uid: options.uid } : {}),
+        ...(options.recipe ? { recipe: options.recipe } : {}),
+        ...(options.review ? { review: options.review } : {}),
+        ...(options.fileId ? { fileId: options.fileId } : {}),
         contentType: file.type,
       })
       .then(async (uploadIntent) => {
@@ -109,11 +119,11 @@ export class StorageFunctions {
           uploadTask.on(
             'state_changed',
             (snapshot) => {
-              if (!onProgress) {
+              if (!options.onProgress) {
                 return;
               }
 
-              onProgress(snapshot);
+              options.onProgress(snapshot);
             },
             (error) => reject(error),
             () => resolve(),

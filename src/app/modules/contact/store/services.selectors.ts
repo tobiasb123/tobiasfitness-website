@@ -17,6 +17,23 @@ export const selectLoadingServicesError = createSelector(
   (state) => state.error,
 );
 
+export interface ServiceUpdateState {
+  updatingServiceId: string | null;
+  updateError: string;
+  updateErrorServiceId: string | null;
+  lastUpdatedServiceId: string | null;
+}
+
+export const selectServiceUpdateState = createSelector(
+  selectServicesFeature,
+  (state): ServiceUpdateState => ({
+    updatingServiceId: state.updatingServiceId,
+    updateError: state.updateError,
+    updateErrorServiceId: state.updateErrorServiceId,
+    lastUpdatedServiceId: state.lastUpdatedServiceId,
+  }),
+);
+
 const { selectAll } = servicesAdapter.getSelectors();
 
 export const selectServices = createSelector(selectServicesFeature, selectAll);

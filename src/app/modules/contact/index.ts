@@ -7,3 +7,4 @@ export { ServicesEffects } from './store/services.effects';
 export { ServicesFacade } from './store/services.facade';
 export { servicesReducer } from './store/services.reducer';
 export { servicesFeature } from './store/services.selectors';
+export type { ServiceUpdateState } from './store/services.selectors';

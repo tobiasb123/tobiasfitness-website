@@ -13,7 +13,7 @@ import { Service } from '@models/booking/interfaces';
 import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
 import { ToastService } from '@modules/core';
 import { Subscription } from 'rxjs';
-import { ServicesFacade } from '../../contact';
+import { ServicesFacade, ServiceUpdateState } from '../../contact';
 import { PricesAdminPanelComponent } from './prices-admin-panel/prices-admin-panel.component';
 import { PricesServicesListComponent } from './prices-services-list/prices-services-list.component';
 
@@ -36,6 +36,12 @@ export class PricesComponent implements OnInit, OnDestroy {
   generalServices: WritableSignal<Service[]> = signal([]);
   servicesLoading = signal(false);
   servicesError = signal('');
+  serviceUpdateState = signal<ServiceUpdateState>({
+    updatingServiceId: null,
+    updateError: '',
+    updateErrorServiceId: null,
+    lastUpdatedServiceId: null,
+  });
 
   userProfile: UserProfile;
 
@@ -61,6 +67,12 @@ export class PricesComponent implements OnInit, OnDestroy {
         this.servicesError.set(error || '');
       }),
     );
+
+    this.subs.push(
+      this.servicesFacade.getServiceUpdateState().subscribe((state) => {
+        this.serviceUpdateState.set(state);
+      }),
+    );
   }
 
   isLoggedIn(): boolean {
@@ -69,6 +81,10 @@ export class PricesComponent implements OnInit, OnDestroy {
 
   toggleAdminPanel(): void {
     this.adminPanelOpen.update((open) => !open);
+  }
+
+  updateService(update: { service: Service; imageFile: File | null }): void {
+    void this.servicesFacade.updateService(update.service, update.imageFile ?? undefined);
   }
 
   navigateTo(route: string) {

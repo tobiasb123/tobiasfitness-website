@@ -11,6 +11,9 @@
     [services]="generalServices()"
     [loading]="servicesLoading()"
     [error]="servicesError()"
+    [isAdmin]="!!userProfile?.admin"
+    [serviceUpdateState]="serviceUpdateState()"
+    (serviceUpdated)="updateService($event)"
   ></app-prices-services-list>
 
   @if (isLoggedIn()) {

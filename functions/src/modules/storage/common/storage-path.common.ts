@@ -1,11 +1,15 @@
 import { FileType } from '@models/storage';
 
-export const commonGetFileTypePath = (fileType: FileType): 'recipes' | 'reviews' => {
+export const commonGetFileTypePath = (
+  fileType: FileType,
+): 'recipes' | 'reviews' | 'service-images' => {
   switch (fileType) {
     case 'recipe':
       return 'recipes';
     case 'review':
       return 'reviews';
+    case 'service':
+      return 'service-images';
   }
 };
 

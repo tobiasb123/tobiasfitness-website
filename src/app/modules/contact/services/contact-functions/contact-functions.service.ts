@@ -26,6 +26,10 @@ export class ContactFunctionsService {
     return this.firbaseService.httpGet<Service[]>('booking-getServices');
   }
 
+  public async updateService(service: Service): Promise<Service> {
+    return this.firbaseService.httpPost<Service, Service>('booking-updateService', service);
+  }
+
   public async sendRescheduleMail(
     request: RescheduleBookingRequest,
   ): Promise<{ success: boolean }> {

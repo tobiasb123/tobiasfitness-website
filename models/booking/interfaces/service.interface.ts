@@ -5,4 +5,5 @@ export interface Service {
   time: string;
   image: string;
   description: string;
+  discountPercent?: number;
 }

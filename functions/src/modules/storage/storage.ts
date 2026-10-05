@@ -21,6 +21,7 @@ const UPLOAD_INTENT_EXPIRY_MINUTES = 15;
 const firestore = getFirestore();
 const recipeCollection = firestore.collection('recipes');
 const reviewCollection = firestore.collection('reviews');
+const servicesCollection = firestore.collection('services');
 const storage = getStorage();
 const bucket = storage.bucket();
 const uploadIntentCollection = firestore.collection('storage-upload-intents');
@@ -29,8 +30,8 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   const input = req.body as CreateUploadIntentInput;
   const userProfile = await getUser(user.uid);
 
-  if (input.fileType === 'recipe' && !userProfile.admin) {
-    throw new HttpsError('permission-denied', 'Du kan ikke tilføje opskrifter');
+  if ((input.fileType === 'recipe' || input.fileType === 'service') && !userProfile.admin) {
+    throw new HttpsError('permission-denied', 'Kun administratorer kan uploade denne fil');
   }
 
   const normalizedFileName = commonNormalizeFileName(input.fileName);
@@ -48,6 +49,16 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   const fileRootPath = commonGetFileTypePath(input.fileType);
   const targetFileId = input.fileId?.trim();
   const normalizedRecipeUid = input.uid?.trim();
+
+  if (input.fileType === 'service') {
+    if (!targetFileId) {
+      throw new HttpsError('invalid-argument', 'Ydelsens id er påkrævet');
+    }
+
+    if (!(await serviceExists(targetFileId))) {
+      throw new HttpsError('not-found', 'Ydelsen findes ikke');
+    }
+  }
 
   if (input.fileType === 'recipe' && normalizedRecipeUid && normalizedRecipeUid !== 'all') {
     await getUser(normalizedRecipeUid).catch(() => {
@@ -156,7 +167,7 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
       ? await getFileInfoFromFirestoreById(uploadIntent.fileId, uploadIntent.fileType)
       : null;
 
-    if (uploadIntent.fileId && !existingFile) {
+    if (uploadIntent.fileId && !existingFile && uploadIntent.fileType !== 'service') {
       throw new HttpsError('not-found', 'Opskrift blev ikke fundet');
     }
 
@@ -388,6 +399,25 @@ const getFileInfoFromFirestoreById = async (
     folderPath,
     recipe: normalizeRecipe(data.recipe),
   };
+};
+
+const serviceExists = async (serviceId: string): Promise<boolean> => {
+  const servicesSnapshot = await servicesCollection.get();
+
+  return servicesSnapshot.docs.some((serviceDocument) => {
+    const data = serviceDocument.data();
+    if (Array.isArray(data.data)) {
+      return data.data.some(
+        (service: unknown) =>
+          typeof service === 'object' &&
+          service !== null &&
+          'id' in service &&
+          (service as { id?: unknown }).id === serviceId,
+      );
+    }
+
+    return serviceDocument.id === serviceId;
+  });
 };
 
 const normalizeRecipe = (recipe: DocumentFile['recipe']): DocumentFile['recipe'] => {
