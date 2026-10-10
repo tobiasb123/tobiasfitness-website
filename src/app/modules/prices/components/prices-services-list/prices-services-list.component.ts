@@ -30,6 +30,15 @@ export class PricesServicesListComponent {
   selectedImage = signal<File | null>(null);
   savePending = signal(false);
   serviceUpdated = output<{ service: Service; imageFile: File | null }>();
+  serviceCreated = output<{ service: Service; imageFile: File }>();
+  serviceDeleted = output<Service>();
+  isNewService = signal(false);
+
+  confirmDelete(service: Service): void {
+    if (confirm(`Er du sikker på, at du vil slette "${service.title}"?`)) {
+      this.serviceDeleted.emit(service);
+    }
+  }
 
   private readonly saveStatusEffect = effect(() => {
     const service = this.activeService();
@@ -57,7 +66,21 @@ export class PricesServicesListComponent {
     discountPercent: new FormControl(10, { nonNullable: true }),
   });
 
+  openCreator(): void {
+    this.openEditor({
+      id: crypto.randomUUID(),
+      title: '',
+      price: '',
+      time: '',
+      description: '',
+      image: '',
+      discountPercent: 0,
+    });
+    this.isNewService.set(true);
+  }
+
   openEditor(service: Service): void {
+    this.isNewService.set(false);
     this.activeService.set(service);
     this.imageError.set('');
     this.imagePreview.set(service.image);
@@ -130,15 +153,25 @@ export class PricesServicesListComponent {
     }
 
     const { hasDiscount, discountPercent, ...serviceFields } = this.editForm.getRawValue();
+    const updatedService = {
+      ...service,
+      ...serviceFields,
+      discountPercent: hasDiscount ? discountPercent : 0,
+    };
+    const imageFile = this.selectedImage();
+
+    if (this.isNewService()) {
+      if (!imageFile) {
+        this.imageError.set('Vælg et billede.');
+        return;
+      }
+      this.savePending.set(true);
+      this.serviceCreated.emit({ service: updatedService, imageFile });
+      return;
+    }
+
     this.savePending.set(true);
-    this.serviceUpdated.emit({
-      service: {
-        ...service,
-        ...serviceFields,
-        discountPercent: hasDiscount ? discountPercent : 0,
-      },
-      imageFile: this.selectedImage(),
-    });
+    this.serviceUpdated.emit({ service: updatedService, imageFile });
   }
 
   closeEditor(): void {

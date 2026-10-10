@@ -8,6 +8,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { CreateHotToastRef } from '@ngxpert/hot-toast';
 import { UserProfile } from '@models/auth/interfaces';
 import { Service } from '@models/booking/interfaces';
 import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
@@ -30,6 +31,12 @@ export class PricesComponent implements OnInit, OnDestroy {
   authState = inject(AUTH_STATE);
   toast = inject(ToastService);
   servicesFacade = inject(ServicesFacade);
+
+  private pendingOperation: {
+    serviceId: string;
+    successMessage: string;
+    toastRef: CreateHotToastRef<unknown>;
+  } | null = null;
 
   adminPanelOpen = signal(false);
 
@@ -71,6 +78,7 @@ export class PricesComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.servicesFacade.getServiceUpdateState().subscribe((state) => {
         this.serviceUpdateState.set(state);
+        this.handleOperationResult(state);
       }),
     );
   }
@@ -85,6 +93,48 @@ export class PricesComponent implements OnInit, OnDestroy {
 
   updateService(update: { service: Service; imageFile: File | null }): void {
     void this.servicesFacade.updateService(update.service, update.imageFile ?? undefined);
+    this.startOperation(update.service.id, 'Gemmer ydelse...', 'Ydelsen blev gemt');
+  }
+
+  createService(create: { service: Service; imageFile: File }): void {
+    void this.servicesFacade.createService(create.service, create.imageFile);
+    this.startOperation(create.service.id, 'Opretter ydelse...', 'Ydelsen blev oprettet');
+  }
+
+  deleteService(service: Service): void {
+    this.servicesFacade.deleteService(service.id);
+    this.startOperation(service.id, 'Sletter ydelse...', 'Ydelsen blev slettet');
+  }
+
+  // Started after dispatch so the store has already reset the previous result.
+  private startOperation(serviceId: string, loadingMessage: string, successMessage: string): void {
+    this.pendingOperation?.toastRef.close({ dismissedByAction: true });
+    this.pendingOperation = {
+      serviceId,
+      successMessage,
+      toastRef: this.toast.open(loadingMessage, 'loading'),
+    };
+  }
+
+  private handleOperationResult(state: ServiceUpdateState): void {
+    const operation = this.pendingOperation;
+    if (!operation) {
+      return;
+    }
+
+    if (state.updateErrorServiceId === operation.serviceId) {
+      this.toast.update(
+        operation.toastRef,
+        state.updateError || 'Der skete en fejl. Prøv igen',
+        'error',
+      );
+    } else if (state.lastUpdatedServiceId === operation.serviceId) {
+      this.toast.update(operation.toastRef, operation.successMessage, 'success');
+    } else {
+      return;
+    }
+
+    this.pendingOperation = null;
   }
 
   navigateTo(route: string) {

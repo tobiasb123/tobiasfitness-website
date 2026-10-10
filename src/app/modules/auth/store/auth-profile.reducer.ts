@@ -26,7 +26,7 @@ const initialState: AuthProfileState = {
   loaded: false,
   error: null,
   updating: false,
-  updateError: null,
+  updateError: null as string | null,
 };
 
 export const authProfileReducer = createReducer(
@@ -35,20 +35,20 @@ export const authProfileReducer = createReducer(
     ...state,
     loading: true,
     loaded: false,
-    error: null,
+    error: null as string | null,
   })),
   on(loadAuthProfileSuccessAction, (state, action) => ({
     ...state,
     loading: false,
     loaded: true,
     profile: action.profile,
-    error: null,
+    error: null as string | null,
   })),
   on(loadAuthProfileFailAction, (state, action) => ({
     ...state,
     loading: false,
     loaded: false,
-    profile: null,
+    profile: null as UserProfile | null,
     error: action.error,
   })),
   on(setAuthProfileAction, (state, action) => ({
@@ -56,7 +56,7 @@ export const authProfileReducer = createReducer(
     profile: action.profile,
     loaded: true,
     loading: false,
-    error: null,
+    error: null as string | null,
   })),
   on(clearAuthProfileAction, () => ({
     ...initialState,
@@ -64,7 +64,7 @@ export const authProfileReducer = createReducer(
   on(updateAuthProfileAction, (state) => ({
     ...state,
     updating: true,
-    updateError: null,
+    updateError: null as string | null,
   })),
   on(updateAuthProfileSuccessAction, (state, action) => ({
     ...state,
@@ -76,7 +76,7 @@ export const authProfileReducer = createReducer(
         }
       : (action.updates as UserProfile),
     updating: false,
-    updateError: null,
+    updateError: null as string | null,
   })),
   on(updateAuthProfileFailAction, (state, action) => ({
     ...state,

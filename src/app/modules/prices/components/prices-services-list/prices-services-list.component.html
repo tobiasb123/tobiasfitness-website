@@ -11,7 +11,10 @@
 <div class="services">
   @for (service of services(); track service.id) {
     <div class="service">
-      <img [src]="service.image" [alt]="service.title" />
+      <div class="image-frame">
+        <img class="image-backdrop" [src]="service.image" alt="" aria-hidden="true" />
+        <img class="image-main" [src]="service.image" [alt]="service.title" />
+      </div>
       <div class="disc">
         <h2>{{ service.title }}</h2>
         <p>
@@ -26,25 +29,36 @@
         <p>
           <strong>{{ service.time }}</strong>
         </p>
-        <textarea
-          class="service-description"
-          readonly
-          [value]="service.description"
-          [attr.aria-label]="'Beskrivelse af ' + service.title"
-        ></textarea>
+        <p class="service-description" tabindex="0">{{ service.description }}</p>
         @if (isAdmin()) {
           <div class="admin-actions" aria-label="Administrer ydelse">
             <button class="edit-button" type="button" (click)="openEditor(service)">Rediger</button>
-            <button class="delete-button" type="button">Slet</button>
+            <button
+              class="delete-button"
+              type="button"
+              (click)="confirmDelete(service)"
+              [disabled]="serviceUpdateState().updatingServiceId === service.id"
+            >
+              Slet
+            </button>
           </div>
+          @if (!editDialog.open && serviceUpdateState().updateErrorServiceId === service.id) {
+            <p class="image-error" role="alert">{{ serviceUpdateState().updateError }}</p>
+          }
         }
       </div>
     </div>
   }
+  @if (isAdmin()) {
+    <button class="add-service" type="button" (click)="openCreator()">
+      <span class="add-icon" aria-hidden="true">+</span>
+      <span>Ny Service</span>
+    </button>
+  }
 </div>
 
 <dialog #editDialog class="edit-dialog" aria-labelledby="edit-dialog-title" (close)="closeEditor()">
-  <h2 id="edit-dialog-title">Rediger ydelse</h2>
+  <h2 id="edit-dialog-title">{{ isNewService() ? 'Ny ydelse' : 'Rediger ydelse' }}</h2>
   <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
     <label>
       Navn
@@ -93,11 +107,13 @@
         <p class="image-error" role="alert">{{ serviceUpdateState().updateError }}</p>
       }
     }
-    <img
-      class="image-preview"
-      [src]="imagePreview()"
-      [alt]="'Forhåndsvisning af ' + editForm.controls.title.value"
-    />
+    @if (imagePreview()) {
+      <img
+        class="image-preview"
+        [src]="imagePreview()"
+        [alt]="'Forhåndsvisning af ' + editForm.controls.title.value"
+      />
+    }
     <div class="dialog-actions">
       <button
         class="cancel-button"

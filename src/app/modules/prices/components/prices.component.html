@@ -14,6 +14,8 @@
     [isAdmin]="!!userProfile?.admin"
     [serviceUpdateState]="serviceUpdateState()"
     (serviceUpdated)="updateService($event)"
+    (serviceCreated)="createService($event)"
+    (serviceDeleted)="deleteService($event)"
   ></app-prices-services-list>
 
   @if (isLoggedIn()) {

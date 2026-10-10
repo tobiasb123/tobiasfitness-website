@@ -264,6 +264,78 @@ export const updateService = createAdminEndpoint(async (req, res) => {
   res.json({ id, ...updatedFields });
 });
 
+export const createService = createAdminEndpoint(async (req, res) => {
+  const input = req.body as Partial<Service>;
+  const id = typeof input.id === 'string' ? input.id.trim() : '';
+  const title = typeof input.title === 'string' ? input.title.trim() : '';
+  const price = typeof input.price === 'string' ? input.price.trim() : '';
+  const time = typeof input.time === 'string' ? input.time.trim() : '';
+  const description = typeof input.description === 'string' ? input.description.trim() : '';
+  const image = typeof input.image === 'string' ? input.image.trim() : '';
+  const discountPercent = input.discountPercent ?? 0;
+
+  if (
+    !id ||
+    id.includes('/') ||
+    !title ||
+    !price ||
+    !time ||
+    !description ||
+    !image ||
+    image.startsWith('data:')
+  ) {
+    throw new HttpsError('invalid-argument', 'Ydelsens oplysninger er ugyldige');
+  }
+
+  if (!Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+    throw new HttpsError('invalid-argument', 'Rabatten skal være mellem 0 og 100 procent');
+  }
+
+  const fields: Omit<Service, 'id'> = { title, price, time, description, image, discountPercent };
+  await servicesCollection.doc(id).create(fields);
+
+  res.json({ id, ...fields });
+});
+
+export const deleteService = createAdminEndpoint(async (req, res) => {
+  const input = req.body as { id?: unknown };
+  const id = typeof input.id === 'string' ? input.id.trim() : '';
+
+  if (!id || id.includes('/')) {
+    throw new HttpsError('invalid-argument', 'Ydelsens id er ugyldigt');
+  }
+
+  const servicesSnapshot = await servicesCollection.get();
+  const serviceDocument = servicesSnapshot.docs.find((document) => {
+    const data = document.data();
+    if (Array.isArray(data.data)) {
+      return data.data.some(
+        (service: unknown) =>
+          typeof service === 'object' &&
+          service !== null &&
+          (service as { id?: unknown }).id === id,
+      );
+    }
+
+    return document.id === id;
+  });
+
+  if (!serviceDocument) {
+    throw new HttpsError('not-found', 'Ydelsen findes ikke');
+  }
+
+  const data = serviceDocument.data();
+  if (Array.isArray(data.data)) {
+    await serviceDocument.ref.update({
+      data: (data.data as Service[]).filter((service) => service.id !== id),
+    });
+  } else {
+    await serviceDocument.ref.delete();
+  }
+
+  res.json({ id });
+});
+
 export const sendRescheduleMail = createAuthEndpoint(async (req, res, user) => {
   const data = req.body as RescheduleBookingRequest;
   const bookingDoc = await bookingsCollection.doc(data.bookingId).get();

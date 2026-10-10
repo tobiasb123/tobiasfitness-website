@@ -4,6 +4,8 @@ import { Store } from '@ngrx/store';
 import { filter, Observable, switchMap, tap } from 'rxjs';
 import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
 import {
+  createServiceAction,
+  deleteServiceAction,
   loadServicesAction,
   updateServiceAction,
   updateServiceFailAction,
@@ -46,7 +48,23 @@ export class ServicesFacade {
     return this.store.select(selectServiceUpdateState);
   }
 
+  public async createService(service: Service, imageFile: File): Promise<void> {
+    await this.saveService(service, imageFile, createServiceAction);
+  }
+
   public async updateService(service: Service, imageFile?: File): Promise<void> {
+    await this.saveService(service, imageFile, updateServiceAction);
+  }
+
+  public deleteService(serviceId: string): void {
+    this.store.dispatch(deleteServiceAction({ serviceId }));
+  }
+
+  private async saveService(
+    service: Service,
+    imageFile: File | undefined,
+    action: typeof updateServiceAction | typeof createServiceAction,
+  ): Promise<void> {
     this.store.dispatch(updateServiceStartedAction({ serviceId: service.id }));
 
     try {
@@ -55,7 +73,7 @@ export class ServicesFacade {
         : null;
 
       this.store.dispatch(
-        updateServiceAction({
+        action({
           service: uploadedImage ? { ...service, image: uploadedImage.fileUrl } : service,
         }),
       );

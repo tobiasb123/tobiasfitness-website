@@ -2,6 +2,9 @@ import { Service } from '@models/booking/interfaces';
 import { createEntityAdapter, EntityState } from '@ngrx/entity';
 import { createReducer, on } from '@ngrx/store';
 import {
+  createServiceSuccessAction,
+  deleteServiceAction,
+  deleteServiceSuccessAction,
   loadServicesAction,
   loadServicesFailAction,
   loadServicesSuccessAction,
@@ -28,10 +31,10 @@ const initialState = servicesAdapter.getInitialState<ServicesState>({
   loading: false,
   loaded: false,
   error: '',
-  updatingServiceId: null,
+  updatingServiceId: null as string | null,
   updateError: '',
-  updateErrorServiceId: null,
-  lastUpdatedServiceId: null,
+  updateErrorServiceId: null as string | null,
+  lastUpdatedServiceId: null as string | null,
 });
 
 export const servicesReducer = createReducer(
@@ -58,26 +61,49 @@ export const servicesReducer = createReducer(
     ...state,
     updatingServiceId: action.serviceId,
     updateError: '',
-    updateErrorServiceId: null,
-    lastUpdatedServiceId: null,
+    updateErrorServiceId: null as string | null,
+    lastUpdatedServiceId: null as string | null,
   })),
   on(updateServiceSuccessAction, (state, action) =>
     servicesAdapter.updateOne(
       { id: action.service.id, changes: action.service },
       {
         ...state,
-        updatingServiceId: null,
+        updatingServiceId: null as string | null,
         updateError: '',
-        updateErrorServiceId: null,
+        updateErrorServiceId: null as string | null,
         lastUpdatedServiceId: action.service.id,
       },
     ),
   ),
+  on(createServiceSuccessAction, (state, action) =>
+    servicesAdapter.addOne(action.service, {
+      ...state,
+      updatingServiceId: null as string | null,
+      updateError: '',
+      updateErrorServiceId: null as string | null,
+      lastUpdatedServiceId: action.service.id,
+    }),
+  ),
+  on(deleteServiceAction, (state, action) => ({
+    ...state,
+    updatingServiceId: action.serviceId,
+    updateError: '',
+    updateErrorServiceId: null as string | null,
+    lastUpdatedServiceId: null as string | null,
+  })),
+  on(deleteServiceSuccessAction, (state, action) =>
+    servicesAdapter.removeOne(action.serviceId, {
+      ...state,
+      updatingServiceId: null as string | null,
+      lastUpdatedServiceId: action.serviceId,
+    }),
+  ),
   on(updateServiceFailAction, (state, action) => ({
     ...state,
-    updatingServiceId: null,
+    updatingServiceId: null as string | null,
     updateError: action.error,
     updateErrorServiceId: action.serviceId,
-    lastUpdatedServiceId: null,
+    lastUpdatedServiceId: null as string | null,
   })),
 );

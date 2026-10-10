@@ -7,6 +7,10 @@ import {
   loadServicesAction,
   loadServicesFailAction,
   loadServicesSuccessAction,
+  createServiceAction,
+  createServiceSuccessAction,
+  deleteServiceAction,
+  deleteServiceSuccessAction,
   updateServiceAction,
   updateServiceFailAction,
   updateServiceSuccessAction,
@@ -23,6 +27,44 @@ export class ServicesEffects {
       exhaustMap(() => this.contactFunctions.getServices()),
       map((services) => loadServicesSuccessAction({ services })),
       catchError((error: FirebaseError) => of(loadServicesFailAction({ error: error.message }))),
+    ),
+  );
+
+  createService = createEffect(() =>
+    this.actions.pipe(
+      ofType(createServiceAction),
+      exhaustMap(({ service }) =>
+        from(this.contactFunctions.createService(service)).pipe(
+          map((createdService) => createServiceSuccessAction({ service: createdService })),
+          catchError((error: unknown) =>
+            of(
+              updateServiceFailAction({
+                serviceId: service.id,
+                error: error instanceof Error ? error.message : 'Ydelsen kunne ikke oprettes.',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  deleteService = createEffect(() =>
+    this.actions.pipe(
+      ofType(deleteServiceAction),
+      exhaustMap(({ serviceId }) =>
+        from(this.contactFunctions.deleteService(serviceId)).pipe(
+          map(() => deleteServiceSuccessAction({ serviceId })),
+          catchError((error: unknown) =>
+            of(
+              updateServiceFailAction({
+                serviceId,
+                error: error instanceof Error ? error.message : 'Ydelsen kunne ikke slettes.',
+              }),
+            ),
+          ),
+        ),
+      ),
     ),
   );
 

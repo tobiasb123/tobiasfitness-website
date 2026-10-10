@@ -28,6 +28,26 @@ export const updateServiceSuccessAction = createAction(
   props<{ service: Service }>(),
 );
 
+export const createServiceAction = createAction(
+  '[Services] Create Service',
+  props<{ service: Service }>(),
+);
+
+export const createServiceSuccessAction = createAction(
+  '[Services] Create Service Success',
+  props<{ service: Service }>(),
+);
+
+export const deleteServiceAction = createAction(
+  '[Services] Delete Service',
+  props<{ serviceId: string }>(),
+);
+
+export const deleteServiceSuccessAction = createAction(
+  '[Services] Delete Service Success',
+  props<{ serviceId: string }>(),
+);
+
 export const updateServiceFailAction = createAction(
   '[Services] Update Service Fail',
   props<{ serviceId: string; error: string }>(),
