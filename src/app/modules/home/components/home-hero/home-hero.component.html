@@ -1,4 +1,55 @@
-<section class="section-1" aria-labelledby="hero-title">
+<section
+  class="section-1"
+  aria-labelledby="hero-title"
+  (mouseenter)="setInteracting(true)"
+  (mouseleave)="setInteracting(false)"
+  (focusin)="setInteracting(true)"
+  (focusout)="setInteracting(false)"
+>
+  <div class="slides" aria-hidden="true">
+    @for (slide of slides(); track slide; let i = $index) {
+      <img
+        class="slide"
+        [class.active]="i === activeIndex()"
+        [ngSrc]="slide"
+        [priority]="i === 0"
+        fill
+        alt=""
+      />
+    }
+  </div>
+
+  @if (slides().length > 1) {
+    <div class="carousel-controls">
+      <button
+        type="button"
+        class="pause-button"
+        [attr.aria-label]="userPaused() ? 'Start billedskift' : 'Pause billedskift'"
+        (click)="togglePause()"
+      >
+        {{ userPaused() ? '▶' : '❚❚' }}
+      </button>
+      @for (slide of slides(); track slide; let i = $index) {
+        <button
+          type="button"
+          class="dot"
+          [class.active]="i === activeIndex()"
+          [attr.aria-label]="'Vis billede ' + (i + 1) + ' af ' + slides().length"
+          [attr.aria-current]="i === activeIndex() ? 'true' : null"
+          (click)="goToSlide(i)"
+        ></button>
+      }
+    </div>
+  }
+
+  @if (isAdmin()) {
+    <app-home-hero-admin
+      class="hero-admin"
+      [images]="images()"
+      (changed)="imagesChanged.emit()"
+    ></app-home-hero-admin>
+  }
+
   <div class="hero-content">
     <h1 id="hero-title" class="headline">TobiasFitness</h1>
     <p class="hero-intro">

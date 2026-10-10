@@ -26,6 +26,8 @@ export class HomeComponent implements OnInit {
   });
 
   reviews = signal<HomeReview[]>([]);
+  heroImages = signal<DocumentFile[]>([]);
+  heroImagesLoading = signal(true);
   reviewsLoading = signal(true);
   reviewsLoadFailed = signal(false);
   hasReviews = signal(false);
@@ -33,6 +35,17 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.scrollToTop();
     void this.loadReviews();
+    void this.loadHeroImages();
+  }
+
+  async loadHeroImages(): Promise<void> {
+    try {
+      this.heroImages.set(await this.storageFunctions.getHeroImages());
+    } catch {
+      this.heroImages.set([]);
+    } finally {
+      this.heroImagesLoading.set(false);
+    }
   }
 
   scrollToTop() {

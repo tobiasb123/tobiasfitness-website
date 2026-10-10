@@ -13,4 +13,5 @@ export interface DocumentFile {
   timeCreated: string;
   recipe?: Recipe;
   review?: Review;
+  order?: number;
 }

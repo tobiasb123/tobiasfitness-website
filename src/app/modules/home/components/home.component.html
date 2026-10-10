@@ -1,5 +1,10 @@
 <div class="home-page">
-  <app-home-hero></app-home-hero>
+  <app-home-hero
+    [images]="heroImages()"
+    [loading]="heroImagesLoading()"
+    [isAdmin]="!!userProfile?.admin"
+    (imagesChanged)="loadHeroImages()"
+  ></app-home-hero>
   <app-home-process></app-home-process>
   <app-home-intro></app-home-intro>
   <app-home-reviews

@@ -63,6 +63,27 @@ export class StorageFunctions {
     return this.startUpload(file, 'service', { fileId: serviceId, onProgress });
   }
 
+  public uploadHeroImage(
+    file: File,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): ResumableUpload {
+    return this.startUpload(file, 'hero', { onProgress });
+  }
+
+  public async getHeroImages(): Promise<DocumentFile[]> {
+    return this.firbaseService.httpGetPublic<DocumentFile[]>('storage-getHeroImages');
+  }
+
+  public async deleteHeroImage(id: string): Promise<void> {
+    await this.firbaseService.httpPost<{ id: string }, void>('storage-deleteHeroImage', { id });
+  }
+
+  public async reorderHeroImages(ids: string[]): Promise<void> {
+    await this.firbaseService.httpPost<{ ids: string[] }, void>('storage-reorderHeroImages', {
+      ids,
+    });
+  }
+
   public async updateRecipe(file: DocumentFile): Promise<void> {
     await this.firbaseService.httpPost<DocumentFile, void>('storage-editRecipe', file);
   }

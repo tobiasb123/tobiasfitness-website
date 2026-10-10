@@ -12,10 +12,7 @@
   margin: 0 -20px;
   padding: calc(72px + var(--page-nav-offset) + 12px) clamp(28px, 8vw, 120px) 72px;
   box-sizing: border-box;
-  background-image: url('../../../../../../public/Forbillede.jpeg');
-  background-repeat: no-repeat;
-  background-position: center 42%;
-  background-size: cover;
+  background-color: #123b63;
   isolation: isolate;
 
   &::before {
@@ -24,6 +21,81 @@
     inset: 0;
     background: rgba(12, 20, 22, 0.32);
     content: '';
+  }
+}
+
+.slides {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  overflow: hidden;
+}
+
+.slide {
+  object-fit: cover;
+  object-position: center 42%;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
+.carousel-controls {
+  position: absolute;
+  z-index: 1;
+  bottom: 16px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: translateX(-50%);
+}
+
+.dot,
+.pause-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.pause-button {
+  font-size: 0.8rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.dot::before {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  content: '';
+}
+
+.dot.active::before {
+  background: #fff;
+}
+
+.hero-admin {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--page-nav-offset) + 24px);
+  right: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: none;
   }
 }
 
@@ -136,7 +208,10 @@
   .section-1 {
     min-height: calc(560px + var(--page-nav-offset) + 12px);
     padding: calc(48px + var(--page-nav-offset) + 12px) 24px 72px;
-    background-position: 58% center;
+  }
+
+  .slide {
+    object-position: 58% center;
   }
 
   .hero-content {

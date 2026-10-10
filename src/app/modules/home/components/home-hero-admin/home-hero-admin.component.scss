@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  font-family: Poppins, sans-serif;
+}
+
+button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 4px;
+  background: #2563eb;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.secondary {
+    background: #e5e7eb;
+    color: #111827;
+  }
+
+  &.danger {
+    background: #b91c1c;
+  }
+}
+
+.admin-open {
+  border: 2px solid #fff;
+  background: rgba(18, 59, 99, 0.85);
+  text-shadow: none;
+}
+
+.admin-dialog {
+  width: min(640px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 24px;
+  border: 0;
+  border-radius: 8px;
+  color: #111827;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.messages {
+  min-height: 24px;
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.status {
+  color: #166534;
+}
+
+.image-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.thumb {
+  position: relative;
+  flex: 0 0 96px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 4px;
+
+  img {
+    object-fit: cover;
+  }
+}
+
+.position {
+  flex: 1;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}

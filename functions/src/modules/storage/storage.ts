@@ -21,7 +21,7 @@ const UPLOAD_INTENT_EXPIRY_MINUTES = 15;
 const firestore = getFirestore();
 const recipeCollection = firestore.collection('recipes');
 const reviewCollection = firestore.collection('reviews');
-const servicesCollection = firestore.collection('services');
+const heroImageCollection = firestore.collection('hero-images');
 const storage = getStorage();
 const bucket = storage.bucket();
 const uploadIntentCollection = firestore.collection('storage-upload-intents');
@@ -30,7 +30,10 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   const input = req.body as CreateUploadIntentInput;
   const userProfile = await getUser(user.uid);
 
-  if ((input.fileType === 'recipe' || input.fileType === 'service') && !userProfile.admin) {
+  if (
+    (input.fileType === 'recipe' || input.fileType === 'service' || input.fileType === 'hero') &&
+    !userProfile.admin
+  ) {
     throw new HttpsError('permission-denied', 'Kun administratorer kan uploade denne fil');
   }
 
@@ -55,8 +58,8 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
       throw new HttpsError('invalid-argument', 'Ydelsens id er påkrævet');
     }
 
-    if (!(await serviceExists(targetFileId))) {
-      throw new HttpsError('not-found', 'Ydelsen findes ikke');
+    if (targetFileId.includes('/')) {
+      throw new HttpsError('invalid-argument', 'Ydelsens id er ugyldigt');
     }
   }
 
@@ -228,6 +231,9 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
       timeCreated,
       ...(normalizedRecipe ? { recipe: normalizedRecipe } : {}),
       ...(normalizedReview ? { review: normalizedReview } : {}),
+      ...(uploadIntent.fileType === 'hero'
+        ? { order: existingFile?.order ?? (await getNextHeroImageOrder()) }
+        : {}),
     };
 
     const collectionPath = commonGetFileTypePath(uploadIntent.fileType);
@@ -376,6 +382,81 @@ export const getReviews = createPublicEndpoint(async (req, res) => {
   res.json(reviews);
 });
 
+export const getHeroImages = createPublicEndpoint(async (req, res) => {
+  const snapshot = await heroImageCollection.get();
+  const heroImages = snapshot.docs.map(
+    (heroDoc) => ({ ...(heroDoc.data() as DocumentFile), id: heroDoc.id }) as DocumentFile,
+  );
+
+  res.json(sortHeroImages(heroImages));
+});
+
+export const deleteHeroImage = createAdminEndpoint(async (req, res) => {
+  const id = String((req.body as { id?: unknown } | undefined)?.id ?? '').trim();
+
+  if (!id || id.includes('/')) {
+    throw new HttpsError('invalid-argument', 'Billedets id er påkrævet');
+  }
+
+  const heroDoc = await heroImageCollection.doc(id).get();
+
+  if (!heroDoc.exists) {
+    throw new HttpsError('not-found', 'Billedet findes ikke');
+  }
+
+  const filePath = String((heroDoc.data() as DocumentFile).filePath ?? '').trim();
+
+  if (filePath) {
+    await bucket.file(filePath).delete({ ignoreNotFound: true });
+  }
+
+  await heroDoc.ref.delete();
+
+  res.json({ deleted: true, id });
+});
+
+export const reorderHeroImages = createAdminEndpoint(async (req, res) => {
+  const ids = (req.body as { ids?: unknown } | undefined)?.ids;
+
+  if (!Array.isArray(ids) || ids.some((id) => typeof id !== 'string' || !id.trim())) {
+    throw new HttpsError('invalid-argument', 'Rækkefølgen er ugyldig');
+  }
+
+  const snapshot = await heroImageCollection.get();
+  const existingIds = new Set(snapshot.docs.map((heroDoc) => heroDoc.id));
+
+  if (new Set(ids).size !== ids.length || ids.some((id: string) => !existingIds.has(id))) {
+    throw new HttpsError('invalid-argument', 'Rækkefølgen er ugyldig');
+  }
+
+  const batch = firestore.batch();
+  (ids as string[]).forEach((id, index) => {
+    batch.update(heroImageCollection.doc(id), { order: index });
+  });
+  await batch.commit();
+
+  res.json({ updated: true });
+});
+
+const sortHeroImages = (heroImages: DocumentFile[]): DocumentFile[] =>
+  [...heroImages].sort((a, b) => {
+    const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+    const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+
+    return String(a.timeCreated).localeCompare(String(b.timeCreated));
+  });
+
+const getNextHeroImageOrder = async (): Promise<number> => {
+  const snapshot = await heroImageCollection.get();
+  const orders = snapshot.docs.map((heroDoc) => (heroDoc.data() as DocumentFile).order ?? -1);
+
+  return orders.length ? Math.max(...orders) + 1 : 0;
+};
+
 const getFileInfoFromFirestoreById = async (
   fileId: string,
   fileType: FileType,
@@ -399,25 +480,6 @@ const getFileInfoFromFirestoreById = async (
     folderPath,
     recipe: normalizeRecipe(data.recipe),
   };
-};
-
-const serviceExists = async (serviceId: string): Promise<boolean> => {
-  const servicesSnapshot = await servicesCollection.get();
-
-  return servicesSnapshot.docs.some((serviceDocument) => {
-    const data = serviceDocument.data();
-    if (Array.isArray(data.data)) {
-      return data.data.some(
-        (service: unknown) =>
-          typeof service === 'object' &&
-          service !== null &&
-          'id' in service &&
-          (service as { id?: unknown }).id === serviceId,
-      );
-    }
-
-    return serviceDocument.id === serviceId;
-  });
 };
 
 const normalizeRecipe = (recipe: DocumentFile['recipe']): DocumentFile['recipe'] => {

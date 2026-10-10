@@ -1,0 +1,73 @@
+<button class="admin-open" type="button" (click)="open()">Administrer hero-billeder</button>
+
+<dialog #dialog class="admin-dialog" aria-labelledby="hero-admin-title">
+  <div class="admin-header">
+    <h2 id="hero-admin-title">Hero-billeder</h2>
+    <button type="button" class="secondary" (click)="close()">Luk</button>
+  </div>
+
+  <div class="upload">
+    <label for="hero-upload">Tilføj billeder</label>
+    <input
+      id="hero-upload"
+      type="file"
+      accept="image/*"
+      multiple
+      [disabled]="busy()"
+      (change)="onFilesSelected($event)"
+    />
+  </div>
+
+  <div class="messages" aria-live="polite">
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+    @if (status()) {
+      <p class="status">{{ status() }}</p>
+    }
+  </div>
+
+  @if (items().length === 0) {
+    <p>Der er ingen billeder endnu. Standardbilledet vises.</p>
+  } @else {
+    <ol class="image-list">
+      @for (image of items(); track image.id; let i = $index; let first = $first; let last = $last) {
+        <li>
+          <span class="thumb">
+            <img [ngSrc]="image.fileUrl" fill alt="" />
+          </span>
+          <span class="position">Billede {{ i + 1 }}</span>
+          <span class="actions">
+            <button
+              type="button"
+              class="secondary"
+              [disabled]="busy() || first"
+              [attr.aria-label]="'Flyt billede ' + (i + 1) + ' op'"
+              (click)="move(i, -1)"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              class="secondary"
+              [disabled]="busy() || last"
+              [attr.aria-label]="'Flyt billede ' + (i + 1) + ' ned'"
+              (click)="move(i, 1)"
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              class="danger"
+              [disabled]="busy()"
+              [attr.aria-label]="'Fjern billede ' + (i + 1)"
+              (click)="remove(image)"
+            >
+              Fjern
+            </button>
+          </span>
+        </li>
+      }
+    </ol>
+  }
+</dialog>
