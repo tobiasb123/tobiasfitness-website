@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  padding: calc(var(--page-nav-offset) + 8px) 24px 24px;
+  padding: 8px 24px 24px;
   background-image: linear-gradient(
     135deg,
     rgba(248, 250, 252, 0.95) 0%,
@@ -50,7 +50,7 @@
 @media (max-width: 768px) {
   .admin-shell {
     min-height: auto;
-    padding: calc(var(--page-nav-offset) - 6px) 14px 14px;
+    padding: 14px;
   }
 
   .admin-header {

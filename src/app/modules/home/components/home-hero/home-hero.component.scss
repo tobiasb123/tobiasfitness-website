@@ -8,9 +8,9 @@
   display: flex;
   align-items: center;
   width: calc(100% + 40px);
-  min-height: calc(clamp(540px, 62vw, 720px) + var(--page-nav-offset) + 12px);
+  min-height: calc(clamp(540px, 62vw, 720px) + 12px);
   margin: 0 -20px;
-  padding: calc(72px + var(--page-nav-offset) + 12px) clamp(28px, 8vw, 120px) 72px;
+  padding: 84px clamp(28px, 8vw, 120px) 72px;
   box-sizing: border-box;
   background-color: #123b63;
   isolation: isolate;
@@ -89,7 +89,7 @@
 .hero-admin {
   position: absolute;
   z-index: 1;
-  top: calc(var(--page-nav-offset) + 24px);
+  top: 24px;
   right: 24px;
 }
 
@@ -206,8 +206,8 @@
 
 @media (max-width: 600px) {
   .section-1 {
-    min-height: calc(560px + var(--page-nav-offset) + 12px);
-    padding: calc(48px + var(--page-nav-offset) + 12px) 24px 72px;
+    min-height: 572px;
+    padding: 60px 24px 72px;
   }
 
   .slide {

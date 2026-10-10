@@ -1,1 +1,1 @@
-export type FileType = 'recipe' | 'review' | 'service' | 'hero';
+export type FileType = 'recipe' | 'review' | 'service' | 'hero' | 'site';

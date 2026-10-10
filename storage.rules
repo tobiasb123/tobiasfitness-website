@@ -31,6 +31,16 @@ service firebase.storage {
              && uploadIntent.data.fileName == fileName;
     }
 
+    function hasPendingSiteUpload(uploadIntentId, fileName) {
+      let uploadIntent = firestore.get(
+        /databases/(default)/documents/storage-upload-intents/$(uploadIntentId)
+      );
+      return uploadIntent.data.uid == request.auth.uid
+             && uploadIntent.data.fileType == 'site'
+             && uploadIntent.data.status == 'pending'
+             && uploadIntent.data.fileName == fileName;
+    }
+
     function hasNonEmptyPath(path) {
       return path != '';
     }
@@ -84,6 +94,17 @@ service firebase.storage {
       allow read: if false;
       allow write: if isSignedIn()
                    && hasPendingHeroUpload(uploadIntentId, fileName)
+                   && resource == null
+                   && hasNonEmptyPath(uploadIntentId)
+                   && hasNonEmptyPath(fileName)
+                   && isImageUpload()
+                   && hasMaxSize(25 * 1024 * 1024);
+    }
+
+    match /site-images/pending/{uploadIntentId}/{fileName} {
+      allow read: if false;
+      allow write: if isSignedIn()
+                   && hasPendingSiteUpload(uploadIntentId, fileName)
                    && resource == null
                    && hasNonEmptyPath(uploadIntentId)
                    && hasNonEmptyPath(fileName)

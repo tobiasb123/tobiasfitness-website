@@ -8,7 +8,7 @@
   min-height: 100vh;
   min-height: 100svh;
   box-sizing: border-box;
-  padding: calc(var(--page-nav-offset) + 32px) 24px 64px;
+  padding: 32px 24px 64px;
   background: url('/Forbillede.jpeg') center 42% / cover no-repeat;
 
   &::before {
@@ -172,7 +172,7 @@
 @media (max-width: 600px) {
   .auth-page {
     align-items: flex-start;
-    padding: calc(var(--page-nav-offset) + 24px) 16px 40px;
+    padding: 24px 16px 40px;
     background-position: 58% center;
   }
 }

@@ -70,6 +70,22 @@ export class StorageFunctions {
     return this.startUpload(file, 'hero', { onProgress });
   }
 
+  public uploadSiteImage(
+    file: File,
+    slot: string,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): ResumableUpload {
+    return this.startUpload(file, 'site', { fileId: slot, onProgress });
+  }
+
+  public async getSiteImages(): Promise<DocumentFile[]> {
+    return this.firbaseService.httpGetPublic<DocumentFile[]>('storage-getSiteImages');
+  }
+
+  public async deleteSiteImage(id: string): Promise<void> {
+    await this.firbaseService.httpPost<{ id: string }, void>('storage-deleteSiteImage', { id });
+  }
+
   public async getHeroImages(): Promise<DocumentFile[]> {
     return this.firbaseService.httpGetPublic<DocumentFile[]>('storage-getHeroImages');
   }

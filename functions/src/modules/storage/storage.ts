@@ -22,6 +22,8 @@ const firestore = getFirestore();
 const recipeCollection = firestore.collection('recipes');
 const reviewCollection = firestore.collection('reviews');
 const heroImageCollection = firestore.collection('hero-images');
+const siteImageCollection = firestore.collection('site-images');
+const SITE_IMAGE_SLOTS = ['services', 'about'];
 const storage = getStorage();
 const bucket = storage.bucket();
 const uploadIntentCollection = firestore.collection('storage-upload-intents');
@@ -31,7 +33,10 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   const userProfile = await getUser(user.uid);
 
   if (
-    (input.fileType === 'recipe' || input.fileType === 'service' || input.fileType === 'hero') &&
+    (input.fileType === 'recipe' ||
+      input.fileType === 'service' ||
+      input.fileType === 'hero' ||
+      input.fileType === 'site') &&
     !userProfile.admin
   ) {
     throw new HttpsError('permission-denied', 'Kun administratorer kan uploade denne fil');
@@ -61,6 +66,10 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
     if (targetFileId.includes('/')) {
       throw new HttpsError('invalid-argument', 'Ydelsens id er ugyldigt');
     }
+  }
+
+  if (input.fileType === 'site' && !SITE_IMAGE_SLOTS.includes(targetFileId ?? '')) {
+    throw new HttpsError('invalid-argument', 'Billedpladsen er ugyldig');
   }
 
   if (input.fileType === 'recipe' && normalizedRecipeUid && normalizedRecipeUid !== 'all') {
@@ -170,7 +179,12 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
       ? await getFileInfoFromFirestoreById(uploadIntent.fileId, uploadIntent.fileType)
       : null;
 
-    if (uploadIntent.fileId && !existingFile && uploadIntent.fileType !== 'service') {
+    if (
+      uploadIntent.fileId &&
+      !existingFile &&
+      uploadIntent.fileType !== 'service' &&
+      uploadIntent.fileType !== 'site'
+    ) {
       throw new HttpsError('not-found', 'Opskrift blev ikke fundet');
     }
 
@@ -389,6 +403,39 @@ export const getHeroImages = createPublicEndpoint(async (req, res) => {
   );
 
   res.json(sortHeroImages(heroImages));
+});
+
+export const getSiteImages = createPublicEndpoint(async (req, res) => {
+  const snapshot = await siteImageCollection.get();
+  const siteImages = snapshot.docs.map(
+    (siteDoc) => ({ ...(siteDoc.data() as DocumentFile), id: siteDoc.id }) as DocumentFile,
+  );
+
+  res.json(siteImages);
+});
+
+export const deleteSiteImage = createAdminEndpoint(async (req, res) => {
+  const id = String((req.body as { id?: unknown } | undefined)?.id ?? '').trim();
+
+  if (!SITE_IMAGE_SLOTS.includes(id)) {
+    throw new HttpsError('invalid-argument', 'Billedpladsen er ugyldig');
+  }
+
+  const siteDoc = await siteImageCollection.doc(id).get();
+
+  if (!siteDoc.exists) {
+    throw new HttpsError('not-found', 'Billedet findes ikke');
+  }
+
+  const filePath = String((siteDoc.data() as DocumentFile).filePath ?? '').trim();
+
+  if (filePath) {
+    await bucket.file(filePath).delete({ ignoreNotFound: true });
+  }
+
+  await siteDoc.ref.delete();
+
+  res.json({ deleted: true, id });
 });
 
 export const deleteHeroImage = createAdminEndpoint(async (req, res) => {

@@ -3,10 +3,12 @@
     [images]="heroImages()"
     [loading]="heroImagesLoading()"
     [isAdmin]="!!userProfile?.admin"
+    [servicesImage]="servicesImage()"
+    [aboutImage]="aboutImage()"
     (imagesChanged)="loadHeroImages()"
   ></app-home-hero>
   <app-home-process></app-home-process>
-  <app-home-intro></app-home-intro>
+  <app-home-intro [servicesImage]="servicesImage()" [aboutImage]="aboutImage()"></app-home-intro>
   <app-home-reviews
     [reviews]="reviews()"
     [loading]="reviewsLoading()"

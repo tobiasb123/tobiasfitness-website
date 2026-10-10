@@ -46,6 +46,8 @@
     <app-home-hero-admin
       class="hero-admin"
       [images]="images()"
+      [servicesImage]="servicesImage()"
+      [aboutImage]="aboutImage()"
       (changed)="imagesChanged.emit()"
     ></app-home-hero-admin>
   }

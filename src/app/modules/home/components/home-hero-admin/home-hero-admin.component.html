@@ -31,7 +31,13 @@
     <p>Der er ingen billeder endnu. Standardbilledet vises.</p>
   } @else {
     <ol class="image-list">
-      @for (image of items(); track image.id; let i = $index; let first = $first; let last = $last) {
+      @for (
+        image of items();
+        track image.id;
+        let i = $index;
+        let first = $first;
+        let last = $last
+      ) {
         <li>
           <span class="thumb">
             <img [ngSrc]="image.fileUrl" fill alt="" />
@@ -69,5 +75,40 @@
         </li>
       }
     </ol>
+  }
+
+  @for (slot of siteSlots(); track slot.id) {
+    <section class="services-image" [attr.aria-labelledby]="slot.id + '-image-title'">
+      <h3 [id]="slot.id + '-image-title'">{{ slot.title }}</h3>
+      <div class="services-row">
+        <span class="thumb">
+          <img [ngSrc]="slot.image?.fileUrl ?? slot.fallback" fill alt="" />
+        </span>
+        <span class="position">{{ slot.image ? 'Eget billede' : 'Standardbillede' }}</span>
+        @if (slot.image) {
+          <button
+            type="button"
+            class="danger"
+            [disabled]="busy()"
+            [attr.aria-label]="'Fjern billede: ' + slot.title"
+            (click)="removeSiteImage(slot.id)"
+          >
+            Fjern
+          </button>
+        }
+      </div>
+      <div class="upload">
+        <label [for]="slot.id + '-upload'">{{
+          slot.image ? 'Skift billede' : 'Upload billede'
+        }}</label>
+        <input
+          [id]="slot.id + '-upload'"
+          type="file"
+          accept="image/*"
+          [disabled]="busy()"
+          (change)="onSiteImageSelected($event, slot.id)"
+        />
+      </div>
+    </section>
   }
 </dialog>

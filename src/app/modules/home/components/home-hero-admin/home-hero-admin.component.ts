@@ -2,6 +2,7 @@ import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   ElementRef,
   inject,
@@ -27,7 +28,24 @@ export class HomeHeroAdminComponent {
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
   readonly images = input.required<DocumentFile[]>();
+  readonly servicesImage = input<DocumentFile | null>(null);
+  readonly aboutImage = input<DocumentFile | null>(null);
   readonly changed = output<void>();
+
+  readonly siteSlots = computed(() => [
+    {
+      id: 'about',
+      title: 'Billede til "Om mig"',
+      image: this.aboutImage(),
+      fallback: 'Forbillede.jpeg',
+    },
+    {
+      id: 'services',
+      title: 'Billede til "Hvad kan jeg hjælpe dig med?"',
+      image: this.servicesImage(),
+      fallback: 'GymBackground.jpg',
+    },
+  ]);
 
   readonly items = signal<DocumentFile[]>([]);
   readonly busy = signal(false);
@@ -84,6 +102,55 @@ export class HomeHeroAdminComponent {
       if (uploaded > 0) {
         this.changed.emit();
       }
+    }
+  }
+
+  async onSiteImageSelected(event: Event, slot: string): Promise<void> {
+    const input = event.target;
+    const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined;
+    if (!(input instanceof HTMLInputElement) || !file) {
+      return;
+    }
+
+    input.value = '';
+    this.error.set('');
+
+    if (!file.type.startsWith('image/') || file.size > MAX_IMAGE_SIZE_BYTES) {
+      this.error.set(`"${file.name}" skal være et billede på maks. 25 MB.`);
+      return;
+    }
+
+    this.busy.set(true);
+    this.status.set('Uploader billede…');
+
+    try {
+      await this.storageFunctions.uploadSiteImage(file, slot).promise;
+      this.status.set('Billedet er opdateret.');
+      this.changed.emit();
+    } catch {
+      this.error.set('Upload fejlede. Prøv igen.');
+      this.status.set('');
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  async removeSiteImage(slot: string): Promise<void> {
+    if (this.busy() || !window.confirm('Vil du fjerne dette billede?')) {
+      return;
+    }
+
+    this.busy.set(true);
+    this.error.set('');
+
+    try {
+      await this.storageFunctions.deleteSiteImage(slot);
+      this.status.set('Billedet er fjernet.');
+      this.changed.emit();
+    } catch {
+      this.error.set('Billedet kunne ikke fjernes.');
+    } finally {
+      this.busy.set(false);
     }
   }
 

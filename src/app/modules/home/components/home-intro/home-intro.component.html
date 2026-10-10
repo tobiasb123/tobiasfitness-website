@@ -13,13 +13,17 @@
       </p>
     </div>
     <div class="info-media">
-      <img ngSrc="Forbillede.jpeg" fill alt="Tobias foran en trævæg" />
+      <img [ngSrc]="aboutImage()?.fileUrl ?? 'Forbillede.jpeg'" fill alt="Tobias foran en trævæg" />
     </div>
   </article>
 
   <article #infoBox class="my-services info-box info-box-reversed">
     <div class="info-media services-media">
-      <img ngSrc="GymBackground.jpg" fill alt="Træningsmiljø i et fitnesscenter" />
+      <img
+        [ngSrc]="servicesImage()?.fileUrl ?? 'GymBackground.jpg'"
+        fill
+        alt="Træningsmiljø i et fitnesscenter"
+      />
     </div>
     <div class="info-copy">
       <p class="eyebrow">Et forløb til din hverdag</p>

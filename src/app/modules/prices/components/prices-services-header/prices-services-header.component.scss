@@ -9,9 +9,9 @@
   align-items: center;
   justify-content: center;
   width: calc(100% + 40px);
-  min-height: calc(clamp(320px, 32vw, 420px) + var(--page-nav-offset) + 12px);
+  min-height: calc(clamp(320px, 32vw, 420px) + 12px);
   margin: 0 -20px;
-  padding: calc(56px + var(--page-nav-offset) + 12px) clamp(28px, 8vw, 120px) 56px;
+  padding: 68px clamp(28px, 8vw, 120px) 56px;
   box-sizing: border-box;
   background-image: url('../../../../../../public/GymBackground.jpg');
   background-repeat: no-repeat;

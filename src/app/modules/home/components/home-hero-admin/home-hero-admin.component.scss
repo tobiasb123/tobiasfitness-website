@@ -102,6 +102,23 @@ button {
   }
 }
 
+.services-image {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+
+  h3 {
+    margin: 0 0 12px;
+  }
+}
+
+.services-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .thumb {
   position: relative;
   flex: 0 0 96px;

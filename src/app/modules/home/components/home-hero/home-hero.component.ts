@@ -34,6 +34,8 @@ export class HomeHeroComponent {
   readonly images = input<DocumentFile[]>([]);
   readonly loading = input(false);
   readonly isAdmin = input(false);
+  readonly servicesImage = input<DocumentFile | null>(null);
+  readonly aboutImage = input<DocumentFile | null>(null);
   readonly imagesChanged = output<void>();
 
   readonly userPaused = signal(false);

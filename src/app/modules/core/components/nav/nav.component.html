@@ -1,4 +1,4 @@
-<header class="nav-shell" [class.menu-open]="menuOpen()" [class.nav-hidden]="navHidden()">
+<header class="nav-shell" [class.menu-open]="menuOpen()">
   <div class="nav-bar">
     <a class="brand-link" routerLink="/" (click)="closeNav()">
       <span class="brand-mark">TB</span>
@@ -49,7 +49,7 @@
         class="menu-button"
         type="button"
         [attr.aria-expanded]="menuOpen()"
-        aria-label="Toggle navigation"
+        [attr.aria-label]="menuOpen() ? 'Luk navigation' : 'Åbn navigation'"
         (click)="toggleMenu()"
       >
         <span></span>
@@ -84,17 +84,6 @@
     </div>
   </nav>
 
-  <button
-    class="nav-toggle"
-    [class.menu-open]="menuOpen()"
-    [class.nav-hidden]="navHidden()"
-    type="button"
-    [attr.aria-expanded]="!navHidden()"
-    [attr.aria-label]="navHidden() ? 'Vis navigation' : 'Skjul navigation'"
-    (click)="toggleNavVisibility()"
-  >
-    {{ navHidden() ? 'Vis navigation ▼' : 'Skjul navigation ▲' }}
-  </button>
 </header>
 
 <div class="screen-clear" [class.open]="menuOpen()" (click)="closeNav()"></div>

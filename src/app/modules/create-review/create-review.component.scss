@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   min-height: calc(100dvh - 80px);
-  padding: calc(var(--page-nav-offset) + 8px) 16px 32px;
+  padding: 8px 16px 32px;
   box-sizing: border-box;
   background: linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(226, 232, 240, 0.95) 100%);
 }

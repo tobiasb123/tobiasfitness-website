@@ -28,6 +28,8 @@ export class HomeComponent implements OnInit {
   reviews = signal<HomeReview[]>([]);
   heroImages = signal<DocumentFile[]>([]);
   heroImagesLoading = signal(true);
+  servicesImage = signal<DocumentFile | null>(null);
+  aboutImage = signal<DocumentFile | null>(null);
   reviewsLoading = signal(true);
   reviewsLoadFailed = signal(false);
   hasReviews = signal(false);
@@ -39,12 +41,24 @@ export class HomeComponent implements OnInit {
   }
 
   async loadHeroImages(): Promise<void> {
+    void this.loadSiteImages();
     try {
       this.heroImages.set(await this.storageFunctions.getHeroImages());
     } catch {
       this.heroImages.set([]);
     } finally {
       this.heroImagesLoading.set(false);
+    }
+  }
+
+  private async loadSiteImages(): Promise<void> {
+    try {
+      const siteImages = await this.storageFunctions.getSiteImages();
+      this.servicesImage.set(siteImages.find((image) => image.id === 'services') ?? null);
+      this.aboutImage.set(siteImages.find((image) => image.id === 'about') ?? null);
+    } catch {
+      this.servicesImage.set(null);
+      this.aboutImage.set(null);
     }
   }
 
