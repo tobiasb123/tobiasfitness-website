@@ -5,12 +5,13 @@ import {
   FileType,
   FinalizeUploadInput,
 } from '@models/storage';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import { HttpsError } from 'firebase-functions/https';
 import moment from 'moment-timezone';
 import { createAdminEndpoint, createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
 import { getUser } from '../auth/common/auth.common';
+import { commonNormalizeExercise } from './common/exercise.common';
 import { commonGetFileNameFromPath, commonGetFileTypePath } from './common/storage-path.common';
 import { commonNormalizeFileName, commonValidateIntentContentType } from './common/storage.common';
 import { UploadIntentDocument } from './interfaces/upload-intent-document.interface';
@@ -22,11 +23,51 @@ const firestore = getFirestore();
 const recipeCollection = firestore.collection('recipes');
 const reviewCollection = firestore.collection('reviews');
 const heroImageCollection = firestore.collection('hero-images');
+const exerciseCollection = firestore.collection('exercise-library');
 const siteImageCollection = firestore.collection('site-images');
 const SITE_IMAGE_SLOTS = ['services', 'about'];
 const storage = getStorage();
 const bucket = storage.bucket();
 const uploadIntentCollection = firestore.collection('storage-upload-intents');
+
+interface RecipeReceivers {
+  uid: string;
+  recipeUids?: string[];
+}
+
+function normalizeRecipeReceivers(
+  uid: string | undefined,
+  uids: string[] | undefined,
+): RecipeReceivers | undefined {
+  const requested = Array.isArray(uids) ? uids : uid ? [uid] : [];
+  const cleaned = [
+    ...new Set(
+      requested.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean),
+    ),
+  ];
+
+  if (!cleaned.length) {
+    return undefined;
+  }
+
+  if (cleaned.includes('all')) {
+    return { uid: 'all' };
+  }
+
+  return { uid: cleaned[0], recipeUids: cleaned };
+}
+
+async function validateRecipeReceivers(receivers: RecipeReceivers): Promise<void> {
+  const uids = receivers.recipeUids ?? (receivers.uid === 'all' ? [] : [receivers.uid]);
+
+  await Promise.all(
+    uids.map((receiverUid) =>
+      getUser(receiverUid).catch(() => {
+        throw new HttpsError('invalid-argument', 'Brugeren blev ikke fundet');
+      }),
+    ),
+  );
+}
 
 export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   const input = req.body as CreateUploadIntentInput;
@@ -36,6 +77,7 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
     (input.fileType === 'recipe' ||
       input.fileType === 'service' ||
       input.fileType === 'hero' ||
+      input.fileType === 'exercise' ||
       input.fileType === 'site') &&
     !userProfile.admin
   ) {
@@ -56,7 +98,8 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   const uploadIntentRef = uploadIntentCollection.doc();
   const fileRootPath = commonGetFileTypePath(input.fileType);
   const targetFileId = input.fileId?.trim();
-  const normalizedRecipeUid = input.uid?.trim();
+  const recipeReceivers =
+    input.fileType === 'recipe' ? normalizeRecipeReceivers(input.uid, input.recipeUids) : undefined;
 
   if (input.fileType === 'service') {
     if (!targetFileId) {
@@ -72,17 +115,24 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
     throw new HttpsError('invalid-argument', 'Billedpladsen er ugyldig');
   }
 
-  if (input.fileType === 'recipe' && normalizedRecipeUid && normalizedRecipeUid !== 'all') {
-    await getUser(normalizedRecipeUid).catch(() => {
-      throw new HttpsError('invalid-argument', 'Brugeren blev ikke fundet');
-    });
+  if (recipeReceivers) {
+    await validateRecipeReceivers(recipeReceivers);
   }
 
-  if (input.fileType === 'recipe' && targetFileId) {
+  if ((input.fileType === 'recipe' || input.fileType === 'exercise') && targetFileId) {
     const existingRecipe = await getFileInfoFromFirestoreById(targetFileId, input.fileType);
 
     if (!existingRecipe) {
-      throw new HttpsError('not-found', 'Opskrift blev ikke fundet');
+      throw new HttpsError(
+        'not-found',
+        input.fileType === 'exercise' ? 'Øvelse blev ikke fundet' : 'Opskrift blev ikke fundet',
+      );
+    }
+  }
+
+  if (input.fileType === 'exercise') {
+    if (!commonNormalizeExercise(input.exercise)) {
+      throw new HttpsError('invalid-argument', 'Øvelsens oplysninger er påkrævet');
     }
   }
 
@@ -107,12 +157,20 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
     uploadIntentData.fileId = targetFileId;
   }
 
-  if (normalizedRecipeUid) {
-    uploadIntentData.recipeUid = normalizedRecipeUid;
+  if (recipeReceivers) {
+    uploadIntentData.recipeUid = recipeReceivers.uid;
+
+    if (recipeReceivers.recipeUids) {
+      uploadIntentData.recipeUids = recipeReceivers.recipeUids;
+    }
   }
 
   if (input.recipe) {
     uploadIntentData.recipe = input.recipe;
+  }
+
+  if (input.exercise) {
+    uploadIntentData.exercise = commonNormalizeExercise(input.exercise);
   }
 
   if (input.review) {
@@ -235,6 +293,9 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
       moment(storageMetadata.timeCreated).tz('Europe/Copenhagen').toString();
     const normalizedRecipe = normalizeRecipe(uploadIntent.recipe ?? existingFile?.recipe);
     const normalizedReview = uploadIntent.review ?? existingFile?.review;
+    const normalizedExercise = commonNormalizeExercise(
+      uploadIntent.exercise ?? existingFile?.exercise,
+    );
     const fileData: Omit<DocumentFile, 'id' | 'fileType' | 'fileName' | 'folderPath'> = {
       filePath: activeFile.name,
       fileUrl,
@@ -242,9 +303,19 @@ export const finalizeUpload = createAuthEndpoint(async (req, res, user) => {
         uploadIntent.fileType === 'recipe'
           ? (uploadIntent.recipeUid ?? existingFile?.uid ?? 'all')
           : (existingFile?.uid ?? user.uid),
+      ...(uploadIntent.fileType === 'recipe'
+        ? uploadIntent.recipeUid
+          ? uploadIntent.recipeUids
+            ? { recipeUids: uploadIntent.recipeUids }
+            : {}
+          : existingFile?.recipeUids
+            ? { recipeUids: existingFile.recipeUids }
+            : {}
+        : {}),
       timeCreated,
       ...(normalizedRecipe ? { recipe: normalizedRecipe } : {}),
       ...(normalizedReview ? { review: normalizedReview } : {}),
+      ...(normalizedExercise ? { exercise: normalizedExercise } : {}),
       ...(uploadIntent.fileType === 'hero'
         ? { order: existingFile?.order ?? (await getNextHeroImageOrder()) }
         : {}),
@@ -307,17 +378,13 @@ export const getRecipes = createAuthEndpoint(async (req, res) => {
 export const editRecipe = createAdminEndpoint(async (req, res) => {
   const data = req.body as DocumentFile;
   const recipeDoc = await recipeCollection.doc(data.id).get();
-  const normalizedRecipeUid = data.uid?.trim();
+  const receivers = normalizeRecipeReceivers(data.uid, data.recipeUids);
 
-  if (!normalizedRecipeUid) {
+  if (!receivers) {
     throw new HttpsError('invalid-argument', 'Modtageren er påkrævet');
   }
 
-  if (normalizedRecipeUid !== 'all') {
-    await getUser(normalizedRecipeUid).catch(() => {
-      throw new HttpsError('invalid-argument', 'Brugeren blev ikke fundet');
-    });
-  }
+  await validateRecipeReceivers(receivers);
 
   if (!recipeDoc.exists) {
     throw new HttpsError('not-found', 'Opskrift findes ikke');
@@ -325,7 +392,8 @@ export const editRecipe = createAdminEndpoint(async (req, res) => {
 
   await recipeDoc.ref
     .update({
-      uid: normalizedRecipeUid,
+      uid: receivers.uid,
+      recipeUids: receivers.recipeUids ?? FieldValue.delete(),
       recipe: normalizeRecipe(data.recipe),
     })
     .catch(() => {
@@ -373,6 +441,75 @@ export const deleteRecipe = createAdminEndpoint(async (req, res) => {
   await recipeDoc.ref.delete().catch(() => {
     throw new HttpsError('internal', 'Opskrift kunne ikke slettes');
   });
+
+  res.json({ deleted: true, id });
+});
+
+export const getExercises = createAdminEndpoint(async (req, res) => {
+  const snapshot = await exerciseCollection.get();
+  const exercises = snapshot.docs.map((exerciseDoc) => {
+    const data = exerciseDoc.data() as DocumentFile;
+
+    return {
+      ...data,
+      id: exerciseDoc.id,
+      fileType: 'exercise',
+      fileName: commonGetFileNameFromPath(data.filePath, 'exercise'),
+      folderPath: 'exercise-library',
+    } as DocumentFile;
+  });
+
+  res.json(exercises);
+});
+
+export const editExercise = createAdminEndpoint(async (req, res) => {
+  const data = req.body as DocumentFile;
+  const exercise = commonNormalizeExercise(data.exercise);
+
+  if (!data.id || !exercise) {
+    throw new HttpsError('invalid-argument', 'Øvelsens oplysninger er påkrævet');
+  }
+
+  const exerciseDoc = await exerciseCollection.doc(data.id).get();
+
+  if (!exerciseDoc.exists) {
+    throw new HttpsError('not-found', 'Øvelse blev ikke fundet');
+  }
+
+  await exerciseDoc.ref.update({ exercise });
+
+  res.json();
+});
+
+export const deleteExercise = createAdminEndpoint(async (req, res) => {
+  const id = String((req.body as { id?: unknown } | undefined)?.id ?? '').trim();
+
+  if (!id || id.includes('/')) {
+    throw new HttpsError('invalid-argument', 'Øvelsens id er påkrævet');
+  }
+
+  const exerciseDoc = await exerciseCollection.doc(id).get();
+
+  if (!exerciseDoc.exists) {
+    throw new HttpsError('not-found', 'Øvelse blev ikke fundet');
+  }
+
+  const exercise = exerciseDoc.data() as DocumentFile;
+  const filePath = String(exercise.filePath ?? '').trim();
+
+  // Programs hold a copy of the image url, so keep the file while a program still uses it
+  const programsSnapshot = await firestore.collection('training-programs').get();
+  const imageInUse = programsSnapshot.docs.some((programDoc) =>
+    ((programDoc.data().exercises ?? []) as { imageUrl?: string }[]).some(
+      (programExercise) => programExercise.imageUrl === exercise.fileUrl,
+    ),
+  );
+
+  if (filePath && !imageInUse) {
+    await bucket.file(filePath).delete({ ignoreNotFound: true });
+  }
+
+  await exerciseDoc.ref.delete();
 
   res.json({ deleted: true, id });
 });

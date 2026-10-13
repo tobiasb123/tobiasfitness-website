@@ -53,7 +53,9 @@ export class NavComponent {
 
   handlePrimaryNavigation(route: RouteExt): void {
     if (
-      (route.displayName === 'Bestil Tid' || route.displayName === 'Opskrifter') &&
+      (route.displayName === 'Bestil Tid' ||
+        route.displayName === 'Opskrifter' ||
+        route.displayName === 'Træningsprogram') &&
       !this.isLoggedIn()
     ) {
       this.router.navigate(['signin']);

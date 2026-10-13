@@ -2,8 +2,16 @@ import { FileType } from '@models/storage';
 
 export const commonGetFileTypePath = (
   fileType: FileType,
-): 'recipes' | 'reviews' | 'service-images' | 'hero-images' | 'site-images' => {
+):
+  | 'recipes'
+  | 'reviews'
+  | 'service-images'
+  | 'hero-images'
+  | 'site-images'
+  | 'exercise-library' => {
   switch (fileType) {
+    case 'exercise':
+      return 'exercise-library';
     case 'site':
       return 'site-images';
     case 'hero':

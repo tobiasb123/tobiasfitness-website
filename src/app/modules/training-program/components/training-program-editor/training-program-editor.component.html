@@ -1,0 +1,267 @@
+<section class="panel" aria-labelledby="editor-title">
+  <h2 id="editor-title">Programmer</h2>
+
+  <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+    <h3>{{ editingId() ? 'Ret program' : 'Nyt program' }}</h3>
+
+    <div class="row">
+      <div class="field">
+        <label for="tp-user">Tildelt bruger</label>
+        <select id="tp-user" formControlName="assignedToUid" (change)="onUserChosen()">
+          <option value="" disabled>Vælg bruger</option>
+          @for (user of sortedUsers(); track user.uid) {
+            <option [value]="user.uid">{{ user.firstName }} {{ user.lastName }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="tp-title">Titel</label>
+        <input id="tp-title" type="text" formControlName="title" />
+      </div>
+      <div class="field">
+        <label for="tp-status">Status</label>
+        <select id="tp-status" formControlName="status">
+          <option value="active">Aktiv</option>
+          <option value="archived">Arkiveret</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="tp-client">Navn</label>
+        <input id="tp-client" type="text" formControlName="clientName" />
+      </div>
+      <div class="field">
+        <label for="tp-start">Startdato</label>
+        <input id="tp-start" type="date" formControlName="startDate" />
+      </div>
+      <div class="field">
+        <label for="tp-end">Slutdato</label>
+        <input id="tp-end" type="date" formControlName="endDate" />
+      </div>
+    </div>
+
+    <div class="row two">
+      <div class="field">
+        <label for="tp-injuries">Skader/Skavanker</label>
+        <textarea id="tp-injuries" rows="3" formControlName="injuries"></textarea>
+      </div>
+      <div class="field">
+        <label for="tp-goal">Mål</label>
+        <textarea id="tp-goal" rows="3" formControlName="goal"></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="tp-time">Tid</label>
+        <input id="tp-time" type="text" formControlName="sessionTime" />
+      </div>
+      <div class="field">
+        <label for="tp-tempo">Tempo</label>
+        <input id="tp-tempo" type="text" formControlName="tempo" />
+      </div>
+      <div class="field">
+        <label for="tp-rest">Pause</label>
+        <input id="tp-rest" type="text" formControlName="rest" />
+      </div>
+    </div>
+
+    <h3>Øvelser</h3>
+
+    <div class="picker">
+      <button type="button" class="btn primary" (click)="openPicker()">
+        Vælg øvelser fra bibliotek
+      </button>
+    </div>
+
+    <div formArrayName="exercises" class="exercise-list">
+      @for (option of sectionOptions; track option.value) {
+        <h4 class="section-title">{{ option.label }}</h4>
+
+        @for (group of exercises.controls; track group.controls.id.value; let i = $index) {
+          @if (group.controls.section.value === option.value) {
+            <fieldset class="exercise" [formGroupName]="i">
+              <legend>{{ group.controls.name.value }}</legend>
+
+              <div class="exercise-body">
+                @if (group.controls.imageUrl.value) {
+                  <img [src]="group.controls.imageUrl.value" [alt]="group.controls.name.value" />
+                }
+                <div class="exercise-fields">
+                  <div class="field">
+                    <label [for]="'ex-expl-' + i">Forklaring</label>
+                    <textarea [id]="'ex-expl-' + i" rows="3" formControlName="explanation"></textarea>
+                  </div>
+                  <div class="row">
+                    <div class="field">
+                      <label [for]="'ex-reps-' + i">Reps/Tid</label>
+                      <input [id]="'ex-reps-' + i" type="text" formControlName="reps" />
+                    </div>
+                    <div class="field">
+                      <label [for]="'ex-sets-' + i">Sæt</label>
+                      <input [id]="'ex-sets-' + i" type="number" min="1" formControlName="sets" />
+                    </div>
+                    <div class="field">
+                      <label [for]="'ex-int-' + i">Intensitet</label>
+                      <input [id]="'ex-int-' + i" type="text" formControlName="intensity" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label [for]="'ex-date-' + i">Vægt sidst opdateret</label>
+                    <input [id]="'ex-date-' + i" type="date" formControlName="weightDate" />
+                  </div>
+                  <div class="field">
+                    <label [for]="'ex-sec-' + i">Afsnit</label>
+                    <select [id]="'ex-sec-' + i" formControlName="section">
+                      @for (item of sectionOptions; track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button
+                  type="button"
+                  class="btn"
+                  [disabled]="isFirstInSection(i)"
+                  [attr.aria-label]="'Flyt ' + group.controls.name.value + ' op'"
+                  (click)="moveExercise(i, -1)"
+                >
+                  ↑ Op
+                </button>
+                <button
+                  type="button"
+                  class="btn"
+                  [disabled]="isLastInSection(i)"
+                  [attr.aria-label]="'Flyt ' + group.controls.name.value + ' ned'"
+                  (click)="moveExercise(i, 1)"
+                >
+                  ↓ Ned
+                </button>
+                <button type="button" class="btn danger" (click)="removeExercise(i)">Fjern</button>
+              </div>
+            </fieldset>
+          }
+        }
+      }
+
+      @if (exercises.length === 0) {
+        <p>Ingen øvelser tilføjet endnu.</p>
+      }
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn primary" [disabled]="saving()">
+        {{ saving() ? 'Gemmer…' : editingId() ? 'Gem ændringer' : 'Opret program' }}
+      </button>
+      @if (editingId()) {
+        <button type="button" class="btn" (click)="resetForm()">Annuller</button>
+      }
+    </div>
+  </form>
+
+  <h3>Alle programmer</h3>
+
+  @if (loading()) {
+    <p>Henter programmer…</p>
+  } @else if (programs().length === 0) {
+    <p>Ingen programmer oprettet endnu.</p>
+  } @else {
+    <ul class="list">
+      @for (program of programs(); track program.id) {
+        <li class="item">
+          <div class="meta">
+            <strong>{{ program.title }}</strong>
+            <span>
+              {{ userName(program.assignedToUid) }} ·
+              {{ program.status === 'active' ? 'Aktiv' : 'Arkiveret' }} ·
+              {{ program.exercises.length }} øvelser
+            </span>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn" (click)="edit(program)">Ret</button>
+            <button type="button" class="btn danger" (click)="remove(program)">Slet</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+@if (pickerOpen()) {
+  <div class="backdrop" (click)="closePicker()" (keydown.escape)="closePicker()">
+    <div
+      class="dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="picker-title"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="closePicker()"
+    >
+      <h3 id="picker-title">Øvelsesbibliotek</h3>
+
+      <div class="field">
+        <label for="picker-section">Tilføj til afsnit</label>
+        <select
+          id="picker-section"
+          [value]="pickerSection()"
+          (change)="pickerSection.set($any($event.target).value)"
+        >
+          @for (item of sectionOptions; track item.value) {
+            <option [value]="item.value" [selected]="item.value === pickerSection()">
+              {{ item.label }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="picker-search">Søg</label>
+        <input
+          id="picker-search"
+          type="search"
+          [value]="pickerSearch()"
+          (input)="pickerSearch.set($any($event.target).value)"
+        />
+      </div>
+
+      <ul class="picker-list">
+        @for (item of filteredLibrary(); track item.id) {
+          <li>
+            <label class="picker-item">
+              <input
+                type="checkbox"
+                [checked]="selectedIds().includes(item.id)"
+                (change)="toggleSelected(item.id)"
+              />
+              <img [src]="item.fileUrl" alt="" loading="lazy" />
+              <span class="meta">
+                <strong>{{ item.exercise?.name }}</strong>
+                <span>{{ item.exercise?.reps }} · {{ item.exercise?.sets }} sæt</span>
+              </span>
+            </label>
+          </li>
+        } @empty {
+          <li>Ingen øvelser fundet.</li>
+        }
+      </ul>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="btn primary"
+          [disabled]="selectedIds().length === 0"
+          (click)="addFromLibrary()"
+        >
+          Tilføj valgte ({{ selectedIds().length }})
+        </button>
+        <button type="button" class="btn" (click)="closePicker()">Annuller</button>
+      </div>
+    </div>
+  </div>
+}

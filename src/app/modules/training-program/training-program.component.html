@@ -1,0 +1,139 @@
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Træning</p>
+    <h1>Træningsprogram</h1>
+    <p class="lead">Dine personlige træningsprogrammer. Opdater dine vægte, og hent programmet som billede.</p>
+  </div>
+</section>
+
+<main class="content">
+  @if (isAdmin()) {
+    <div class="tabs" role="tablist" aria-label="Visning">
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'mine'" (click)="showTab('mine')">
+        Mine programmer
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab() === 'programs'"
+        (click)="showTab('programs')"
+      >
+        Administrer programmer
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab() === 'library'"
+        (click)="showTab('library')"
+      >
+        Øvelsesbibliotek
+      </button>
+    </div>
+  }
+
+  @if (isAdmin() && tab() === 'programs') {
+    <app-training-program-editor [users]="users()" />
+  } @else if (isAdmin() && tab() === 'library') {
+    <app-training-library />
+  } @else {
+    @if (loading()) {
+      <p class="state">Henter dine træningsprogrammer…</p>
+    } @else if (error()) {
+      <p class="state error" role="alert">{{ error() }}</p>
+    } @else if (programs().length === 0) {
+      <p class="state">Du har ikke fået tildelt et træningsprogram endnu.</p>
+    } @else if (selected(); as program) {
+      <div class="toolbar">
+        <button type="button" class="toggle-all" (click)="selectedId.set(null)">
+          ← Alle programmer
+        </button>
+        <button type="button" class="download" [disabled]="exporting()" (click)="createPng()">
+          {{ exporting() ? 'Opretter billede…' : 'Download som PNG' }}
+        </button>
+      </div>
+
+      <app-training-sheet
+        [program]="program"
+        [editable]="isOwn(program)"
+        [savingExerciseId]="savingExerciseId()"
+        (weightChange)="saveWeight($event)"
+      />
+    } @else {
+      <div class="toolbar">
+        @if (isAdmin()) {
+          <button
+            type="button"
+            class="toggle-all"
+            [attr.aria-pressed]="showAll()"
+            (click)="toggleAllPrograms()"
+          >
+            {{ showAll() ? 'Vis kun mine' : 'Vis alle programmer' }}
+          </button>
+        }
+
+        @if (archivedCount() > 0) {
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [checked]="showArchived()"
+              (change)="showArchived.set($any($event.target).checked)"
+            />
+            Vis arkiverede ({{ archivedCount() }})
+          </label>
+        }
+      </div>
+
+      @if (visiblePrograms().length === 0) {
+        <p class="state">Ingen aktive programmer. Vis arkiverede for at se ældre programmer.</p>
+      } @else {
+        <ul class="grid">
+          @for (program of visiblePrograms(); track program.id) {
+            <li>
+              <button type="button" class="card" (click)="selectedId.set(program.id)">
+                <span class="card-title">{{ program.title }}</span>
+                @if (showAll()) {
+                  <span class="card-owner">{{ ownerName(program) }}</span>
+                }
+                <span class="card-meta">{{ program.exercises.length }} øvelser</span>
+                <span class="card-meta">Opdateret {{ formatDate(program.updatedAt) }}</span>
+                @if (program.status === 'archived') {
+                  <span class="badge">Arkiveret</span>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</main>
+
+@if (exportProgram(); as program) {
+  <div class="export-stage" aria-hidden="true">
+    <div #exportHost class="export-host">
+      <app-training-sheet [program]="program" [images]="exportImages()" [editable]="false" />
+    </div>
+  </div>
+}
+
+@if (previewUrl(); as url) {
+  <div class="modal-backdrop" (click)="closePreview()" (keydown.escape)="closePreview()">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Forhåndsvisning af træningsprogram"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="closePreview()"
+    >
+      <img [src]="url" alt="Træningsprogram som billede" />
+      <div class="modal-actions">
+        @if (selected(); as program) {
+          <a class="download" [href]="url" [download]="fileName(program)">Download</a>
+        }
+        <button type="button" class="close" (click)="closePreview()">Luk</button>
+      </div>
+    </div>
+  </div>
+}

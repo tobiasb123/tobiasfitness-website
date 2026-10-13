@@ -26,6 +26,7 @@ import { MealPrepHeaderComponent } from './components/meal-prep-header/meal-prep
 import { MealPrepViewComponent } from './components/meal-prep-view/meal-prep-view.component';
 import { ResumableUpload, StorageFunctions } from './services/storage-functions.service';
 import { RecipesFacade } from './store/recipes.facade';
+import { isRecipeForUser } from './utils/recipe-receivers.util';
 
 @Component({
   selector: 'app-meal-prep',
@@ -130,7 +131,7 @@ export class MealPrepComponent implements OnInit, OnDestroy {
       this.activeUpload = this.storageService.saveRecipe(
         payload.file,
         payload.recipe,
-        payload.receiverUid,
+        payload.receiverUids,
         (snapshot) => this.handleUploadProgress(snapshot),
       );
 
@@ -250,7 +251,9 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   private setRecipeCollections(recipes: DocumentFile[]): void {
     const allRecipies = recipes.filter((recipe) => recipe.uid === 'all');
     const userUid = this.userProfile()?.uid;
-    const userRecipies = userUid ? recipes.filter((recipe) => recipe.uid === userUid) : [];
+    const userRecipies = userUid
+      ? recipes.filter((recipe) => recipe.uid !== 'all' && isRecipeForUser(recipe, userUid))
+      : [];
 
     this.recipies.set(this.formatRecipes(allRecipies));
     this.yourRecipies.set(this.formatRecipes(userRecipies));

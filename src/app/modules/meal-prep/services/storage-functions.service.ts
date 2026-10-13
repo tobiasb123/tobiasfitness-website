@@ -3,6 +3,7 @@ import {
   CreateUploadIntentInput,
   CreateUploadIntentReturn,
   DocumentFile,
+  ExerciseTemplate,
   FileType,
   FinalizeUploadInput,
   Recipe,
@@ -18,6 +19,7 @@ import {
   UploadTaskSnapshot,
 } from 'firebase/storage';
 import { FIREBASE_APP } from '../../firebase/tokens/firebase-app.token';
+import { toRecipeReceiverFields } from '../utils/recipe-receivers.util';
 
 export interface ResumableUpload {
   cancel: () => void;
@@ -39,20 +41,29 @@ export class StorageFunctions {
   public saveRecipe(
     file: File,
     recipe: Recipe,
-    uid: string,
+    uids: string[],
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): ResumableUpload {
-    return this.startUpload(file, 'recipe', { uid, recipe, onProgress });
+    return this.startUpload(file, 'recipe', {
+      ...toRecipeReceiverFields(uids),
+      recipe,
+      onProgress,
+    });
   }
 
   public updateRecipeAndFile(
     recipe: Recipe,
-    uid: string,
+    uids: string[],
     fileId: string,
     file: File,
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): ResumableUpload {
-    return this.startUpload(file, 'recipe', { uid, recipe, onProgress, fileId });
+    return this.startUpload(file, 'recipe', {
+      ...toRecipeReceiverFields(uids),
+      recipe,
+      onProgress,
+      fileId,
+    });
   }
 
   public uploadServiceImage(
@@ -61,6 +72,15 @@ export class StorageFunctions {
     onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): ResumableUpload {
     return this.startUpload(file, 'service', { fileId: serviceId, onProgress });
+  }
+
+  public saveExercise(
+    file: File,
+    exercise: ExerciseTemplate,
+    fileId?: string,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): ResumableUpload {
+    return this.startUpload(file, 'exercise', { exercise, onProgress, fileId });
   }
 
   public uploadHeroImage(
@@ -126,8 +146,10 @@ export class StorageFunctions {
     fileType: FileType,
     options: {
       uid?: string;
+      recipeUids?: string[];
       recipe?: Recipe;
       review?: Review;
+      exercise?: ExerciseTemplate;
       onProgress?: (snapshot: UploadTaskSnapshot) => void;
       fileId?: string;
     } = {},
@@ -140,8 +162,10 @@ export class StorageFunctions {
         sizeBytes: file.size,
         fileType,
         ...(options.uid ? { uid: options.uid } : {}),
+        ...(options.recipeUids ? { recipeUids: options.recipeUids } : {}),
         ...(options.recipe ? { recipe: options.recipe } : {}),
         ...(options.review ? { review: options.review } : {}),
+        ...(options.exercise ? { exercise: options.exercise } : {}),
         ...(options.fileId ? { fileId: options.fileId } : {}),
         contentType: file.type,
       })

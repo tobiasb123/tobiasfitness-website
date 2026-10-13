@@ -8,6 +8,7 @@ import { MealPrepComponent } from './modules/meal-prep/meal-prep.component';
 import { PricesComponent } from './modules/prices/components/prices.component';
 import { SigninComponent } from './modules/signin/components/signin.component';
 import { SignupComponent } from './modules/signup/components/signup.component';
+import { TrainingProgramComponent } from './modules/training-program/training-program.component';
 
 export interface RouteExt extends Route {
   displayName?: string;
@@ -30,6 +31,12 @@ export const routes: RouteExt[] = [
     path: 'meal-prep',
     component: MealPrepComponent,
     displayName: 'Opskrifter',
+    showInNavList: true,
+  },
+  {
+    path: 'training-program',
+    component: TrainingProgramComponent,
+    displayName: 'Træningsprogram',
     showInNavList: true,
   },
   {

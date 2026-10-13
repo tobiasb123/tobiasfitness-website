@@ -14,6 +14,7 @@ import { DocumentFile } from '@models/storage';
 import { BookingFacade } from '@modules/booking';
 import { RecipesFacade } from '@modules/meal-prep';
 import { Subscription } from 'rxjs';
+import { getRecipeReceiverUids } from '../../meal-prep/utils/recipe-receivers.util';
 import { DataEditerComponent } from '../data-editer/data-editer.component';
 import { RecipeEditerComponent } from '../recipe-editer/recipe-editer.component';
 import { AdminFacade } from '../store/admin.facade';
@@ -94,13 +95,11 @@ export class DataHolderComponent implements OnInit, OnDestroy {
     }
 
     return this.recipes().filter((recipe) => {
-      const owner = this.findUserByUid(recipe.uid);
+      const owners = getRecipeReceiverUids(recipe)
+        .map((uid) => this.findUserByUid(uid))
+        .filter((owner): owner is UserProfile => !!owner);
 
-      if (!owner) {
-        return false;
-      }
-
-      return this.matchesUserFields(owner, query);
+      return owners.some((owner) => this.matchesUserFields(owner, query));
     });
   });
 

@@ -1,0 +1,122 @@
+<article class="sheet" [attr.aria-label]="'Træningsprogram ' + program().title">
+  <header class="sheet-title">
+    <h2>{{ program().title }}</h2>
+    <p class="updated">Sidst opdateret {{ updatedAt() }}</p>
+  </header>
+
+  <section class="info" aria-label="Programoplysninger">
+    <div class="info-block">
+      <p class="label">Navn</p>
+      <p class="value">{{ program().clientName }}</p>
+      @if (program().injuries) {
+        <p class="label">Skader/Skavanker</p>
+        <p class="value">{{ program().injuries }}</p>
+      }
+    </div>
+
+    <div class="info-block">
+      <p class="label">Mål</p>
+      <p class="value">{{ program().goal }}</p>
+    </div>
+
+    <div class="info-block">
+      <dl class="facts">
+        <div>
+          <dt>Startdato</dt>
+          <dd>{{ startDate() || '–' }}</dd>
+        </div>
+        <div>
+          <dt>Slutdato</dt>
+          <dd>{{ endDate() || 'Ingen' }}</dd>
+        </div>
+        @if (program().sessionTime) {
+          <div>
+            <dt>Tid</dt>
+            <dd>{{ program().sessionTime }}</dd>
+          </div>
+        }
+        @if (program().tempo) {
+          <div>
+            <dt>Tempo</dt>
+            <dd>{{ program().tempo }}</dd>
+          </div>
+        }
+        @if (program().rest) {
+          <div>
+            <dt>Pause</dt>
+            <dd>{{ program().rest }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  </section>
+
+  <table class="exercises">
+    <thead>
+      <tr>
+        <th scope="col">Øvelse</th>
+        <th scope="col">Forklaring</th>
+        <th scope="col">Billede</th>
+        <th scope="col">Reps/Tid</th>
+        <th scope="col">Sæt</th>
+        <th scope="col">Intensitet</th>
+      </tr>
+    </thead>
+    @for (group of sections(); track group.section) {
+    <tbody>
+      <tr class="section-row">
+        <th colspan="6" scope="colgroup">{{ group.label }}</th>
+      </tr>
+      @for (exercise of group.exercises; track exercise.id) {
+        <tr>
+          <th scope="row" class="name" data-label="Øvelse">{{ exercise.name }}</th>
+          <td class="explanation" [class.empty]="!exercise.explanation" data-label="Forklaring">{{ exercise.explanation }}</td>
+          <td class="image" data-label="Billede">
+            @if (imageSrc(exercise)) {
+              <img [src]="imageSrc(exercise)" [alt]="'Illustration af ' + exercise.name" />
+            }
+          </td>
+          <td class="stat" data-label="Reps/Tid">{{ exercise.reps }}</td>
+          <td class="stat" data-label="Sæt">{{ exercise.sets }}</td>
+          <td class="intensity" data-label="Intensitet">
+            @if (editingId() === exercise.id) {
+              <form class="weight-form" (submit)="saveEdit(exercise); $event.preventDefault()">
+                <label class="visually-hidden" [for]="'weight-' + exercise.id">
+                  Vægt for {{ exercise.name }}
+                </label>
+                <input
+                  [id]="'weight-' + exercise.id"
+                  type="text"
+                  maxlength="40"
+                  [formControl]="weightControl"
+                  (keydown.escape)="cancelEdit()"
+                />
+                <div class="weight-actions">
+                  <button type="submit" class="btn primary">Gem</button>
+                  <button type="button" class="btn" (click)="cancelEdit()">Annuller</button>
+                </div>
+              </form>
+            } @else {
+              <span class="weight">{{ exercise.intensity || '–' }}</span>
+              @if (editable()) {
+                <button
+                  type="button"
+                  class="btn edit"
+                  [disabled]="savingExerciseId() === exercise.id"
+                  [attr.aria-label]="'Ret vægt for ' + exercise.name"
+                  (click)="startEdit(exercise)"
+                >
+                  {{ savingExerciseId() === exercise.id ? 'Gemmer…' : 'Ret vægt' }}
+                </button>
+              }
+              <span class="weight-updated">
+                Opdateret {{ formatDate(exercise.weightUpdatedAt) }}
+              </span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+    }
+  </table>
+</article>

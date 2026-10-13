@@ -106,7 +106,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
               <p style="margin: 0 0 24px;">
                 <a href="${accountManagementUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold;">Gå til kontooversigt</a>
               </p>
-              <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du ønsker at aflyse eller ændre din booking, skal du sende en mail til <a href="mailto:tobiasbastholmfitness@gmail.com" style="color: #2563eb; text-decoration: none;">tobiasbastholmfitness@gmail.com</a>.</p>
+              <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du ønsker at aflyse eller ændre din booking, skal du sende en mail til <a href="mailto:pt@tbfitness.dk" style="color: #2563eb; text-decoration: none;">pt@tbfitness.dk</a>.</p>
               <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis du har nogle spørgsmål er du meget velkommen til at kontakte mig via hjemmesiden.</p>
               <p style="margin: 0; font-size: 14px; color: #475569;">Venlig hilsen<br />Tobias Bastholm</p>
             </div>
@@ -118,7 +118,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
       )
         .then(async () => {
           return sendMail(
-            'tobiasbastholmfitness@gmail.com',
+            'pt@tbfitness.dk',
             'Booking',
             `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
@@ -134,7 +134,7 @@ export const newBooking = createAuthEndpoint(async (req, res, user) => {
                     <p style="margin: 0 0 8px; font-size: 15px;"><strong>Tid:</strong> ${bookingTime}</p>
                     <p style="margin: 0; font-size: 15px;"><strong>Service:</strong> ${data.service}</p>
                   </div>
-                  <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis kunden ønsker at aflyse eller ændre booking, skal de sende en mail til <a href="mailto:tobiasbastholmfitness@gmail.com" style="color: #2563eb; text-decoration: none;">tobiasbastholmfitness@gmail.com</a>.</p>
+                  <p style="margin: 0 0 8px; font-size: 14px; color: #475569;">Hvis kunden ønsker at aflyse eller ændre booking, skal de sende en mail til <a href="mailto:pt@tbfitness.dk" style="color: #2563eb; text-decoration: none;">pt@tbfitness.dk</a>.</p>
                   <p style="margin: 0; font-size: 14px; color: #475569;">Venlig hilsen<br />Tobias Bastholm</p>
                 </div>
                 <div style="padding: 0 32px 24px;">
@@ -359,7 +359,7 @@ export const sendRescheduleMail = createAuthEndpoint(async (req, res, user) => {
     : data.requestedDate;
 
   await sendMail(
-    'tobiasbastholmfitness@gmail.com',
+    'pt@tbfitness.dk',
     `Ønske om omlægning af booking - ${booking.service}`,
     `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
@@ -410,7 +410,7 @@ export const sendCancellationMail = createAuthEndpoint(async (req, res, user) =>
   const bookingTime = `${String(booking.timePeriod.start.hour).padStart(2, '0')}:${String(booking.timePeriod.start.minute).padStart(2, '0')} - ${String(booking.timePeriod.end.hour).padStart(2, '0')}:${String(booking.timePeriod.end.minute).padStart(2, '0')}`;
 
   await sendMail(
-    'tobiasbastholmfitness@gmail.com',
+    'pt@tbfitness.dk',
     `Ønske om aflysning af booking - ${booking.service}`,
     `<div style="font-family: Arial, sans-serif; background-color: #f5f7fb; padding: 24px;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">

@@ -11,13 +11,7 @@
       <h3>Opskrift info</h3>
 
       <div class="field-group">
-        <label for="receiver">Modtager</label>
-        <select id="receiver" class="receiver" formControlName="receiver">
-          <option value="all">Alle</option>
-          @for (receiver of receiverOptions(); track receiver.uid) {
-            <option [value]="receiver.uid">{{ receiver.firstName }} {{ receiver.lastName }}</option>
-          }
-        </select>
+        <app-recipe-receiver-picker [control]="receiverControl" [users]="receiverOptions()" />
       </div>
 
       <div class="field-group">

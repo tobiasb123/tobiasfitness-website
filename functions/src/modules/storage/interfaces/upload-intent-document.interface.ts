@@ -1,9 +1,10 @@
-import { FileType, Recipe, Review } from '@models/storage';
+import { ExerciseTemplate, FileType, Recipe, Review } from '@models/storage';
 import { Timestamp } from 'firebase-admin/firestore';
 
 export interface UploadIntentDocument {
   uid: string;
   recipeUid?: string;
+  recipeUids?: string[];
   status: 'pending' | 'finalized';
   fileName: string;
   fileType: FileType;
@@ -11,6 +12,7 @@ export interface UploadIntentDocument {
   fileId?: string;
   recipe?: Recipe;
   review?: Review;
+  exercise?: ExerciseTemplate;
   contentType?: string;
   sizeBytes: number;
   maxSizeBytes: number;

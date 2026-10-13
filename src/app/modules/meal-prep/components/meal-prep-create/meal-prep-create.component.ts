@@ -1,6 +1,7 @@
 import { Component, effect, ElementRef, input, output, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserProfile } from '@models/auth/interfaces';
+import { RecipeReceiverPickerComponent } from '../recipe-receiver-picker/recipe-receiver-picker.component';
 import {
   Recipe,
   RecipeIngredientGroup,
@@ -11,14 +12,14 @@ import {
 } from '@models/storage';
 
 export interface MealPrepCreatePayload {
-  receiverUid: string;
+  receiverUids: string[];
   recipe: Recipe;
   file: File;
 }
 
 @Component({
   selector: 'app-meal-prep-create',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RecipeReceiverPickerComponent],
   templateUrl: './meal-prep-create.component.html',
   styleUrl: './meal-prep-create.component.scss',
 })
@@ -34,7 +35,10 @@ export class MealPrepCreateComponent {
 
   readonly fileInputRef = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  readonly receiverControl = new FormControl<string>('all', { nonNullable: true });
+  readonly receiverControl = new FormControl<string[]>(['all'], {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
   readonly titleControl = new FormControl<string>('', {
     nonNullable: true,
     validators: [Validators.required],
@@ -384,7 +388,7 @@ export class MealPrepCreateComponent {
     const instructionSections = this.buildInstructionSections();
 
     this.submitCreate.emit({
-      receiverUid: this.receiverControl.value,
+      receiverUids: this.receiverControl.value,
       recipe: {
         title: this.titleControl.value.trim(),
         servings: this.servingsControl.value,
@@ -405,7 +409,7 @@ export class MealPrepCreateComponent {
 
   resetForm(): void {
     this.formGroup.reset({
-      receiver: 'all',
+      receiver: ['all'],
       title: '',
       servings: null,
       prepTimeMinutes: null,

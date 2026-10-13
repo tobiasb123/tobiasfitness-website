@@ -20,11 +20,16 @@ import {
 } from '@models/storage';
 import { RecipesFacade } from '@modules/meal-prep';
 import { ToastService } from '../../core/services/toast/toast.service';
+import { RecipeReceiverPickerComponent } from '../../meal-prep/components/recipe-receiver-picker/recipe-receiver-picker.component';
 import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
+import {
+  getRecipeReceiverUids,
+  toRecipeReceiverFields,
+} from '../../meal-prep/utils/recipe-receivers.util';
 
 @Component({
   selector: 'app-recipe-editer',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RecipeReceiverPickerComponent],
   templateUrl: './recipe-editer.component.html',
   styleUrl: './recipe-editer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,7 +47,10 @@ export class RecipeEditerComponent implements OnDestroy {
 
   private recipeImagePreviewObjectUrl: string | null = null;
 
-  readonly receiverControl = new FormControl<string>('all', { nonNullable: true });
+  readonly receiverControl = new FormControl<string[]>(['all'], {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
   readonly titleControl = new FormControl<string>('', {
     nonNullable: true,
     validators: [Validators.required],
@@ -421,9 +429,12 @@ export class RecipeEditerComponent implements OnDestroy {
 
     const updatedDocument: DocumentFile = {
       ...recipe,
-      uid: this.receiverControl.value,
+      ...toRecipeReceiverFields(this.receiverControl.value),
       recipe: updatedRecipeData,
     };
+    if (!updatedDocument.recipeUids) {
+      delete updatedDocument.recipeUids;
+    }
 
     try {
       this.isRecipeSaving.set(true);
@@ -432,7 +443,7 @@ export class RecipeEditerComponent implements OnDestroy {
       if (selectedImage) {
         const replacedDocument = await this.storageFunctions.updateRecipeAndFile(
           updatedRecipeData,
-          updatedDocument.uid,
+          this.receiverControl.value,
           recipe.id,
           selectedImage,
         ).promise;
@@ -463,24 +474,25 @@ export class RecipeEditerComponent implements OnDestroy {
     }
   }
 
-  getRecipeOwnerLabel(uid: string): string {
-    if (!uid || uid === 'all') {
+  getRecipeOwnerLabel(document: Pick<DocumentFile, 'uid' | 'recipeUids'>): string {
+    const uids = getRecipeReceiverUids(document);
+
+    if (uids.includes('all')) {
       return 'Alle';
     }
 
-    const user = this.users().find((item) => item.uid === uid);
-
-    if (!user) {
-      return 'Ukendt bruger';
-    }
-
-    return `${user.firstName} ${user.lastName}`;
+    return uids
+      .map((uid) => {
+        const user = this.users().find((item) => item.uid === uid);
+        return user ? `${user.firstName} ${user.lastName}` : 'Ukendt bruger';
+      })
+      .join(', ');
   }
 
   private hydrateFromRecipe(document: DocumentFile | undefined): void {
     if (!document?.recipe) {
       this.formGroup.reset();
-      this.receiverControl.setValue('all');
+      this.receiverControl.setValue(['all']);
       this.ingredientGroups.set([]);
       this.instructionSections.set([]);
       this.storageNotes.set([]);
@@ -492,7 +504,7 @@ export class RecipeEditerComponent implements OnDestroy {
 
     const recipe = document.recipe;
 
-    this.receiverControl.setValue(document.uid || 'all');
+    this.receiverControl.setValue(getRecipeReceiverUids(document));
     this.titleControl.setValue(recipe.title || '');
     this.servingsControl.setValue(recipe.servings ?? null);
     this.prepTimeMinutesControl.setValue(recipe.prepTimeMinutes ?? null);

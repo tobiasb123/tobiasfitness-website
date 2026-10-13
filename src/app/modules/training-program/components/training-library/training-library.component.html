@@ -1,0 +1,80 @@
+<section class="panel" aria-labelledby="library-title">
+  <h2 id="library-title">Øvelsesbibliotek</h2>
+
+  <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+    <h3>{{ editingId() ? 'Ret øvelse' : 'Ny øvelse' }}</h3>
+
+    <div class="field">
+      <label for="ex-name">Navn</label>
+      <input id="ex-name" type="text" formControlName="name" />
+    </div>
+
+    <div class="field">
+      <label for="ex-explanation">Forklaring</label>
+      <textarea id="ex-explanation" rows="4" formControlName="explanation"></textarea>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="ex-reps">Reps/Tid</label>
+        <input id="ex-reps" type="text" formControlName="reps" />
+      </div>
+      <div class="field">
+        <label for="ex-sets">Sæt</label>
+        <input id="ex-sets" type="number" min="1" formControlName="sets" />
+      </div>
+      <div class="field">
+        <label for="ex-intensity">Standard intensitet</label>
+        <input id="ex-intensity" type="text" formControlName="intensity" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="ex-image">
+        Billede {{ editingId() ? '(vælg kun for at udskifte)' : '' }}
+      </label>
+      <input id="ex-image" type="file" accept="image/*" (change)="onFileSelected($event)" />
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn primary" [disabled]="saving()">
+        {{ saving() ? 'Gemmer…' : editingId() ? 'Gem ændringer' : 'Opret øvelse' }}
+      </button>
+      @if (editingId()) {
+        <button type="button" class="btn" (click)="resetForm()">Annuller</button>
+      }
+    </div>
+  </form>
+
+  <div class="field">
+    <label for="ex-search">Søg i øvelser</label>
+    <input
+      id="ex-search"
+      type="search"
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+    />
+  </div>
+
+  @if (loading()) {
+    <p>Henter øvelser…</p>
+  } @else if (filtered().length === 0) {
+    <p>Ingen øvelser fundet.</p>
+  } @else {
+    <ul class="list">
+      @for (item of filtered(); track item.id) {
+        <li class="item">
+          <img [src]="item.fileUrl" [alt]="'Illustration af ' + item.exercise?.name" />
+          <div class="meta">
+            <strong>{{ item.exercise?.name }}</strong>
+            <span>{{ item.exercise?.sets }} sæt · {{ item.exercise?.reps }}</span>
+          </div>
+          <div class="item-actions">
+            <button type="button" class="btn" (click)="edit(item)">Ret</button>
+            <button type="button" class="btn danger" (click)="remove(item)">Slet</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

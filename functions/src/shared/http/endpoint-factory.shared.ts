@@ -2,8 +2,11 @@ import { Response } from 'express';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { HttpsError, onRequest, Request } from 'firebase-functions/v2/https';
 import { getUser } from '../../modules/auth/common/auth.common';
+import { mailgunApiKey } from '../../modules/mail/common/mail.common';
 import { requireAuth } from './auth.shared';
 import { sendHttpError } from './http-error.shared';
+
+const endpointOptions = { cors: true, secrets: [mailgunApiKey] };
 
 /**
  * Wraps a public (unauthenticated) onRequest handler with automatic error
@@ -14,7 +17,7 @@ import { sendHttpError } from './http-error.shared';
  * @returns A Firebase `onRequest` endpoint with shared error handling.
  */
 export function createPublicEndpoint(handler: (req: Request, res: Response) => Promise<void>) {
-  return onRequest({ cors: true }, async (req, res) => {
+  return onRequest(endpointOptions, async (req, res) => {
     try {
       await handler(req, res);
     } catch (err) {
@@ -36,7 +39,7 @@ export function createPublicEndpoint(handler: (req: Request, res: Response) => P
 export function createAuthEndpoint(
   handler: (req: Request, res: Response, user: DecodedIdToken) => Promise<void>,
 ) {
-  return onRequest({ cors: true }, async (req, res) => {
+  return onRequest(endpointOptions, async (req, res) => {
     try {
       const user = await requireAuth(req);
       await handler(req, res, user);
