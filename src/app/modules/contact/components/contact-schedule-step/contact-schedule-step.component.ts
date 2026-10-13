@@ -1,5 +1,8 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { DEFAULT_BLOCKED_DAYS } from '@models/booking/booking-availability';
+import { formatTimePeriodOption } from '@models/booking/booking-time-options';
+import { BookedSlot } from '@models/booking/interfaces';
 
 interface CalendarDay {
   value: string;
@@ -7,6 +10,11 @@ interface CalendarDay {
   inCurrentMonth: boolean;
   disabled: boolean;
   label: string;
+}
+
+interface TimeOptionItem {
+  value: string;
+  isBooked: boolean;
 }
 
 @Component({
@@ -19,23 +27,54 @@ export class ContactScheduleStepComponent {
   active = input(false);
   showButtonGroup = input(false);
   hourOptions = input<string[]>([]);
+  blockedWeekdays = input<number[]>(DEFAULT_BLOCKED_DAYS);
+  bookedSlots = input<BookedSlot[]>([]);
   dateControl = input.required<FormControl<string | null>>();
   timeControl = input.required<FormControl<string | null>>();
+
+  readonly selectedDate = signal<string | null>(null);
 
   private readonly minimumDateValue = this.toDateValue(this.addDays(new Date(), 2));
   readonly calendarOpen = signal(false);
   readonly timeMenuOpen = signal(false);
   readonly calendarMonth = signal(this.monthStart(this.parseDateValue(this.minimumDateValue)));
   readonly weekDays = ['ma', 'ti', 'on', 'to', 'fr', 'lø', 'sø'];
-  readonly monthLabel = computed(
-    () =>
-      new Intl.DateTimeFormat('da-DK', { month: 'long', year: 'numeric' }).format(
-        this.calendarMonth(),
-      ),
+  readonly monthLabel = computed(() =>
+    new Intl.DateTimeFormat('da-DK', { month: 'long', year: 'numeric' }).format(
+      this.calendarMonth(),
+    ),
   );
   readonly calendarDays = computed(() => this.buildCalendarDays(this.calendarMonth()));
+
+  readonly bookedTimesForSelectedDate = computed(() => {
+    const dateVal = this.selectedDate();
+    if (!dateVal) {
+      return new Set<string>();
+    }
+    const booked = this.bookedSlots()
+      .filter((slot) => slot.date === dateVal && slot.timePeriod)
+      .map((slot) => formatTimePeriodOption(slot.timePeriod));
+    return new Set<string>(booked);
+  });
+
+  readonly timeOptionItems = computed<TimeOptionItem[]>(() => {
+    const bookedSet = this.bookedTimesForSelectedDate();
+    return this.hourOptions().map((hour) => ({
+      value: hour,
+      isBooked: bookedSet.has(hour),
+    }));
+  });
+
+  constructor() {
+    effect(() => {
+      // Sync dateControl with internal signal
+      const control = this.dateControl();
+      this.selectedDate.set(control.value);
+    });
+  }
+
   selectedDateLabel(): string {
-    const value = this.dateControl().value;
+    const value = this.selectedDate();
     if (!value) {
       return '';
     }
@@ -86,7 +125,11 @@ export class ContactScheduleStepComponent {
     this.timeMenuOpen.set(false);
   }
 
-  selectTime(time: string): void {
+  selectTime(time: string, isBooked = false): void {
+    if (isBooked) {
+      return;
+    }
+
     this.timeControl().setValue(time);
     this.timeControl().markAsTouched();
     this.closeTimeMenu();
@@ -94,9 +137,7 @@ export class ContactScheduleStepComponent {
 
   goToPreviousMonth(): void {
     if (this.canGoToPreviousMonth()) {
-      this.calendarMonth.update(
-        (month) => new Date(month.getFullYear(), month.getMonth() - 1, 1),
-      );
+      this.calendarMonth.update((month) => new Date(month.getFullYear(), month.getMonth() - 1, 1));
     }
   }
 
@@ -109,8 +150,16 @@ export class ContactScheduleStepComponent {
       return;
     }
 
+    this.selectedDate.set(day.value);
     this.dateControl().setValue(day.value);
     this.dateControl().markAsTouched();
+
+    // If currently selected time is booked on the newly selected date, clear it
+    const currentTime = this.timeControl().value;
+    if (currentTime && this.bookedTimesForSelectedDate().has(currentTime)) {
+      this.timeControl().setValue(null);
+    }
+
     this.closeCalendar();
   }
 
@@ -124,7 +173,11 @@ export class ContactScheduleStepComponent {
     const gridStart = new Date(month.getFullYear(), month.getMonth(), 1 - mondayOffset);
 
     return Array.from({ length: 42 }, (_, index) => {
-      const date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + index);
+      const date = new Date(
+        gridStart.getFullYear(),
+        gridStart.getMonth(),
+        gridStart.getDate() + index,
+      );
       const value = this.toDateValue(date);
       const dayName = new Intl.DateTimeFormat('da-DK', { weekday: 'long' }).format(date);
 
@@ -132,7 +185,7 @@ export class ContactScheduleStepComponent {
         value,
         day: date.getDate(),
         inCurrentMonth: date.getMonth() === month.getMonth(),
-        disabled: value < this.minimumDateValue || date.getDay() === 3,
+        disabled: value < this.minimumDateValue || this.blockedWeekdays().includes(date.getDay()),
         label: `${dayName} ${date.getDate()}. ${new Intl.DateTimeFormat('da-DK', {
           month: 'long',
           year: 'numeric',

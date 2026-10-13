@@ -23,6 +23,9 @@ import { AdminProfilesListComponent } from './admin-profiles-list/admin-profiles
 import { AdminRecipesListComponent } from './admin-recipes-list/admin-recipes-list.component';
 import { AdminSidebarComponent, AdminView } from './admin-sidebar/admin-sidebar.component';
 import { AdminStatsComponent } from './admin-stats/admin-stats.component';
+import { BookingAvailabilityComponent } from './booking-availability/booking-availability.component';
+
+type BookingTab = 'appointments' | 'availability';
 
 @Component({
   selector: 'app-data-holder',
@@ -35,6 +38,7 @@ import { AdminStatsComponent } from './admin-stats/admin-stats.component';
     AdminProfilesListComponent,
     AdminBookingsListComponent,
     AdminRecipesListComponent,
+    BookingAvailabilityComponent,
   ],
   templateUrl: './data-holder.component.html',
   styleUrl: './data-holder.component.scss',
@@ -52,6 +56,7 @@ export class DataHolderComponent implements OnInit, OnDestroy {
   recipeEditorOpen = signal(false);
   searchQuery = signal('');
   activeView = signal<AdminView>('Profiler');
+  bookingTab = signal<BookingTab>('appointments');
 
   public bookings: WritableSignal<Booking[]> = signal([]);
   public recipes: WritableSignal<DocumentFile[]> = signal([]);
@@ -187,6 +192,10 @@ export class DataHolderComponent implements OnInit, OnDestroy {
 
   selectView(view: AdminView): void {
     this.activeView.set(view);
+  }
+
+  selectBookingTab(tab: BookingTab): void {
+    this.bookingTab.set(tab);
   }
 
   closeRecipeEditor(): void {

@@ -27,12 +27,49 @@
         ></app-admin-profiles-list>
       }
       @case ('Bookinger') {
-        <app-admin-bookings-list
-          [bookings]="filteredBookings()"
-          [hasActiveSearch]="hasActiveSearch()"
-          (bookingSelected)="selectUser($event)"
-          (bookingOpened)="openUserEditor($event)"
-        ></app-admin-bookings-list>
+        <div class="booking-tabs" role="tablist" aria-label="Bookingadministration">
+          <button
+            id="appointments-tab"
+            role="tab"
+            [attr.aria-selected]="bookingTab() === 'appointments'"
+            aria-controls="appointments-panel"
+            [class.active]="bookingTab() === 'appointments'"
+            (click)="selectBookingTab('appointments')"
+          >
+            Bookinger
+          </button>
+          <button
+            id="availability-tab"
+            role="tab"
+            [attr.aria-selected]="bookingTab() === 'availability'"
+            aria-controls="availability-panel"
+            [class.active]="bookingTab() === 'availability'"
+            (click)="selectBookingTab('availability')"
+          >
+            Bookingstider
+          </button>
+        </div>
+        <div
+          id="appointments-panel"
+          role="tabpanel"
+          aria-labelledby="appointments-tab"
+          [hidden]="bookingTab() !== 'appointments'"
+        >
+          <app-admin-bookings-list
+            [bookings]="filteredBookings()"
+            [hasActiveSearch]="hasActiveSearch()"
+            (bookingSelected)="selectUser($event)"
+            (bookingOpened)="openUserEditor($event)"
+          ></app-admin-bookings-list>
+        </div>
+        <div
+          id="availability-panel"
+          role="tabpanel"
+          aria-labelledby="availability-tab"
+          [hidden]="bookingTab() !== 'availability'"
+        >
+          <app-booking-availability></app-booking-availability>
+        </div>
       }
       @case ('Opskrifter') {
         <app-admin-recipes-list

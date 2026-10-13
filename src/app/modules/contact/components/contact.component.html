@@ -14,7 +14,9 @@
     <app-contact-schedule-step
       [active]="currentStep() === 'schedule'"
       [showButtonGroup]="showButtonGroup()"
-      [hourOptions]="hourOptions"
+      [hourOptions]="hourOptions()"
+      [blockedWeekdays]="blockedDays()"
+      [bookedSlots]="bookedSlots()"
       [dateControl]="dateControl"
       [timeControl]="timeControl"
       (backRequested)="goToService()"

@@ -1,4 +1,6 @@
 import {
+  BookedSlot,
+  BookingAvailability,
   Booking,
   BookingBase,
   CancelBookingRequest,
@@ -24,6 +26,27 @@ const servicesCollection = firestore.collection('services');
 export const getBookings = createAuthEndpoint(async (req, res) => {
   const bookings = await commonGetBookings();
   res.json(bookings);
+});
+
+export const getAvailability = createPublicEndpoint(async (req, res) => {
+  const [timePeriods, blockedDays] = await Promise.all([getTimePeriodsConfig(), getBlockedDays()]);
+
+  const availability: BookingAvailability = { blockedDays, timePeriods };
+  res.json(availability);
+});
+
+export const getBookedSlots = createPublicEndpoint(async (req, res) => {
+  const bookings = await commonGetBookings();
+  const today = moment().format('YYYY-MM-DD');
+
+  const slots: BookedSlot[] = bookings
+    .filter((booking) => booking.date && booking.date >= today)
+    .map((booking) => ({
+      date: booking.date,
+      timePeriod: booking.timePeriod,
+    }));
+
+  res.json(slots);
 });
 
 export const newBooking = createAuthEndpoint(async (req, res, user) => {

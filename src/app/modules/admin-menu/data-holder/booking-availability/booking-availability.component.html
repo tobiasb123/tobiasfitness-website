@@ -1,0 +1,87 @@
+<section class="availability-settings" aria-labelledby="availability-heading">
+  <header>
+    <h2 id="availability-heading">Bookingstider</h2>
+    <p>Vælg hvilke ugedage der er blokerede, og hvilke tidsrum kunderne kan booke.</p>
+  </header>
+
+  @if (isLoading()) {
+    <p role="status">Henter bookingstider…</p>
+  } @else if (loadError()) {
+    <div class="load-error" role="alert">
+      <p>{{ loadError() }}</p>
+      <button type="button" (click)="loadAvailability()">Prøv igen</button>
+    </div>
+  } @else {
+    <fieldset class="weekdays">
+      <legend>Blokerede dage</legend>
+      <p>Markér de ugedage, hvor kunder ikke skal kunne booke.</p>
+      <div class="weekday-options">
+        @for (weekday of weekdays; track weekday.value) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="blockedDays().includes(weekday.value)"
+              (change)="toggleBlockedDay(weekday.value, $event)"
+            />
+            {{ weekday.label }}
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <section class="time-periods" aria-labelledby="time-periods-heading">
+      <div class="section-heading">
+        <div>
+          <h3 id="time-periods-heading">Bookbare tidsrum</h3>
+          <p>Tidsrum må ikke overlappe hinanden.</p>
+        </div>
+        <button type="button" class="secondary" (click)="addPeriod()">Tilføj tidsrum</button>
+      </div>
+
+      @if (periods().length) {
+        <div class="period-list">
+          @for (period of periods(); track $index) {
+            <div class="period-row">
+              <label>
+                <span>Fra</span>
+                <input
+                  type="time"
+                  [value]="period.start"
+                  [attr.aria-label]="'Starttid for tidsrum ' + ($index + 1)"
+                  (input)="updatePeriod($index, 'start', $event)"
+                />
+              </label>
+              <label>
+                <span>Til</span>
+                <input
+                  type="time"
+                  [value]="period.end"
+                  [attr.aria-label]="'Sluttid for tidsrum ' + ($index + 1)"
+                  (input)="updatePeriod($index, 'end', $event)"
+                />
+              </label>
+              <button
+                type="button"
+                class="remove"
+                [attr.aria-label]="'Fjern tidsrum ' + ($index + 1)"
+                (click)="removePeriod($index)"
+              >
+                Fjern
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty-periods">
+          Der er ingen bookbare tidsrum. Kunder kan ikke booke, før du tilføjer et.
+        </p>
+      }
+    </section>
+
+    <div class="actions">
+      <button type="button" [disabled]="!isLoaded() || isSaving()" (click)="saveAvailability()">
+        {{ isSaving() ? 'Gemmer…' : 'Gem bookingstider' }}
+      </button>
+    </div>
+  }
+</section>

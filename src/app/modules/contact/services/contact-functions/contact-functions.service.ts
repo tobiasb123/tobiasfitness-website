@@ -1,7 +1,10 @@
 import { inject, Injectable } from '@angular/core';
+import { DEFAULT_BOOKING_AVAILABILITY } from '@models/booking/booking-availability';
 import {
+  BookedSlot,
   Booking,
   BookingBase,
+  BookingAvailability,
   CancelBookingRequest,
   RescheduleBookingRequest,
   Service,
@@ -16,6 +19,24 @@ export class ContactFunctionsService {
 
   public async getBookings(): Promise<Booking[]> {
     return this.firbaseService.httpGet<Booking[]>('booking-getBookings');
+  }
+
+  public async getBookingAvailability(): Promise<BookingAvailability> {
+    try {
+      return await this.firbaseService.httpGetPublic<BookingAvailability>(
+        'booking-getAvailability',
+      );
+    } catch {
+      return DEFAULT_BOOKING_AVAILABILITY;
+    }
+  }
+
+  public async getBookedSlots(): Promise<BookedSlot[]> {
+    try {
+      return await this.firbaseService.httpGetPublic<BookedSlot[]>('booking-getBookedSlots');
+    } catch {
+      return [];
+    }
   }
 
   public async newBooking(booking: BookingBase): Promise<Booking> {

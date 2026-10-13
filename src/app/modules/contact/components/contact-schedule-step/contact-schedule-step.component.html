@@ -1,6 +1,6 @@
 <div id="time-period" class="time-period" [class.focus]="active()">
   <h2>Dato & Tid</h2>
-  <small>du kan ikke vælge onsdage og du kan tidligst vælge 2 dage efter nuværende dato</small>
+  <small>Du kan ikke vælge blokerede ugedage og kan tidligst vælge 2 dage efter i dag.</small>
 
   <div class="form-element">
     <span class="field-label" id="date-label">Start Dato*</span>
@@ -120,15 +120,20 @@
 
       @if (timeMenuOpen()) {
         <div id="booking-times" class="time-options" role="dialog" aria-label="Vælg ønsket tid">
-          @for (hour of hourOptions(); track hour) {
+          @for (option of timeOptionItems(); track option.value) {
             <button
               class="time-option"
               type="button"
-              [class.selected]="timeControl().value === hour"
-              [attr.aria-pressed]="timeControl().value === hour"
-              (click)="selectTime(hour)"
+              [class.selected]="timeControl().value === option.value"
+              [class.booked]="option.isBooked"
+              [attr.aria-pressed]="timeControl().value === option.value"
+              [disabled]="option.isBooked"
+              (click)="selectTime(option.value, option.isBooked)"
             >
-              {{ hour }}
+              <span>{{ option.value }}</span>
+              @if (option.isBooked) {
+                <span class="booked-badge">Optaget</span>
+              }
             </button>
           }
         </div>

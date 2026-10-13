@@ -181,6 +181,7 @@
     .time-option {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       width: 100%;
       min-height: 40px;
       padding: 0 12px;
@@ -192,7 +193,7 @@
       text-align: left;
       cursor: pointer;
 
-      &:hover {
+      &:hover:not(:disabled) {
         border-color: #bfdbfe;
         background: #eff6ff;
       }
@@ -202,6 +203,26 @@
         background: #2563eb;
         color: #fff;
         font-weight: 700;
+      }
+
+      &:disabled,
+      &.booked {
+        opacity: 0.55;
+        background: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+        text-decoration: line-through;
+
+        .booked-badge {
+          text-decoration: none;
+          display: inline-block;
+          font-size: 0.75rem;
+          font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: #e2e8f0;
+          color: #64748b;
+        }
       }
 
       &:focus-visible {

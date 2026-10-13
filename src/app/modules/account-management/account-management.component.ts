@@ -34,7 +34,7 @@ export interface BookingRescheduleSelection {
   styleUrl: './account-management.component.scss',
 })
 export class AccountManagementComponent implements OnInit, OnDestroy {
-  public readonly rescheduleTimeOptions = BOOKING_TIME_OPTIONS;
+  public readonly rescheduleTimeOptions = signal<string[]>(BOOKING_TIME_OPTIONS);
 
   private subs: Subscription[] = [];
 
@@ -95,7 +95,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
   private createDefaultRescheduleSelection(): BookingRescheduleSelection {
     return {
       date: moment().format('YYYY-MM-DD'),
-      time: this.rescheduleTimeOptions[0] ?? '',
+      time: this.rescheduleTimeOptions()[0] ?? '',
     };
   }
 
@@ -116,7 +116,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
       : this.createDefaultRescheduleSelection().date;
 
     const bookingTimeOption = this.formatBookingTimeOption(booking);
-    const selectedTime = this.rescheduleTimeOptions.includes(bookingTimeOption)
+    const selectedTime = this.rescheduleTimeOptions().includes(bookingTimeOption)
       ? bookingTimeOption
       : this.createDefaultRescheduleSelection().time;
 
@@ -179,7 +179,14 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    try {
+      const availability = await this.contactFunctions.getBookingAvailability();
+      this.rescheduleTimeOptions.set(availability.timePeriods.map(formatTimePeriodOption));
+    } catch {
+      // Defaults already set
+    }
+
     const initialProfile = this.authFunctions.currentUserProfile();
 
     if (initialProfile?.uid) {

@@ -10,8 +10,9 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
+import { DEFAULT_BLOCKED_DAYS } from '@models/booking/booking-availability';
 import { BOOKING_TIME_OPTIONS } from '@models/booking/booking-time-options';
-import { BookingBase, Service, TimePeriod } from '@models/booking/interfaces';
+import { BookedSlot, BookingBase, Service, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
 import { Subscription } from 'rxjs';
@@ -67,7 +68,9 @@ export class ContactComponent implements OnInit, OnDestroy {
     pris: this.priceControl,
   });
 
-  hourOptions: Array<string> = BOOKING_TIME_OPTIONS;
+  hourOptions = signal<string[]>(BOOKING_TIME_OPTIONS);
+  blockedDays = signal<number[]>(DEFAULT_BLOCKED_DAYS);
+  bookedSlots = signal<BookedSlot[]>([]);
 
   serviceFormComponents: WritableSignal<Service[]> = signal([]);
   servicesLoading = signal(false);
@@ -75,6 +78,29 @@ export class ContactComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.scrollToTop();
+
+    try {
+      const availability = await this.contactFunctions.getBookingAvailability();
+      this.hourOptions.set(
+        availability.timePeriods.map(
+          (period) =>
+            `${this.formatTime(Number(period.start.hour), Number(period.start.minute))} - ${this.formatTime(
+              Number(period.end.hour),
+              Number(period.end.minute),
+            )}`,
+        ),
+      );
+      this.blockedDays.set(availability.blockedDays);
+    } catch {
+      // Defaults already set
+    }
+
+    try {
+      const bookedSlots = await this.contactFunctions.getBookedSlots();
+      this.bookedSlots.set(bookedSlots);
+    } catch {
+      // Defaults to empty
+    }
 
     this.subs.push(
       this.servicesFacade.getServices().subscribe((services) => {
@@ -137,6 +163,10 @@ export class ContactComponent implements OnInit, OnDestroy {
       .then((booking) => {
         this.bookingFacade.newBooking(booking);
         this.toast.open('Din booking er registreret', 'success');
+        this.bookedSlots.update((slots) => [
+          ...slots,
+          { date: booking.date, timePeriod: booking.timePeriod },
+        ]);
       })
       .catch((error: FirebaseError) => {
         this.toast.open(error.message, 'error');

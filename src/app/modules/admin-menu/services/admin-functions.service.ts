@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { UserProfile } from '@models/auth/interfaces';
-import { Booking } from '@models/booking/interfaces';
+import { Booking, BookingAvailability } from '@models/booking/interfaces';
 import { FirebaseService } from '@modules/firebase';
 
 @Injectable({
@@ -21,6 +21,15 @@ export class AdminFunctionsService {
     return this.firbaseService.httpPost<Booking, { success: boolean }>(
       'admin-editBooking',
       booking,
+    );
+  }
+
+  public async setBookingAvailability(
+    availability: BookingAvailability,
+  ): Promise<{ success: boolean }> {
+    return this.firbaseService.httpPost<BookingAvailability, { success: boolean }>(
+      'admin-setBookingAvailability',
+      availability,
     );
   }
 }

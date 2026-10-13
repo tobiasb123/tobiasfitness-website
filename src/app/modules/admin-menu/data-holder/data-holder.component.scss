@@ -21,6 +21,36 @@
   backdrop-filter: blur(10px);
 }
 
+.booking-tabs {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+
+  button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    background: #f8fbff;
+    color: #334155;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.active {
+      border-color: #1d4ed8;
+      background: #1d4ed8;
+      color: white;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #93c5fd;
+      outline-offset: 2px;
+    }
+  }
+}
+
 @media (max-width: 900px) {
   .body {
     flex-direction: column;

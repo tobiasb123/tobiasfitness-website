@@ -8,10 +8,12 @@ import {
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
+import { BOOKING_TIME_OPTIONS, formatTimePeriodOption } from '@models/booking/booking-time-options';
 import { Booking, TimePeriod } from '@models/booking/interfaces';
 import { DocumentFile } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
 import { BookingFacade } from '@modules/booking';
+import { ContactFunctionsService } from '../../contact/services/contact-functions/contact-functions.service';
 import { combineLatest, Subscription } from 'rxjs';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { AdminFacade } from '../store/admin.facade';
@@ -43,6 +45,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   private authfunctions = inject(AuthFunctionsService);
   private toast = inject(ToastService);
   private bookingFacade = inject(BookingFacade);
+  private contactFunctions = inject(ContactFunctionsService);
   private selectedUserValue: UserProfile;
   private activeCommand: 'edit' | 'delete' | null = null;
 
@@ -100,6 +103,15 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   public isBookingCommandLoading = signal(false);
 
   ngOnInit(): void {
+    this.contactFunctions
+      .getBookingAvailability()
+      .then((availability) => {
+        this.hourOptions = availability.timePeriods.map(formatTimePeriodOption);
+      })
+      .catch(() => {
+        this.hourOptions = BOOKING_TIME_OPTIONS;
+      });
+
     this.subs.push(
       this.bookingFacade.getBookings().subscribe((bookings) => {
         this.bookings.set(bookings);
@@ -265,13 +277,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
     });
   }
 
-  hourOptions: Array<string> = [
-    '09:00 - 10:00',
-    '11:00 - 12:00',
-    '13:00 - 14:00',
-    '15:00 - 16:00',
-    '17:00 - 18:00',
-  ];
+  hourOptions: Array<string> = BOOKING_TIME_OPTIONS;
   serviceOptions: Array<string> = [
     'Personlig Træning',
     'Kostvejledning',

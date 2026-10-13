@@ -116,7 +116,7 @@
                   [value]="getRescheduleSelection(booking).time"
                   (change)="updateRescheduleSelection(booking, 'time', $any($event.target).value)"
                 >
-                  @for (timeOption of rescheduleTimeOptions; track timeOption) {
+                  @for (timeOption of rescheduleTimeOptions(); track timeOption) {
                     <option [value]="timeOption">{{ timeOption }}</option>
                   }
                 </select>

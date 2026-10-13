@@ -1,1 +1,7 @@
-export { getBlockedDays, getTimePeriods, setBlockedDays, setTimePeriods } from './config.shared';
+export {
+  getBlockedDays,
+  getTimePeriods,
+  setBlockedDays,
+  setBookingAvailability,
+  setTimePeriods,
+} from './config.shared';
