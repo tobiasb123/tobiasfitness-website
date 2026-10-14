@@ -30,14 +30,10 @@ const sortByUpdatedAt = (programs: TrainingProgram[]): TrainingProgram[] =>
 const readId = (body: unknown, key: string): string =>
   String((body as Record<string, unknown> | undefined)?.[key] ?? '').trim();
 
-const PROGRAM_URL = 'https://tobiasbastholmfitness.dk/training-program';
+const PROGRAM_URL = 'https://tbfitness.dk/training-program';
 
 const escapeHtml = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const formatDate = (value: string): string =>
   /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10).split('-').reverse().join('-') : value;
@@ -65,7 +61,9 @@ const notifyClient = async (
     )
     .join('');
 
-  const headline = isUpdate ? 'Dit træningsprogram er opdateret' : 'Du har fået et nyt træningsprogram';
+  const headline = isUpdate
+    ? 'Dit træningsprogram er opdateret'
+    : 'Du har fået et nyt træningsprogram';
 
   await sendMail(
     recipient.email,
@@ -86,7 +84,7 @@ const notifyClient = async (
           <p style="margin: 0; font-size: 14px; color: #475569;">Venlig hilsen<br />Tobias Bastholm</p>
         </div>
         <div style="padding: 0 32px 24px;">
-          <img src="https://tobiasbastholmfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" style="display: block; max-width: 240px; margin: 0 auto;" />
+          <img src="https://tbfitness.dk/Tobias_Bastholm_Fitness_Logo.png" alt="Firma Logo" width="100%" style="display: block; max-width: 240px; margin: 0 auto;" />
         </div>
       </div>
     </div>`,
@@ -145,12 +143,12 @@ export const saveProgram = createAdminEndpoint(async (req, res) => {
 
   if (data.status === 'active') {
     await notifyClient(
-        { ...recipient, email: recipient.email || (await getAuth().getUser(recipient.uid)).email },
-        toProgram(programRef.id, data),
-        Boolean(existing),
-      ).catch((error): void => {
-        console.error('Kunne ikke sende træningsprogram-mail', error);
-      });
+      { ...recipient, email: recipient.email || (await getAuth().getUser(recipient.uid)).email },
+      toProgram(programRef.id, data),
+      Boolean(existing),
+    ).catch((error): void => {
+      console.error('Kunne ikke sende træningsprogram-mail', error);
+    });
   }
 
   res.json(toProgram(programRef.id, data));
