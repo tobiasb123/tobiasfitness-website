@@ -59,6 +59,30 @@ export class SigninComponent implements OnInit {
       });
   }
 
+  async onResetPassword(): Promise<void> {
+    if (this.emailControl.invalid) {
+      this.emailControl.markAsTouched();
+      return;
+    }
+
+    const toastRef = this.toast.open('Sender link til nulstilling...', 'loading');
+
+    try {
+      await this.authFunctions.sendPasswordResetEmail(this.emailControl.value);
+      this.toast.update(
+        toastRef,
+        'Hvis emailen er tilknyttet en konto, modtager du snart et link til at nulstille kodeordet.',
+        'success',
+      );
+    } catch (error: unknown) {
+      this.toast.update(
+        toastRef,
+        error instanceof Error ? error.message : 'Der opstod en fejl. Prøv igen senere.',
+        'error',
+      );
+    }
+  }
+
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
