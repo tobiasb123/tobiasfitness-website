@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -35,6 +36,7 @@ type AdminTab = 'mine' | 'programs' | 'library';
 })
 export class TrainingProgramComponent implements OnInit {
   private service = inject(TrainingProgramService);
+  private changeDetector = inject(ChangeDetectorRef);
   private authFunctions = inject(AuthFunctionsService);
   private adminFacade = inject(AdminFacade);
   private toast = inject(ToastService);
@@ -52,10 +54,9 @@ export class TrainingProgramComponent implements OnInit {
   readonly savingExerciseId = signal<string | null>(null);
 
   readonly exporting = signal(false);
-  readonly exportProgram = signal<TrainingProgram | null>(null);
   readonly exportImages = signal<Record<string, string> | null>(null);
   readonly previewUrl = signal<string | null>(null);
-  private readonly exportHost = viewChild<ElementRef<HTMLElement>>('exportHost');
+  private readonly programSheet = viewChild<ElementRef<HTMLElement>>('programSheet');
 
   readonly archivedCount = computed(
     () => this.programs().filter((program) => program.status === 'archived').length,
@@ -107,6 +108,8 @@ export class TrainingProgramComponent implements OnInit {
   }
 
   private async loadMyPrograms(): Promise<void> {
+    this.loading.set(true);
+
     try {
       const programs =
         this.isAdmin() && this.showAll()
@@ -132,17 +135,20 @@ export class TrainingProgramComponent implements OnInit {
     this.savingExerciseId.set(change.exerciseId);
 
     try {
-      const updated = await this.service.updateMyExerciseWeight({
+      const input = {
         programId: program.id,
         ...change,
-      });
+      };
+      const updated = this.isAdmin()
+        ? await this.service.updateAnyExerciseIntensity(input)
+        : await this.service.updateMyExerciseWeight(input);
 
       this.programs.update((programs) =>
         programs.map((item) => (item.id === updated.id ? updated : item)),
       );
-      this.toast.open('Vægten blev opdateret', 'success');
+      this.toast.open('Intensiteten blev opdateret', 'success');
     } catch (error) {
-      this.toast.open(this.messageOf(error, 'Vægten kunne ikke gemmes'), 'error');
+      this.toast.open(this.messageOf(error, 'Intensiteten kunne ikke gemmes'), 'error');
     } finally {
       this.savingExerciseId.set(null);
     }
@@ -158,18 +164,47 @@ export class TrainingProgramComponent implements OnInit {
     this.exporting.set(true);
 
     try {
-      // Images are fetched server-side as data URLs so the canvas is never tainted by CORS
       const images = await this.service.getProgramImages(program.id);
-      this.exportImages.set(images);
-      this.exportProgram.set(program);
 
-      const host = await this.waitForExportHost();
-      await this.waitForImages(host);
-      this.previewUrl.set(await toPng(host, { pixelRatio: 2, backgroundColor: '#ffffff' }));
+      if (this.selectedId() !== program.id) {
+        throw new Error('Træningsprogrammet blev ændret, mens billedet blev oprettet');
+      }
+
+      if (program.exercises.some((exercise) => exercise.imageUrl && !images[exercise.id])) {
+        throw new Error('Et eller flere øvelsesbilleder kunne ikke hentes til billedet');
+      }
+
+      this.exportImages.set(images);
+      this.changeDetector.detectChanges();
+
+      const sheet = this.programSheet()?.nativeElement;
+
+      if (!sheet) {
+        throw new Error('Træningsprogrammet kunne ikke findes');
+      }
+
+      await this.waitForImages(sheet);
+      const width = sheet.scrollWidth;
+      const height = sheet.scrollHeight;
+
+      if (width === 0 || height === 0) {
+        throw new Error('Træningsprogrammet har ingen synlige dimensioner');
+      }
+
+      const pixelRatio = Math.min(
+        2,
+        Math.sqrt(12_000_000 / (width * height)),
+        4096 / width,
+        4096 / height,
+      );
+
+      this.previewUrl.set(
+        await toPng(sheet, { width, height, pixelRatio, backgroundColor: '#ffffff' }),
+      );
     } catch (error) {
+      console.error('Kunne ikke oprette billede af træningsprogram', error);
       this.toast.open(this.messageOf(error, 'Billedet kunne ikke oprettes'), 'error');
     } finally {
-      this.exportProgram.set(null);
       this.exportImages.set(null);
       this.exporting.set(false);
     }
@@ -188,24 +223,10 @@ export class TrainingProgramComponent implements OnInit {
     return `${base || 'traeningsprogram'}.png`;
   }
 
-  private async waitForExportHost(): Promise<HTMLElement> {
-    for (let attempt = 0; attempt < 40; attempt++) {
-      const host = this.exportHost()?.nativeElement;
-
-      if (host) {
-        return host;
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    throw new Error('Billedet kunne ikke oprettes');
-  }
-
   private async waitForImages(host: HTMLElement): Promise<void> {
     const images = Array.from(host.querySelectorAll('img'));
 
-    await Promise.all(images.map((image) => image.decode().catch((): void => undefined)));
+    await Promise.all(images.map((image) => image.decode()));
   }
 
   private messageOf(error: unknown, fallback: string): string {

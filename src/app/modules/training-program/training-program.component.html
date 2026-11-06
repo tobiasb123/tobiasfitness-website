@@ -31,6 +31,19 @@
     </div>
   }
 
+  @if (isAdmin() && tab() === 'mine') {
+    <label class="program-switch">
+      <span>Vis alle programmer</span>
+      <input
+        type="checkbox"
+        role="switch"
+        [checked]="showAll()"
+        [disabled]="loading()"
+        (change)="toggleAllPrograms()"
+      />
+    </label>
+  }
+
   @if (isAdmin() && tab() === 'programs') {
     <app-training-program-editor [users]="users()" />
   } @else if (isAdmin() && tab() === 'library') {
@@ -52,25 +65,17 @@
         </button>
       </div>
 
-      <app-training-sheet
-        [program]="program"
-        [editable]="isOwn(program)"
-        [savingExerciseId]="savingExerciseId()"
-        (weightChange)="saveWeight($event)"
-      />
+      <div #programSheet>
+        <app-training-sheet
+          [program]="program"
+          [images]="exportImages()"
+          [editable]="isOwn(program) || isAdmin()"
+          [savingExerciseId]="savingExerciseId()"
+          (weightChange)="saveWeight($event)"
+        />
+      </div>
     } @else {
       <div class="toolbar">
-        @if (isAdmin()) {
-          <button
-            type="button"
-            class="toggle-all"
-            [attr.aria-pressed]="showAll()"
-            (click)="toggleAllPrograms()"
-          >
-            {{ showAll() ? 'Vis kun mine' : 'Vis alle programmer' }}
-          </button>
-        }
-
         @if (archivedCount() > 0) {
           <label class="toggle">
             <input
@@ -107,14 +112,6 @@
     }
   }
 </main>
-
-@if (exportProgram(); as program) {
-  <div class="export-stage" aria-hidden="true">
-    <div #exportHost class="export-host">
-      <app-training-sheet [program]="program" [images]="exportImages()" [editable]="false" />
-    </div>
-  </div>
-}
 
 @if (previewUrl(); as url) {
   <div class="modal-backdrop" (click)="closePreview()" (keydown.escape)="closePreview()">

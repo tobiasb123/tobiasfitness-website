@@ -172,8 +172,12 @@ export const deleteProgram = createAdminEndpoint(async (req, res) => {
   res.json({ deleted: true, id });
 });
 
-export const updateMyExerciseWeight = createAuthEndpoint(async (req, res, user) => {
-  const input = req.body as UpdateExerciseWeightInput;
+const updateExerciseIntensity = async (
+  userUid: string,
+  isAdmin: boolean,
+  body: unknown,
+): Promise<TrainingProgram> => {
+  const input = body as UpdateExerciseWeightInput;
   const programId = String(input?.programId ?? '').trim();
   const exerciseId = String(input?.exerciseId ?? '').trim();
   const intensity = String(input?.intensity ?? '').trim();
@@ -183,7 +187,7 @@ export const updateMyExerciseWeight = createAuthEndpoint(async (req, res, user) 
   }
 
   if (!intensity || intensity.length > 40) {
-    throw new HttpsError('invalid-argument', 'Vægten skal være mellem 1 og 40 tegn');
+    throw new HttpsError('invalid-argument', 'Intensiteten skal være mellem 1 og 40 tegn');
   }
 
   const programRef = programCollection.doc(programId);
@@ -191,7 +195,7 @@ export const updateMyExerciseWeight = createAuthEndpoint(async (req, res, user) 
   const updated = await firestore.runTransaction(async (transaction) => {
     const programDoc = await transaction.get(programRef);
 
-    if (!programDoc.exists || programDoc.data().assignedToUid !== user.uid) {
+    if (!programDoc.exists || (!isAdmin && programDoc.data().assignedToUid !== userUid)) {
       throw new HttpsError('not-found', 'Træningsprogram blev ikke fundet');
     }
 
@@ -207,7 +211,7 @@ export const updateMyExerciseWeight = createAuthEndpoint(async (req, res, user) 
 
       exercise.intensity = intensity;
       exercise.weightUpdatedAt = nowIso;
-      exercise.weightUpdatedBy = 'client';
+      exercise.weightUpdatedBy = isAdmin ? 'admin' : 'client';
       program.updatedAt = nowIso;
       transaction.update(programRef, { exercises: program.exercises, updatedAt: nowIso });
     }
@@ -215,7 +219,15 @@ export const updateMyExerciseWeight = createAuthEndpoint(async (req, res, user) 
     return program;
   });
 
-  res.json(updated);
+  return updated;
+};
+
+export const updateMyExerciseWeight = createAuthEndpoint(async (req, res, user) => {
+  res.json(await updateExerciseIntensity(user.uid, false, req.body));
+});
+
+export const updateAnyExerciseIntensity = createAdminEndpoint(async (req, res, user) => {
+  res.json(await updateExerciseIntensity(user.uid, true, req.body));
 });
 
 export const getProgramImages = createAuthEndpoint(async (req, res, user) => {

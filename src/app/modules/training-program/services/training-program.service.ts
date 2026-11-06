@@ -48,6 +48,13 @@ export class TrainingProgramService {
     );
   }
 
+  updateAnyExerciseIntensity(input: UpdateExerciseWeightInput): Promise<TrainingProgram> {
+    return this.firebaseService.httpPost<UpdateExerciseWeightInput, TrainingProgram>(
+      'training-updateAnyExerciseIntensity',
+      input,
+    );
+  }
+
   getProgramImages(programId: string): Promise<Record<string, string>> {
     return this.firebaseService.httpPost<{ programId: string }, Record<string, string>>(
       'training-getProgramImages',

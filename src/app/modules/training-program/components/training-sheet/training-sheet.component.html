@@ -82,7 +82,7 @@
             @if (editingId() === exercise.id) {
               <form class="weight-form" (submit)="saveEdit(exercise); $event.preventDefault()">
                 <label class="visually-hidden" [for]="'weight-' + exercise.id">
-                  Vægt for {{ exercise.name }}
+                  Intensitet for {{ exercise.name }}
                 </label>
                 <input
                   [id]="'weight-' + exercise.id"
@@ -103,10 +103,10 @@
                   type="button"
                   class="btn edit"
                   [disabled]="savingExerciseId() === exercise.id"
-                  [attr.aria-label]="'Ret vægt for ' + exercise.name"
+                  [attr.aria-label]="'Ret intensitet for ' + exercise.name"
                   (click)="startEdit(exercise)"
                 >
-                  {{ savingExerciseId() === exercise.id ? 'Gemmer…' : 'Ret vægt' }}
+                  {{ savingExerciseId() === exercise.id ? 'Gemmer…' : 'Ret intensitet' }}
                 </button>
               }
               <span class="weight-updated">

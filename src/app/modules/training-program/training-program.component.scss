@@ -94,11 +94,54 @@
   }
 }
 
-.toggle {
+.program-switch {
   display: flex;
-  gap: 8px;
+  width: fit-content;
+  gap: 10px;
   align-items: center;
-  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+
+  input {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    margin: 0;
+    appearance: none;
+    border: 1px solid #64748b;
+    border-radius: 999px;
+    background: #cbd5e1;
+    cursor: inherit;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
+
+    &::before {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      content: '';
+      transition: transform 150ms ease;
+    }
+
+    &:checked {
+      border-color: #1d4ed8;
+      background: #1d4ed8;
+    }
+
+    &:checked::before {
+      transform: translateX(20px);
+    }
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+  }
 }
 
 .toggle-all {
@@ -109,11 +152,13 @@
   color: #1d4ed8;
   cursor: pointer;
   font: inherit;
+}
 
-  &[aria-pressed='true'] {
-    background: #1d4ed8;
-    color: #fff;
-  }
+.toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.9rem;
 }
 
 .grid {
@@ -212,18 +257,6 @@ input:focus-visible {
     background: #fef2f2;
     color: #991b1b;
   }
-}
-
-.export-stage {
-  position: fixed;
-  top: 0;
-  left: -10000px;
-  width: 900px;
-}
-
-.export-host {
-  width: 900px;
-  background: #fff;
 }
 
 .modal-backdrop {
