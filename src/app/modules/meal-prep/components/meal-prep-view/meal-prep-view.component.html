@@ -6,7 +6,6 @@
         <h2>{{ recipeData.recipe?.title || 'Opskrift' }}</h2>
       </div>
 
-      <button class="meal-button" type="button" (click)="closeView()">Luk</button>
     </div>
 
     <p class="time-created">{{ recipeData.timeCreated }}</p>
@@ -83,9 +82,9 @@
       }
 
       <div class="info-card span-full">
-        <h3>Næringsindhold (pr. 100 g)</h3>
+        <h3>Næringsindhold (pr. portion)</h3>
 
-        <div class="nutrition-table" role="table" aria-label="Næringsindhold">
+        <div class="nutrition-table" role="table" aria-label="Næringsindhold pr. portion">
           <div class="nutrition-row header" role="row">
             <span>Makronæringsstof</span>
             <span>Mængde</span>

@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import {
   DocumentFile,
   Recipe,
@@ -13,16 +13,11 @@ import {
   selector: 'app-meal-prep-view',
   templateUrl: './meal-prep-view.component.html',
   styleUrl: './meal-prep-view.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MealPrepViewComponent {
   recipe = input<DocumentFile | null>(null);
   visible = input(false);
-
-  close = output<void>();
-
-  closeView(): void {
-    this.close.emit();
-  }
 
   getIngredientGroups(recipe: Recipe | undefined): RecipeIngredientGroup[] {
     if (!recipe) {

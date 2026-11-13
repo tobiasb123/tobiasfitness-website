@@ -1,0 +1,32 @@
+.measurement-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+
+.choice-buttons {
+  display: flex;
+  gap: 6px;
+
+  button {
+    padding: 10px 16px;
+    border: 1px solid #94a3b8;
+    border-radius: 10px;
+    background: #fff;
+    color: #0f172a;
+    cursor: pointer;
+    font: inherit;
+
+    &[aria-pressed='true'] {
+      border-color: #1d4ed8;
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #2563eb;
+      outline-offset: 2px;
+    }
+  }
+}

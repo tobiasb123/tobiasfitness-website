@@ -17,9 +17,12 @@ import {
 import { UserProfile } from '@models/auth/interfaces';
 import { DocumentFile } from '@models/storage';
 import { TRAINING_SECTION_LABELS, TRAINING_SECTIONS, TrainingProgram, TrainingSection } from '@models/training';
+import { intensityLabel, IntensityUnit, parseIntensity, repsLabel, RepsType } from '@models/training/intensity';
 import { ToastService } from '../../../core/services/toast/toast.service';
 import moment from 'moment-timezone';
 import { TrainingProgramService } from '../../services/training-program.service';
+import { savedIntensity, validateIntensity } from '../../intensity-form';
+import { repsValidator } from '../../reps-validator';
 
 const createExerciseGroup = (
   value: {
@@ -30,11 +33,12 @@ const createExerciseGroup = (
     explanation?: string;
     imageUrl?: string;
     reps?: string;
+    repsType?: RepsType;
     sets?: number;
     intensity?: string;
   } = {},
-) =>
-  new FormGroup({
+) => {
+  const group = new FormGroup({
     id: new FormControl(value.id ?? crypto.randomUUID(), { nonNullable: true }),
     weightDate: new FormControl(value.weightDate ?? '', { nonNullable: true }),
     section: new FormControl<TrainingSection>(value.section ?? 'training', { nonNullable: true }),
@@ -44,10 +48,21 @@ const createExerciseGroup = (
     }),
     explanation: new FormControl(value.explanation ?? '', { nonNullable: true }),
     imageUrl: new FormControl(value.imageUrl ?? '', { nonNullable: true }),
-    reps: new FormControl(value.reps ?? '', { nonNullable: true }),
+    reps: new FormControl(value.reps ?? '', {
+      nonNullable: true,
+      validators: [repsValidator(value.reps ?? '')],
+    }),
+    repsType: new FormControl<RepsType>(value.repsType ?? 'reps', { nonNullable: true }),
     sets: new FormControl(value.sets ?? 3, { nonNullable: true }),
-    intensity: new FormControl(value.intensity ?? '', { nonNullable: true }),
+    intensity: new FormControl(parseIntensity(value.intensity ?? '').value, { nonNullable: true }),
+    intensityUnit: new FormControl<IntensityUnit>(parseIntensity(value.intensity ?? '').unit, { nonNullable: true }),
+    originalIntensity: new FormControl(value.intensity ?? '', { nonNullable: true }),
+  }, { validators: validateIntensity });
+  group.controls.intensityUnit.valueChanges.subscribe(() => {
+    group.controls.intensity.setValue('');
   });
+  return group;
+};
 
 @Component({
   selector: 'app-training-program-editor',
@@ -57,6 +72,8 @@ const createExerciseGroup = (
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrainingProgramEditorComponent implements OnInit {
+  readonly repsLabel = repsLabel;
+  readonly intensityLabel = intensityLabel;
   private service = inject(TrainingProgramService);
   private toast = inject(ToastService);
 
@@ -262,8 +279,9 @@ export class TrainingProgramEditorComponent implements OnInit {
       await this.service.saveProgram({
         ...raw,
         // Only send the date when the admin changed it, so untouched weights keep their timestamp
-        exercises: raw.exercises.map(({ weightDate, ...exercise }) => ({
+        exercises: raw.exercises.map(({ weightDate, intensityUnit, originalIntensity, ...exercise }) => ({
           ...exercise,
+          intensity: savedIntensity(exercise.intensity, intensityUnit, originalIntensity),
           ...(weightDate && weightDate !== this.initialWeightDates.get(exercise.id)
             ? { weightUpdatedAt: weightDate }
             : {}),

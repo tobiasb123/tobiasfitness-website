@@ -16,17 +16,69 @@
 
     <div class="row">
       <div class="field">
-        <label for="ex-reps">Reps/Tid</label>
-        <input id="ex-reps" type="text" formControlName="reps" />
+        <label for="ex-reps">{{ repsLabel(form.controls.intensityUnit.value, form.controls.repsType.value) }}</label>
+        <input id="ex-reps" type="text" inputmode="decimal" maxlength="40" formControlName="reps"
+          [attr.aria-invalid]="form.controls.reps.touched && form.controls.reps.invalid"
+          [attr.aria-describedby]="form.controls.reps.touched && form.controls.reps.invalid ? 'ex-reps-error' : null" />
+        @if (form.controls.reps.touched && form.controls.reps.hasError('numericReps')) {
+          <span id="ex-reps-error" role="alert">Indtast kun et tal.</span>
+        }
       </div>
       <div class="field">
         <label for="ex-sets">Sæt</label>
         <input id="ex-sets" type="number" min="1" formControlName="sets" />
       </div>
       <div class="field">
-        <label for="ex-intensity">Standard intensitet</label>
-        <input id="ex-intensity" type="text" formControlName="intensity" />
+        @if (form.controls.intensityUnit.value === 'bodyweight') {
+          <span>Standard intensitet: Kropsvægt</span>
+        } @else {
+          <label for="ex-intensity">Standard {{ intensityLabel(form.controls.intensityUnit.value).toLowerCase() }}</label>
+          <div class="intensity-input">
+            <input id="ex-intensity" type="text"
+              [attr.inputmode]="form.controls.intensityUnit.value === 'time' ? 'numeric' : 'decimal'"
+              maxlength="35" formControlName="intensity"
+              [readOnly]="form.controls.intensityUnit.value === 'legacy' || form.controls.intensityUnit.value === 'legacy-time'"
+              [attr.aria-invalid]="form.hasError('intensity') && form.touched"
+              [attr.aria-describedby]="form.controls.intensityUnit.value === 'time' ? 'ex-intensity-help' : null" />
+            @if (form.controls.intensityUnit.value === 'time') {
+              <span id="ex-intensity-help">/10</span>
+            }
+          </div>
+        }
+        @if (form.hasError('intensity') && form.touched) {
+          <span role="alert">{{ form.controls.intensityUnit.value === 'time' ? 'Indtast et helt tal fra 1 til 10.' : 'Indtast et gyldigt tal.' }}</span>
+        }
+        @if (form.controls.intensityUnit.value === 'legacy-time') {
+          <span>Vælg Tid for at angive intensitet fra 1 til 10.</span>
+        }
       </div>
+    </div>
+    <div class="measurement-row">
+      <div class="field">
+        <label for="ex-intensity-unit">Måleenhed</label>
+        <select id="ex-intensity-unit" formControlName="intensityUnit">
+          @if (form.controls.intensityUnit.value === 'legacy') {
+            <option value="legacy" disabled>Eksisterende værdi</option>
+          }
+          @if (form.controls.intensityUnit.value === 'legacy-time') {
+            <option value="legacy-time" disabled>Tid (tidligere værdi)</option>
+          }
+          <option value="kg">Kg</option>
+          <option value="time">Tid</option>
+          <option value="bodyweight">Kropsvægt</option>
+        </select>
+      </div>
+      @if (form.controls.intensityUnit.value === 'kg') {
+        <div class="field">
+          <span id="ex-reps-type-label">Type</span>
+          <div class="choice-buttons" role="group" aria-labelledby="ex-reps-type-label">
+            <button type="button" [attr.aria-pressed]="form.controls.repsType.value === 'time'"
+              (click)="form.controls.repsType.setValue('time')">Tid</button>
+            <button type="button" [attr.aria-pressed]="form.controls.repsType.value === 'reps'"
+              (click)="form.controls.repsType.setValue('reps')">Reps</button>
+          </div>
+        </div>
+      }
     </div>
 
     <div class="field">

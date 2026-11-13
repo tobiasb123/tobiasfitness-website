@@ -1,10 +1,11 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { DocumentFile } from '@models/storage';
 
 @Component({
   selector: 'app-meal-prep-recipe-card',
   templateUrl: './meal-prep-recipe-card.component.html',
   styleUrl: './meal-prep-recipe-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MealPrepRecipeCardComponent {
   recipe = input.required<DocumentFile>();

@@ -1,29 +1,91 @@
 <div class="body">
   <app-meal-prep-header [isAdmin]="isAdmin()"></app-meal-prep-header>
 
-  @if (isAdmin()) {
-    <app-meal-prep-create
-      [receiverOptions]="recieverOptions()"
-      [isUploading]="isUploading()"
-      [uploadProgress]="uploadProgress()"
-      [uploadEtaLabel]="getUploadEtaLabel()"
-      [resetVersion]="createResetVersion()"
-      (submitCreate)="submitRecipe($event)"
-      (cancelUploadRequest)="cancelUpload()"
-    ></app-meal-prep-create>
-  }
+  <main class="content">
+    @if (!viewMealPageActive()) {
+      <h2 #overviewHeading class="overview-heading" tabindex="-1">Opskriftsoversigt</h2>
+      <div class="tabs" role="group" aria-label="Opskriftskategori">
+        @for (category of categories; track category.value) {
+          <button
+            type="button"
+            [attr.aria-pressed]="selectedCategory() === category.value"
+            (click)="selectedCategory.set(category.value)"
+          >{{ category.label }}</button>
+        }
+        @if (uncategorizedCount() > 0 || selectedCategory() === 'uncategorized') {
+          <button
+            type="button"
+            [attr.aria-pressed]="selectedCategory() === 'uncategorized'"
+            (click)="selectedCategory.set('uncategorized')"
+          >Ikke kategoriseret ({{ uncategorizedCount() }})</button>
+        }
+      </div>
 
-  <app-meal-prep-view
-    [visible]="viewMealPageActive"
-    [recipe]="selectedDocumentData()"
-    (close)="closeMealView()"
-  ></app-meal-prep-view>
+      @if (isAdmin()) {
+        <label class="recipe-switch">
+          <span>Vis opret opskrift</span>
+          <input
+            type="checkbox"
+            role="switch"
+            [checked]="showCreate()"
+            (change)="showCreate.set(!showCreate())"
+            aria-controls="recipe-creation"
+          />
+        </label>
+      }
+    } @else {
+      <button #backButton type="button" class="back-button" (click)="closeMealView()">
+        ← Alle opskrifter
+      </button>
+      <app-meal-prep-view [visible]="true" [recipe]="selectedDocumentData()" />
+    }
 
-  <app-meal-prep-carousel
-    [allRecipes]="recipies()"
-    [personalRecipes]="yourRecipies()"
-    [loading]="recipesLoading()"
-    [error]="recipesError()"
-    (recipeSelected)="openMeal($event)"
-  ></app-meal-prep-carousel>
+    @if (isAdmin()) {
+      <div id="recipe-creation" [hidden]="!showCreate() || viewMealPageActive()">
+        <app-meal-prep-create
+          [receiverOptions]="recieverOptions()"
+          [isUploading]="isUploading()"
+          [uploadProgress]="uploadProgress()"
+          [uploadEtaLabel]="getUploadEtaLabel()"
+          [resetVersion]="createResetVersion()"
+          (submitCreate)="submitRecipe($event)"
+          (cancelUploadRequest)="cancelUpload()"
+        />
+      </div>
+    }
+
+    @if (!viewMealPageActive()) {
+      @if (recipesLoading()) {
+        <p class="state" role="status">Indlæser opskrifter...</p>
+      } @else if (recipesError()) {
+        <p class="state error" role="alert">{{ recipesError() }}</p>
+      } @else {
+        <section aria-labelledby="shared-recipes-heading">
+          <h2 id="shared-recipes-heading">Alle opskrifter</h2>
+          @if (visibleSharedRecipes().length) {
+            <ul class="grid">
+              @for (recipe of visibleSharedRecipes(); track recipe.id) {
+                <li><app-meal-prep-recipe-card [recipe]="recipe" (selected)="openMeal($event)" /></li>
+              }
+            </ul>
+          } @else {
+            <p class="state">Ingen fælles opskrifter i denne kategori.</p>
+          }
+        </section>
+
+        <section aria-labelledby="personal-recipes-heading">
+          <h2 id="personal-recipes-heading">Dine opskrifter</h2>
+          @if (visiblePersonalRecipes().length) {
+            <ul class="grid">
+              @for (recipe of visiblePersonalRecipes(); track recipe.id) {
+                <li><app-meal-prep-recipe-card [recipe]="recipe" (selected)="openMeal($event)" /></li>
+              }
+            </ul>
+          } @else {
+            <p class="state">Du har ingen personlige opskrifter i denne kategori.</p>
+          }
+        </section>
+      }
+    }
+  </main>
 </div>

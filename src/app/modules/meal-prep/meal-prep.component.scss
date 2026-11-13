@@ -1,28 +1,136 @@
+:host {
+  display: block;
+  color: #0f172a;
+  font-family: Poppins, sans-serif;
+}
+
 .body {
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
   padding: 0 20px 100px;
-  box-sizing: border-box;
   background: #fff;
 }
 
-app-meal-prep-create,
-app-meal-prep-view,
-app-meal-prep-carousel {
-  width: min(100%, 1200px);
+.content {
+  display: grid;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 0 64px;
 }
 
-@media (max-width: 900px) {
-  .body {
-    padding-inline: 14px;
+.overview-heading {
+  margin: 0;
+  font-family: Merriweather, serif;
+  font-size: 1.4rem;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button {
+    padding: 8px 18px;
+    border: 1px solid #94a3b8;
+    border-radius: 999px;
+    background: #fff;
+    color: #0f172a;
+    cursor: pointer;
+    font: inherit;
+
+    &[aria-pressed='true'] {
+      border-color: #1d4ed8;
+      background: #1d4ed8;
+      color: #fff;
+    }
   }
+}
+
+.recipe-switch {
+  display: flex;
+  width: fit-content;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+
+  input {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    margin: 0;
+    appearance: none;
+    border: 1px solid #64748b;
+    border-radius: 999px;
+    background: #cbd5e1;
+    cursor: pointer;
+
+    &::before {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      content: '';
+      transition: transform 150ms ease;
+    }
+
+    &:checked {
+      border-color: #1d4ed8;
+      background: #1d4ed8;
+    }
+
+    &:checked::before {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.back-button {
+  justify-self: start;
+  padding: 9px 20px;
+  border: 1px solid #1d4ed8;
+  border-radius: 999px;
+  background: #fff;
+  color: #1d4ed8;
+  cursor: pointer;
+  font: inherit;
+}
+
+.tabs button:focus-visible,
+.recipe-switch input:focus-visible,
+.back-button:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+section h2 {
+  margin: 0 0 14px;
+  font-family: Merriweather, serif;
+  font-size: 1.2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.state {
+  color: #475569;
+}
+
+.error {
+  color: #b91c1c;
 }
 
 @media (max-width: 600px) {
   .body {
-    padding-bottom: 70px;
+    padding: 0 14px 70px;
   }
 }

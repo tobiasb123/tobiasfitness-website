@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { UserProfile } from '@models/auth/interfaces';
 import { TrainingProgram } from '@models/training';
+import { intensityLabel, parseIntensity } from '@models/training/intensity';
 import { AuthFunctionsService } from '@modules/auth';
 import { toPng } from 'html-to-image';
 import moment from 'moment-timezone';
@@ -133,6 +134,8 @@ export class TrainingProgramComponent implements OnInit {
     }
 
     this.savingExerciseId.set(change.exerciseId);
+    const exercise = program.exercises.find((item) => item.id === change.exerciseId);
+    const label = exercise ? intensityLabel(parseIntensity(exercise.intensity).unit) : 'Intensitet';
 
     try {
       const input = {
@@ -146,9 +149,9 @@ export class TrainingProgramComponent implements OnInit {
       this.programs.update((programs) =>
         programs.map((item) => (item.id === updated.id ? updated : item)),
       );
-      this.toast.open('Intensiteten blev opdateret', 'success');
+      this.toast.open(`${label === 'Vægt' ? 'Vægten' : 'Intensiteten'} blev opdateret`, 'success');
     } catch (error) {
-      this.toast.open(this.messageOf(error, 'Intensiteten kunne ikke gemmes'), 'error');
+      this.toast.open(this.messageOf(error, `${label === 'Vægt' ? 'Vægten' : 'Intensiteten'} kunne ikke gemmes`), 'error');
     } finally {
       this.savingExerciseId.set(null);
     }

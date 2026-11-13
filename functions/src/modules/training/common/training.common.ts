@@ -5,6 +5,7 @@ import {
   TrainingSection,
 } from '@models/training';
 import { HttpsError } from 'firebase-functions/https';
+import { isRepsType } from '../../../../../models/training/intensity';
 
 // @models is type-only at runtime in functions (no path alias rewrite), so values are kept local
 const TRAINING_SECTIONS: readonly TrainingSection[] = ['warmup', 'training', 'cooldown'];
@@ -60,6 +61,10 @@ export const commonNormalizeProgramInput = (
       throw new HttpsError('invalid-argument', 'Datoen for vægtopdatering er ugyldig');
     }
 
+    if (exercise.repsType !== undefined && !isRepsType(exercise.repsType)) {
+      throw new HttpsError('invalid-argument', 'Typen for gentagelser er ugyldig');
+    }
+
     return {
       id,
       ...(weightUpdatedAt ? { weightUpdatedAt } : {}),
@@ -68,6 +73,7 @@ export const commonNormalizeProgramInput = (
       explanation: text(exercise.explanation, 1000),
       imageUrl,
       reps: text(exercise.reps, 40),
+      ...(exercise.repsType !== undefined ? { repsType: exercise.repsType } : {}),
       sets: Number.isFinite(sets) && sets > 0 ? sets : 0,
       intensity: text(exercise.intensity, 40),
     };

@@ -121,7 +121,16 @@ export class StorageFunctions {
   }
 
   public async updateRecipe(file: DocumentFile): Promise<void> {
-    await this.firbaseService.httpPost<DocumentFile, void>('storage-editRecipe', file);
+    const result = await this.firbaseService.httpPost<DocumentFile, { recipe?: Recipe } | null>(
+      'storage-editRecipe',
+      file,
+    );
+
+    if (!result?.recipe || result.recipe.category !== file.recipe?.category) {
+      throw new Error(
+        'Opskriften kan være gemt, men kategorien blev ikke bekræftet. Opdater Firebase-funktionerne, og gem kategorien igen.',
+      );
+    }
   }
 
   public async deleteRecipe(id: string): Promise<void> {

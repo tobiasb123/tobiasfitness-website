@@ -1,15 +1,20 @@
 import {
   Component,
+  ChangeDetectionStrategy,
+  afterNextRender,
   computed,
   effect,
+  ElementRef,
   inject,
+  Injector,
   OnDestroy,
   OnInit,
   signal,
+  viewChild,
   WritableSignal,
 } from '@angular/core';
 import { UserProfile } from '@models/auth/interfaces';
-import { DocumentFile } from '@models/storage';
+import { DocumentFile, RecipeCategory, RECIPE_CATEGORIES } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
 import { UploadTaskSnapshot } from 'firebase/storage';
@@ -17,7 +22,7 @@ import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
 import { AdminFacade } from '../admin-menu';
 import { ToastService } from '../core/services/toast/toast.service';
-import { MealPrepCarouselComponent } from './components/meal-prep-carousel/meal-prep-carousel.component';
+import { MealPrepRecipeCardComponent } from './components/meal-prep-recipe-card/meal-prep-recipe-card.component';
 import {
   MealPrepCreateComponent,
   MealPrepCreatePayload,
@@ -34,10 +39,11 @@ import { isRecipeForUser } from './utils/recipe-receivers.util';
     MealPrepHeaderComponent,
     MealPrepCreateComponent,
     MealPrepViewComponent,
-    MealPrepCarouselComponent,
+    MealPrepRecipeCardComponent,
   ],
   templateUrl: './meal-prep.component.html',
   styleUrl: './meal-prep.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MealPrepComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
@@ -47,6 +53,9 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   private toast = inject(ToastService);
   private adminFacade = inject(AdminFacade);
   private recipesFacade = inject(RecipesFacade);
+  private injector = inject(Injector);
+  private readonly backButton = viewChild<ElementRef<HTMLButtonElement>>('backButton');
+  private readonly overviewHeading = viewChild<ElementRef<HTMLElement>>('overviewHeading');
 
   recieverOptions: WritableSignal<UserProfile[]> = signal([]);
 
@@ -58,10 +67,18 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   recipesLoading = signal(false);
   recipesError = signal('');
   createResetVersion = signal(0);
+  showCreate = signal(false);
+  readonly categories = RECIPE_CATEGORIES;
+  selectedCategory = signal<RecipeCategory | 'uncategorized'>('breakfast');
+  readonly uncategorizedCount = computed(
+    () => [...this.recipies(), ...this.yourRecipies()].filter((item) => !item.recipe?.category).length,
+  );
+  readonly visibleSharedRecipes = computed(() => this.filterByCategory(this.recipies()));
+  readonly visiblePersonalRecipes = computed(() => this.filterByCategory(this.yourRecipies()));
 
   userProfile = signal<UserProfile | undefined>(undefined);
   isAdmin = computed(() => Boolean(this.userProfile()?.admin));
-  viewMealPageActive = false;
+  viewMealPageActive = signal(false);
 
   isUploading = signal(false);
   uploadProgress = signal(0);
@@ -113,12 +130,14 @@ export class MealPrepComponent implements OnInit, OnDestroy {
     }
 
     this.selectedDocumentData.set(recipe);
-    this.viewMealPageActive = true;
+    this.viewMealPageActive.set(true);
+    afterNextRender(() => this.backButton()?.nativeElement.focus(), { injector: this.injector });
   }
 
   closeMealView(): void {
-    this.viewMealPageActive = false;
+    this.viewMealPageActive.set(false);
     this.selectedDocumentData.set(null);
+    afterNextRender(() => this.overviewHeading()?.nativeElement.focus(), { injector: this.injector });
   }
 
   async submitRecipe(payload: MealPrepCreatePayload): Promise<void> {
@@ -140,6 +159,13 @@ export class MealPrepComponent implements OnInit, OnDestroy {
 
       this.upsertRecipe(documentFile);
       this.createResetVersion.update((version) => version + 1);
+      if (documentFile.recipe?.category !== payload.recipe.category) {
+        this.toast.open(
+          'Opskriften er oprettet, men kategorien blev ikke gemt. Opdater Firebase-funktionerne, og rediger opskriften.',
+          'error',
+        );
+        return;
+      }
       this.toast.open('Opskrift blev oprettet', 'success');
     } catch (error) {
       this.finishUpload();
@@ -242,10 +268,14 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   }
 
   private upsertRecipe(documentFile: DocumentFile): void {
-    const formattedRecipe = this.formatRecipes([documentFile])[0];
+    this.recipesFacade.upsertRecipe(documentFile);
+  }
 
-    this.recipesFacade.upsertRecipe(formattedRecipe);
-    this.selectedDocumentData.set(formattedRecipe);
+  private filterByCategory(recipes: DocumentFile[]): DocumentFile[] {
+    const category = this.selectedCategory();
+    return recipes.filter((recipe) =>
+      category === 'uncategorized' ? !recipe.recipe?.category : recipe.recipe?.category === category,
+    );
   }
 
   private setRecipeCollections(recipes: DocumentFile[]): void {

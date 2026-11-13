@@ -8,8 +8,11 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DocumentFile } from '@models/storage';
+import { intensityLabel, IntensityUnit, parseIntensity, repsLabel, RepsType } from '@models/training/intensity';
 import { ToastService } from '../../../core/services/toast/toast.service';
 import { TrainingProgramService } from '../../services/training-program.service';
+import { savedIntensity, validateIntensity } from '../../intensity-form';
+import { repsValidator } from '../../reps-validator';
 
 @Component({
   selector: 'app-training-library',
@@ -19,6 +22,8 @@ import { TrainingProgramService } from '../../services/training-program.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrainingLibraryComponent implements OnInit {
+  readonly repsLabel = repsLabel;
+  readonly intensityLabel = intensityLabel;
   private service = inject(TrainingProgramService);
   private toast = inject(ToastService);
 
@@ -40,12 +45,18 @@ export class TrainingLibraryComponent implements OnInit {
   readonly form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     explanation: new FormControl('', { nonNullable: true }),
-    reps: new FormControl('10 Reps', { nonNullable: true }),
+    reps: new FormControl('10', { nonNullable: true, validators: [repsValidator('')] }),
+    repsType: new FormControl<RepsType>('reps', { nonNullable: true }),
     sets: new FormControl(3, { nonNullable: true, validators: [Validators.min(1)] }),
-    intensity: new FormControl('Kropsvægt', { nonNullable: true }),
-  });
+    intensity: new FormControl('', { nonNullable: true }),
+    intensityUnit: new FormControl<IntensityUnit>('bodyweight', { nonNullable: true }),
+    originalIntensity: new FormControl('Kropsvægt', { nonNullable: true }),
+  }, { validators: validateIntensity });
 
   async ngOnInit(): Promise<void> {
+    this.form.controls.intensityUnit.valueChanges.subscribe(() => {
+      this.form.controls.intensity.setValue('');
+    });
     try {
       await this.service.loadExercises();
     } catch (error) {
@@ -67,25 +78,33 @@ export class TrainingLibraryComponent implements OnInit {
 
     this.editingId.set(item.id);
     this.selectedFile.set(null);
+    this.form.controls.reps.setValidators(repsValidator(item.exercise.reps));
     this.form.setValue({
       name: item.exercise.name,
       explanation: item.exercise.explanation,
       reps: item.exercise.reps,
+      repsType: item.exercise.repsType ?? 'reps',
       sets: item.exercise.sets,
-      intensity: item.exercise.intensity,
-    });
+      intensity: parseIntensity(item.exercise.intensity).value,
+      intensityUnit: parseIntensity(item.exercise.intensity).unit,
+      originalIntensity: item.exercise.intensity,
+    }, { emitEvent: false });
   }
 
   resetForm(): void {
     this.editingId.set(null);
     this.selectedFile.set(null);
+    this.form.controls.reps.setValidators(repsValidator(''));
     this.form.reset({
       name: '',
       explanation: '',
-      reps: '10 Reps',
+      reps: '10',
+      repsType: 'reps',
       sets: 3,
-      intensity: 'Kropsvægt',
-    });
+      intensity: '',
+      intensityUnit: 'bodyweight',
+      originalIntensity: 'Kropsvægt',
+    }, { emitEvent: false });
   }
 
   async submit(): Promise<void> {
@@ -102,7 +121,11 @@ export class TrainingLibraryComponent implements OnInit {
       return;
     }
 
-    const exercise = this.form.getRawValue();
+    const { intensityUnit, originalIntensity, ...fields } = this.form.getRawValue();
+    const exercise = {
+      ...fields,
+      intensity: savedIntensity(fields.intensity, intensityUnit, originalIntensity),
+    };
     this.saving.set(true);
 
     try {

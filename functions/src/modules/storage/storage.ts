@@ -9,6 +9,7 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import { HttpsError } from 'firebase-functions/https';
 import moment from 'moment-timezone';
+import { RECIPE_CATEGORIES } from '../../../../models/storage/interfaces/recipe.interface';
 import { createAdminEndpoint, createAuthEndpoint, createPublicEndpoint } from '../../shared/http';
 import { getUser } from '../auth/common/auth.common';
 import { commonNormalizeExercise } from './common/exercise.common';
@@ -166,7 +167,7 @@ export const createUploadIntent = createAuthEndpoint(async (req, res, user) => {
   }
 
   if (input.recipe) {
-    uploadIntentData.recipe = input.recipe;
+    uploadIntentData.recipe = normalizeRecipe(input.recipe);
   }
 
   if (input.exercise) {
@@ -390,17 +391,19 @@ export const editRecipe = createAdminEndpoint(async (req, res) => {
     throw new HttpsError('not-found', 'Opskrift findes ikke');
   }
 
+  const recipe = normalizeRecipe(data.recipe);
+
   await recipeDoc.ref
     .update({
       uid: receivers.uid,
       recipeUids: receivers.recipeUids ?? FieldValue.delete(),
-      recipe: normalizeRecipe(data.recipe),
+      recipe,
     })
     .catch(() => {
       throw new HttpsError('internal', 'Opskrift blev ikke ændret');
     });
 
-  res.json();
+  res.json({ recipe });
 });
 
 export const deleteRecipe = createAdminEndpoint(async (req, res) => {
@@ -671,6 +674,13 @@ const normalizeRecipe = (recipe: DocumentFile['recipe']): DocumentFile['recipe']
     return undefined;
   }
 
+  if (
+    recipe.category !== undefined &&
+    !RECIPE_CATEGORIES.some((category) => category.value === recipe.category)
+  ) {
+    throw new HttpsError('invalid-argument', 'Opskriftens kategori er ugyldig');
+  }
+
   const title = String(recipe.title ?? '').trim();
   const ingredientGroups = normalizeIngredientGroups(recipe.ingredientGroups);
   const instructionSections = normalizeInstructionSections(recipe.instructionSections);
@@ -696,6 +706,7 @@ const normalizeRecipe = (recipe: DocumentFile['recipe']): DocumentFile['recipe']
 
   return {
     title,
+    ...(recipe.category ? { category: recipe.category } : {}),
     ingredients,
     instructions,
     macros,

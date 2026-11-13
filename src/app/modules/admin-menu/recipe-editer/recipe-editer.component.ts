@@ -13,6 +13,8 @@ import { UserProfile } from '@models/auth/interfaces';
 import {
   DocumentFile,
   Recipe,
+  RecipeCategory,
+  RECIPE_CATEGORIES,
   RecipeIngredientGroup,
   RecipeInstructionSection,
   RecipeNutritionRow,
@@ -35,6 +37,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeEditerComponent implements OnDestroy {
+  readonly categories = RECIPE_CATEGORIES;
   selectedRecipe = input<DocumentFile | undefined>(undefined);
   users = input<UserProfile[]>([]);
 
@@ -55,6 +58,7 @@ export class RecipeEditerComponent implements OnDestroy {
     nonNullable: true,
     validators: [Validators.required],
   });
+  readonly categoryControl = new FormControl<RecipeCategory | ''>('', { nonNullable: true });
   readonly servingsControl = new FormControl<number | null>(null);
   readonly prepTimeMinutesControl = new FormControl<number | null>(null);
   readonly cookTimeMinutesControl = new FormControl<number | null>(null);
@@ -63,6 +67,7 @@ export class RecipeEditerComponent implements OnDestroy {
   readonly formGroup = new FormGroup({
     receiver: this.receiverControl,
     title: this.titleControl,
+    category: this.categoryControl,
     servings: this.servingsControl,
     prepTimeMinutes: this.prepTimeMinutesControl,
     cookTimeMinutes: this.cookTimeMinutesControl,
@@ -414,6 +419,7 @@ export class RecipeEditerComponent implements OnDestroy {
 
     const updatedRecipeData: Recipe = {
       title: this.titleControl.value.trim(),
+      ...(this.categoryControl.value ? { category: this.categoryControl.value } : {}),
       ingredients: this.flattenIngredients(normalizedIngredientGroups),
       instructions: this.flattenInstructions(normalizedInstructionSections),
       macros: this.buildLegacyMacros(normalizedNutritionRows),
@@ -449,6 +455,11 @@ export class RecipeEditerComponent implements OnDestroy {
         ).promise;
         this.recipesFacade.upsertRecipe(replacedDocument);
         this.hydrateFromRecipe(replacedDocument);
+        if (replacedDocument.recipe?.category !== updatedRecipeData.category) {
+          throw new Error(
+            'Opskriften er gemt, men kategorien blev ikke gemt. Opdater Firebase-funktionerne, og gem kategorien igen.',
+          );
+        }
       } else {
         await this.storageFunctions.updateRecipe(updatedDocument);
         this.recipesFacade.upsertRecipe(updatedDocument);
@@ -456,8 +467,8 @@ export class RecipeEditerComponent implements OnDestroy {
       }
 
       this.toast.open('Opskrift gemt', 'success');
-    } catch {
-      this.toast.open('Kunne ikke gemme opskriften', 'error');
+    } catch (error) {
+      this.toast.open(error instanceof Error ? error.message : 'Kunne ikke gemme opskriften', 'error');
     } finally {
       this.isRecipeSaving.set(false);
     }
@@ -493,6 +504,7 @@ export class RecipeEditerComponent implements OnDestroy {
     if (!document?.recipe) {
       this.formGroup.reset();
       this.receiverControl.setValue(['all']);
+      this.categoryControl.setValue('');
       this.ingredientGroups.set([]);
       this.instructionSections.set([]);
       this.storageNotes.set([]);
@@ -506,6 +518,7 @@ export class RecipeEditerComponent implements OnDestroy {
 
     this.receiverControl.setValue(getRecipeReceiverUids(document));
     this.titleControl.setValue(recipe.title || '');
+    this.categoryControl.setValue(recipe.category ?? '');
     this.servingsControl.setValue(recipe.servings ?? null);
     this.prepTimeMinutesControl.setValue(recipe.prepTimeMinutes ?? null);
     this.cookTimeMinutesControl.setValue(recipe.cookTimeMinutes ?? null);

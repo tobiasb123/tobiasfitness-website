@@ -57,9 +57,9 @@
         <th scope="col">Øvelse</th>
         <th scope="col">Forklaring</th>
         <th scope="col">Billede</th>
-        <th scope="col">Reps/Tid</th>
+        <th scope="col">{{ repsColumnLabel() }}</th>
         <th scope="col">Sæt</th>
-        <th scope="col">Intensitet</th>
+        <th scope="col">{{ intensityColumnLabel() }}</th>
       </tr>
     </thead>
     @for (group of sections(); track group.section) {
@@ -76,21 +76,38 @@
               <img [src]="imageSrc(exercise)" [alt]="'Illustration af ' + exercise.name" />
             }
           </td>
-          <td class="stat" data-label="Reps/Tid">{{ exercise.reps }}</td>
-          <td class="stat" data-label="Sæt">{{ exercise.sets }}</td>
-          <td class="intensity" data-label="Intensitet">
+          <td class="stat" [attr.data-label]="exerciseRepsLabel(exercise)">
+            @if (repsColumnLabel() !== exerciseRepsLabel(exercise) && exerciseRepsLabel(exercise) !== 'Reps/Tid') {
+              <span class="reps-label">{{ exerciseRepsLabel(exercise) }}: </span>
+            }
+            {{ exercise.reps }}
+          </td>
+          <td class="stat sets">Sæt: {{ exercise.sets }}</td>
+          <td class="intensity" [attr.data-label]="exerciseIntensityLabel(exercise)">
+            @if (intensityColumnLabel() !== exerciseIntensityLabel(exercise)) {
+              <span class="intensity-label">{{ exerciseIntensityLabel(exercise) }}: </span>
+            }
             @if (editingId() === exercise.id) {
               <form class="weight-form" (submit)="saveEdit(exercise); $event.preventDefault()">
                 <label class="visually-hidden" [for]="'weight-' + exercise.id">
-                  Intensitet for {{ exercise.name }}
+                  {{ isTimeExercise(exercise) ? 'Intensitet fra 1 til 10' : 'Vægt i kg' }} for {{ exercise.name }}
                 </label>
-                <input
-                  [id]="'weight-' + exercise.id"
-                  type="text"
-                  maxlength="40"
-                  [formControl]="weightControl"
-                  (keydown.escape)="cancelEdit()"
-                />
+                <div class="weight-input">
+                  <input
+                    [id]="'weight-' + exercise.id"
+                    type="text"
+                    [attr.inputmode]="isTimeExercise(exercise) ? 'numeric' : 'decimal'"
+                    maxlength="35"
+                    [formControl]="weightControl"
+                    [attr.aria-invalid]="weightControl.touched && weightControl.invalid"
+                    [attr.aria-describedby]="weightControl.touched && weightControl.invalid ? 'weight-error-' + exercise.id : null"
+                    (keydown.escape)="cancelEdit()"
+                  />
+                  <span>{{ intensityUnit(exercise) }}</span>
+                </div>
+                @if (weightControl.touched && weightControl.invalid) {
+                  <span [id]="'weight-error-' + exercise.id" role="alert">{{ isTimeExercise(exercise) ? 'Indtast et helt tal fra 1 til 10.' : 'Indtast et gyldigt tal.' }}</span>
+                }
                 <div class="weight-actions">
                   <button type="submit" class="btn primary">Gem</button>
                   <button type="button" class="btn" (click)="cancelEdit()">Annuller</button>
@@ -98,16 +115,18 @@
               </form>
             } @else {
               <span class="weight">{{ exercise.intensity || '–' }}</span>
-              @if (editable()) {
+              @if (editable() && canEditIntensity(exercise)) {
                 <button
                   type="button"
                   class="btn edit"
                   [disabled]="savingExerciseId() === exercise.id"
-                  [attr.aria-label]="'Ret intensitet for ' + exercise.name"
+                  [attr.aria-label]="'Ret ' + exerciseIntensityLabel(exercise).toLowerCase() + ' for ' + exercise.name"
                   (click)="startEdit(exercise)"
                 >
-                  {{ savingExerciseId() === exercise.id ? 'Gemmer…' : 'Ret intensitet' }}
+                  {{ savingExerciseId() === exercise.id ? 'Gemmer…' : 'Ret ' + exerciseIntensityLabel(exercise).toLowerCase() }}
                 </button>
+              } @else if (editable() && isLegacyIntensity(exercise)) {
+                <span>En administrator skal vælge en måleenhed, før værdien kan ændres.</span>
               }
               <span class="weight-updated">
                 Opdateret {{ formatDate(exercise.weightUpdatedAt) }}

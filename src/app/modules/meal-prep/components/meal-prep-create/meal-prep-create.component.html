@@ -19,6 +19,25 @@
         <input id="title" type="text" formControlName="title" />
       </div>
 
+      <div class="field-group">
+        <label for="create-category">Kategori</label>
+        <select
+          id="create-category"
+          formControlName="category"
+          required
+          [attr.aria-invalid]="categoryControl.invalid && categoryControl.touched"
+          [attr.aria-describedby]="categoryControl.invalid && categoryControl.touched ? 'category-error' : null"
+        >
+          <option value="">Vælg kategori</option>
+          @for (category of categories; track category.value) {
+            <option [value]="category.value">{{ category.label }}</option>
+          }
+        </select>
+        @if (categoryControl.invalid && categoryControl.touched) {
+          <span id="category-error" class="field-error">Vælg en kategori.</span>
+        }
+      </div>
+
       <div class="metadata-grid">
         <div class="field-group">
           <label for="servings">Portioner</label>
@@ -239,7 +258,7 @@
     </div>
 
     <div class="editor-card-block span-2">
-      <h3>Næringsindhold pr. 100 g</h3>
+      <h3>Næringsindhold pr. portion</h3>
 
       <div class="section-actions">
         <button type="button" (click)="addNutritionRow()">Tilføj næringsrække</button>

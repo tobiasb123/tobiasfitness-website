@@ -8,6 +8,7 @@ import {
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/https';
+import { isValueOnlyIntensityUpdate } from '../../../../models/training/intensity';
 import { createAdminEndpoint, createAuthEndpoint } from '../../shared/http';
 import { getUser } from '../auth/common/auth.common';
 import { sendMail } from '../mail/common/mail.common';
@@ -204,6 +205,10 @@ const updateExerciseIntensity = async (
 
     if (!exercise) {
       throw new HttpsError('not-found', 'Øvelsen blev ikke fundet');
+    }
+
+    if (!isValueOnlyIntensityUpdate(exercise.intensity, intensity)) {
+      throw new HttpsError('invalid-argument', 'Kun værdien kan ændres her. Måleenheden ændres under administration.');
     }
 
     if (exercise.intensity !== intensity) {

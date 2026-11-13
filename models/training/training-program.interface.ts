@@ -17,6 +17,7 @@ export interface TrainingExercise {
   explanation: string;
   imageUrl: string;
   reps: string;
+  repsType?: RepsType;
   sets: number;
   intensity: string;
   weightUpdatedAt: string;
@@ -67,3 +68,4 @@ export interface UpdateExerciseWeightInput {
   exerciseId: string;
   intensity: string;
 }
+import type { RepsType } from './intensity';

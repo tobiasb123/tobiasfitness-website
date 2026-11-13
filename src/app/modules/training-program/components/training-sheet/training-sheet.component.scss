@@ -215,6 +215,16 @@
   justify-content: center;
 }
 
+.weight-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  input {
+    min-width: 0;
+  }
+}
+
 .btn {
   padding: 6px 12px;
   border: 1px solid #94a3b8;
@@ -333,6 +343,11 @@
     .stat,
     .intensity {
       text-align: left;
+    }
+
+    .reps-label,
+    .intensity-label {
+      display: none;
     }
   }
 

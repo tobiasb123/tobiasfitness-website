@@ -26,6 +26,7 @@ export interface RecipeStorageNote {
 
 export interface Recipe {
   title: string;
+  category?: RecipeCategory;
   ingredients: string[];
   instructions: string[];
   macros: string[];
@@ -38,3 +39,11 @@ export interface Recipe {
   storageNotes?: RecipeStorageNote[];
   nutritionPerServing?: RecipeNutritionRow[];
 }
+export const RECIPE_CATEGORIES = [
+  { value: 'breakfast', label: 'Morgenmad' },
+  { value: 'lunch', label: 'Frokost' },
+  { value: 'dinner', label: 'Aftensmad' },
+  { value: 'snack', label: 'Snack' },
+] as const;
+
+export type RecipeCategory = (typeof RECIPE_CATEGORIES)[number]['value'];

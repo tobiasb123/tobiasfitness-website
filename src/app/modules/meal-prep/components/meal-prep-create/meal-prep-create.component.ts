@@ -4,6 +4,8 @@ import { UserProfile } from '@models/auth/interfaces';
 import { RecipeReceiverPickerComponent } from '../recipe-receiver-picker/recipe-receiver-picker.component';
 import {
   Recipe,
+  RecipeCategory,
+  RECIPE_CATEGORIES,
   RecipeIngredientGroup,
   RecipeInstructionSection,
   RecipeInstructionStep,
@@ -24,6 +26,7 @@ export interface MealPrepCreatePayload {
   styleUrl: './meal-prep-create.component.scss',
 })
 export class MealPrepCreateComponent {
+  readonly categories = RECIPE_CATEGORIES;
   receiverOptions = input<UserProfile[]>([]);
   isUploading = input(false);
   uploadProgress = input(0);
@@ -43,6 +46,10 @@ export class MealPrepCreateComponent {
     nonNullable: true,
     validators: [Validators.required],
   });
+  readonly categoryControl = new FormControl<RecipeCategory | ''>('', {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
   readonly servingsControl = new FormControl<number | null>(null);
   readonly prepTimeMinutesControl = new FormControl<number | null>(null);
   readonly cookTimeMinutesControl = new FormControl<number | null>(null);
@@ -55,6 +62,7 @@ export class MealPrepCreateComponent {
   readonly formGroup = new FormGroup({
     receiver: this.receiverControl,
     title: this.titleControl,
+    category: this.categoryControl,
     servings: this.servingsControl,
     prepTimeMinutes: this.prepTimeMinutesControl,
     cookTimeMinutes: this.cookTimeMinutesControl,
@@ -373,14 +381,14 @@ export class MealPrepCreateComponent {
       return;
     }
 
-    const file = this.fileInputRef()?.nativeElement.files?.[0] ?? null;
-
-    if (!file) {
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
       return;
     }
 
-    if (this.formGroup.invalid) {
-      this.formGroup.markAllAsTouched();
+    const file = this.fileInputRef()?.nativeElement.files?.[0] ?? null;
+
+    if (!file) {
       return;
     }
 
@@ -391,6 +399,7 @@ export class MealPrepCreateComponent {
       receiverUids: this.receiverControl.value,
       recipe: {
         title: this.titleControl.value.trim(),
+        category: this.categoryControl.value || undefined,
         servings: this.servingsControl.value,
         prepTimeMinutes: this.prepTimeMinutesControl.value,
         cookTimeMinutes: this.cookTimeMinutesControl.value,
@@ -411,6 +420,7 @@ export class MealPrepCreateComponent {
     this.formGroup.reset({
       receiver: ['all'],
       title: '',
+      category: '',
       servings: null,
       prepTimeMinutes: null,
       cookTimeMinutes: null,

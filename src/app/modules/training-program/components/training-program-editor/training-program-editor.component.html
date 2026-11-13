@@ -96,17 +96,70 @@
                   </div>
                   <div class="row">
                     <div class="field">
-                      <label [for]="'ex-reps-' + i">Reps/Tid</label>
-                      <input [id]="'ex-reps-' + i" type="text" formControlName="reps" />
+                      <label [for]="'ex-reps-' + i">{{ repsLabel(group.controls.intensityUnit.value, group.controls.repsType.value) }}</label>
+                      <input [id]="'ex-reps-' + i" type="text" inputmode="decimal" maxlength="40"
+                        formControlName="reps"
+                        [attr.aria-invalid]="group.controls.reps.touched && group.controls.reps.invalid"
+                        [attr.aria-describedby]="group.controls.reps.touched && group.controls.reps.invalid ? 'ex-reps-error-' + i : null" />
+                      @if (group.controls.reps.touched && group.controls.reps.hasError('numericReps')) {
+                        <span [id]="'ex-reps-error-' + i" role="alert">Indtast kun et tal.</span>
+                      }
                     </div>
                     <div class="field">
                       <label [for]="'ex-sets-' + i">Sæt</label>
                       <input [id]="'ex-sets-' + i" type="number" min="1" formControlName="sets" />
                     </div>
                     <div class="field">
-                      <label [for]="'ex-int-' + i">Intensitet</label>
-                      <input [id]="'ex-int-' + i" type="text" formControlName="intensity" />
+                      @if (group.controls.intensityUnit.value === 'bodyweight') {
+                        <span>Intensitet: Kropsvægt</span>
+                      } @else {
+                        <label [for]="'ex-int-' + i">{{ intensityLabel(group.controls.intensityUnit.value) }}</label>
+                        <div class="intensity-input">
+                          <input [id]="'ex-int-' + i" type="text"
+                            [attr.inputmode]="group.controls.intensityUnit.value === 'time' ? 'numeric' : 'decimal'"
+                            maxlength="35" formControlName="intensity"
+                            [readOnly]="group.controls.intensityUnit.value === 'legacy' || group.controls.intensityUnit.value === 'legacy-time'"
+                            [attr.aria-invalid]="group.hasError('intensity') && group.touched"
+                            [attr.aria-describedby]="group.controls.intensityUnit.value === 'time' ? 'ex-int-help-' + i : null" />
+                          @if (group.controls.intensityUnit.value === 'time') {
+                            <span [id]="'ex-int-help-' + i">/10</span>
+                          }
+                        </div>
+                      }
+                      @if (group.hasError('intensity') && group.touched) {
+                        <span role="alert">{{ group.controls.intensityUnit.value === 'time' ? 'Indtast et helt tal fra 1 til 10.' : 'Indtast et gyldigt tal.' }}</span>
+                      }
+                      @if (group.controls.intensityUnit.value === 'legacy-time') {
+                        <span>Vælg Tid for at angive intensitet fra 1 til 10.</span>
+                      }
                     </div>
+                  </div>
+                  <div class="measurement-row">
+                    <div class="field">
+                      <label [for]="'ex-unit-' + i">Måleenhed</label>
+                      <select [id]="'ex-unit-' + i" formControlName="intensityUnit">
+                        @if (group.controls.intensityUnit.value === 'legacy') {
+                          <option value="legacy" disabled>Eksisterende værdi</option>
+                        }
+                        @if (group.controls.intensityUnit.value === 'legacy-time') {
+                          <option value="legacy-time" disabled>Tid (tidligere værdi)</option>
+                        }
+                        <option value="kg">Kg</option>
+                        <option value="time">Tid</option>
+                        <option value="bodyweight">Kropsvægt</option>
+                      </select>
+                    </div>
+                    @if (group.controls.intensityUnit.value === 'kg') {
+                      <div class="field">
+                        <span [id]="'ex-reps-type-label-' + i">Type</span>
+                        <div class="choice-buttons" role="group" [attr.aria-labelledby]="'ex-reps-type-label-' + i">
+                          <button type="button" [attr.aria-pressed]="group.controls.repsType.value === 'time'"
+                            (click)="group.controls.repsType.setValue('time')">Tid</button>
+                          <button type="button" [attr.aria-pressed]="group.controls.repsType.value === 'reps'"
+                            (click)="group.controls.repsType.setValue('reps')">Reps</button>
+                        </div>
+                      </div>
+                    }
                   </div>
                   <div class="field">
                     <label [for]="'ex-date-' + i">Vægt sidst opdateret</label>

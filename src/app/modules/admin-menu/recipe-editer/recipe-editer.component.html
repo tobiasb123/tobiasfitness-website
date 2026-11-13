@@ -25,6 +25,16 @@
             <input id="title" type="text" formControlName="title" />
           </div>
 
+          <div class="field-group">
+            <label for="edit-category">Kategori</label>
+            <select id="edit-category" formControlName="category">
+              <option value="">Ikke kategoriseret</option>
+              @for (category of categories; track category.value) {
+                <option [value]="category.value">{{ category.label }}</option>
+              }
+            </select>
+          </div>
+
           <div class="metadata-grid">
             <div class="field-group">
               <label for="servings">Portioner</label>
@@ -262,7 +272,7 @@
         </div>
 
         <div class="editor-card-block span-2">
-          <h3>Næringsindhold pr. 100g</h3>
+          <h3>Næringsindhold pr. portion</h3>
 
           <div class="section-actions">
             <button type="button" (click)="addNutritionRow()">Tilføj næringsrække</button>
