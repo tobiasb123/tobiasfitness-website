@@ -12,6 +12,17 @@ const TRAINING_SECTIONS: readonly TrainingSection[] = ['warmup', 'training', 'co
 
 const MAX_EXERCISES = 60;
 
+export const commonShouldNotifyClient = (
+  status: string,
+  isUpdate: boolean,
+  sendNotification: unknown,
+): boolean => {
+  if (sendNotification !== undefined && typeof sendNotification !== 'boolean') {
+    throw new HttpsError('invalid-argument', 'Mailvalget er ugyldigt');
+  }
+  return status === 'active' && (!isUpdate || sendNotification !== false);
+};
+
 const text = (value: unknown, maxLength: number): string =>
   String(value ?? '')
     .trim()

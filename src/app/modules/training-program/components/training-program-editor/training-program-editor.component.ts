@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   input,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   FormArray,
@@ -76,6 +78,7 @@ export class TrainingProgramEditorComponent implements OnInit {
   readonly intensityLabel = intensityLabel;
   private service = inject(TrainingProgramService);
   private toast = inject(ToastService);
+  private readonly emailDialog = viewChild.required<ElementRef<HTMLDialogElement>>('emailDialog');
 
   users = input<UserProfile[]>([]);
 
@@ -271,12 +274,40 @@ export class TrainingProgramEditorComponent implements OnInit {
       return;
     }
 
+    if (this.editingId() && this.form.controls.status.value === 'active') {
+      const dialog = this.emailDialog().nativeElement;
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+      return;
+    }
+
+    await this.saveProgram();
+  }
+
+  cancelEmailChoice(): void {
+    this.emailDialog().nativeElement.close();
+  }
+
+  async confirmEmailChoice(sendNotification: boolean): Promise<void> {
+    if (!this.emailDialog().nativeElement.open || this.saving()) {
+      return;
+    }
+    this.emailDialog().nativeElement.close();
+    await this.saveProgram(sendNotification);
+  }
+
+  private async saveProgram(sendNotification?: boolean): Promise<void> {
+    if (this.form.invalid || this.saving()) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving.set(true);
 
     try {
       const raw = this.form.getRawValue();
 
-      await this.service.saveProgram({
+      const result = await this.service.saveProgram({
         ...raw,
         // Only send the date when the admin changed it, so untouched weights keep their timestamp
         exercises: raw.exercises.map(({ weightDate, intensityUnit, originalIntensity, ...exercise }) => ({
@@ -287,10 +318,15 @@ export class TrainingProgramEditorComponent implements OnInit {
             : {}),
         })),
         id: this.editingId() ?? undefined,
+        ...(sendNotification !== undefined ? { sendNotification } : {}),
       });
       await this.refreshPrograms();
       this.resetForm();
-      this.toast.open('Træningsprogrammet blev gemt', 'success');
+      if (result?.notificationFailed) {
+        this.toast.open('Træningsprogrammet blev gemt, men mailen kunne ikke sendes', 'warning');
+      } else {
+        this.toast.open('Træningsprogrammet blev gemt', 'success');
+      }
     } catch (error) {
       this.toast.open(this.messageOf(error, 'Programmet kunne ikke gemmes'), 'error');
     } finally {

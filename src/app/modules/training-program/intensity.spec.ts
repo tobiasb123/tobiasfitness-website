@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { TrainingExercise, TrainingProgram } from '@models/training';
 import { isValueOnlyIntensityUpdate, parseIntensity } from '@models/training/intensity';
@@ -18,6 +18,16 @@ const program: TrainingProgram = {
   clientName: '', injuries: '', goal: '', startDate: '', endDate: '', sessionTime: '',
   tempo: '', rest: '', exercises: [exercise], createdAt: '', updatedAt: '',
 };
+
+async function submitEditor(fixture: ComponentFixture<TrainingProgramEditorComponent>): Promise<void> {
+  const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('.email-dialog');
+  dialog.showModal = () => { dialog.open = true; };
+  dialog.close = () => { dialog.open = false; };
+  await fixture.componentInstance.submit();
+  if (dialog.open) {
+    await fixture.componentInstance.confirmEmailChoice(false);
+  }
+}
 
 describe('intensity measurement', () => {
   it('only accepts numeric updates with the existing measurement', () => {
@@ -135,7 +145,7 @@ describe('intensity measurement', () => {
     await fixture.componentInstance.submit();
     expect(service.saveProgram).not.toHaveBeenCalled();
     group.controls.intensity.setValue('5');
-    await fixture.componentInstance.submit();
+    await submitEditor(fixture);
     expect(service.saveProgram).toHaveBeenCalledWith(expect.objectContaining({
       exercises: [expect.objectContaining({ intensity: '5/10' })],
     }));
@@ -179,7 +189,7 @@ describe('intensity measurement', () => {
     await fixture.componentInstance.submit();
     expect(service.saveProgram).not.toHaveBeenCalled();
     first.controls.intensity.setValue('1');
-    await fixture.componentInstance.submit();
+    await submitEditor(fixture);
     expect(service.saveProgram).toHaveBeenCalledWith(expect.objectContaining({
       exercises: expect.arrayContaining([
         expect.objectContaining({ id: 'exercise-1', intensity: '1/10' }),
@@ -219,7 +229,7 @@ describe('intensity measurement', () => {
     expect(label.textContent).toBe('Tid');
     expect(buttons[0].getAttribute('aria-pressed')).toBe('true');
     expect(buttons[1].getAttribute('aria-pressed')).toBe('false');
-    await fixture.componentInstance.submit();
+    await submitEditor(fixture);
     expect(service.saveProgram).toHaveBeenCalledWith(expect.objectContaining({
       exercises: [expect.objectContaining({ intensity: '20 kg', repsType: 'time' })],
     }));
@@ -261,7 +271,7 @@ describe('intensity measurement', () => {
     expect(service.saveProgram).not.toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('#ex-reps-error-0').textContent).toContain('Indtast kun et tal');
     control.setValue('15,5');
-    await fixture.componentInstance.submit();
+    await submitEditor(fixture);
     expect(service.saveProgram).toHaveBeenCalledWith(expect.objectContaining({
       exercises: [expect.objectContaining({ reps: '15,5', repsType: 'time' })],
     }));
@@ -299,7 +309,7 @@ describe('intensity measurement', () => {
     expect(input.getAttribute('aria-invalid')).toBe('true');
     input.value = '15';
     input.dispatchEvent(new Event('input'));
-    await fixture.componentInstance.submit();
+    await submitEditor(fixture);
     expect(service.saveProgram).toHaveBeenCalledWith(expect.objectContaining({
       exercises: [expect.objectContaining({ reps: '15', intensity: '5/10' })],
     }));

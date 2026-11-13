@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { DocumentFile, ExerciseTemplate } from '@models/storage';
 import {
   SaveTrainingProgramInput,
+  SaveTrainingProgramResult,
   TrainingProgram,
   UpdateExerciseWeightInput,
 } from '@models/training';
@@ -30,8 +31,8 @@ export class TrainingProgramService {
     return this.firebaseService.httpGet<TrainingProgram[]>('training-getAllPrograms');
   }
 
-  saveProgram(program: SaveTrainingProgramInput): Promise<TrainingProgram> {
-    return this.firebaseService.httpPost<SaveTrainingProgramInput, TrainingProgram>(
+  saveProgram(program: SaveTrainingProgramInput): Promise<SaveTrainingProgramResult> {
+    return this.firebaseService.httpPost<SaveTrainingProgramInput, SaveTrainingProgramResult>(
       'training-saveProgram',
       program,
     );

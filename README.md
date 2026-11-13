@@ -50,6 +50,13 @@ Administrators select Morgenmad, Frokost, Aftensmad, or Snack when creating or e
 
 The recipe category is stored by the Firebase storage functions, so deploy the updated functions along with the frontend when releasing this change.
 
+## Training program notifications
+
+When saving an active program update, administrators choose whether to email the recipient.
+New active programs still send an email automatically; archived programs do not send one.
+If the program is saved but the email fails, the administrator receives a warning. Deploy the
+training functions together with the frontend to use this option.
+
 ## Training Reps/Tid migration
 
 The administrator Reps/Tid fields accept numeric values (including decimal comma or point).

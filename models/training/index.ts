@@ -1,5 +1,6 @@
 export {
   SaveTrainingProgramInput,
+  SaveTrainingProgramResult,
   TRAINING_SECTION_LABELS,
   TRAINING_SECTIONS,
   TrainingExercise,

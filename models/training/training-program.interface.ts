@@ -49,6 +49,7 @@ export interface TrainingProgram {
 
 export interface SaveTrainingProgramInput {
   id?: string;
+  sendNotification?: boolean;
   assignedToUid: string;
   status: TrainingProgramStatus;
   title: string;
@@ -62,6 +63,10 @@ export interface SaveTrainingProgramInput {
   rest: string;
   exercises: TrainingExerciseInput[];
 }
+
+export type SaveTrainingProgramResult = TrainingProgram & {
+  notificationFailed?: boolean;
+};
 
 export interface UpdateExerciseWeightInput {
   programId: string;

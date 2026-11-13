@@ -6,7 +6,7 @@ const buildDir = process.env.FUNCTIONS_BUILD_DIR || path.join(__dirname, '..', '
 const { commonNormalizeExercise } = require(path.join(
   buildDir, 'functions', 'src', 'modules', 'storage', 'common', 'exercise.common.js',
 ));
-const { commonNormalizeProgramInput, commonResolveExerciseWeights } = require(path.join(
+const { commonNormalizeProgramInput, commonResolveExerciseWeights, commonShouldNotifyClient } = require(path.join(
   buildDir, 'functions', 'src', 'modules', 'training', 'common', 'training.common.js',
 ));
 
@@ -24,6 +24,16 @@ test('preserves the selected type in library exercises and programs', () => {
   assert.deepEqual(commonResolveExerciseWeights([normalized], [previous], 'now')[0], {
     ...normalized, weightUpdatedAt: 'original', weightUpdatedBy: 'client',
   });
+
+});
+
+test('email choice affects active updates while preserving existing defaults', () => {
+  assert.equal(commonShouldNotifyClient('active', true, true), true);
+  assert.equal(commonShouldNotifyClient('active', true, false), false);
+  assert.equal(commonShouldNotifyClient('active', true, undefined), true);
+  assert.equal(commonShouldNotifyClient('active', false, false), true);
+  assert.equal(commonShouldNotifyClient('archived', true, true), false);
+  assert.throws(() => commonShouldNotifyClient('active', true, 'false'));
 });
 
 test('accepts existing exercises without a type and rejects invalid types', () => {

@@ -16,6 +16,7 @@ import {
   commonIsAllowedImageUrl,
   commonNormalizeProgramInput,
   commonResolveExerciseWeights,
+  commonShouldNotifyClient,
 } from './common/training.common';
 
 const firestore = getFirestore();
@@ -45,7 +46,7 @@ const notifyClient = async (
   isUpdate: boolean,
 ): Promise<void> => {
   if (!recipient.email) {
-    return;
+    throw new Error('Modtageren har ingen e-mailadresse');
   }
 
   const rows = [
@@ -105,14 +106,16 @@ export const getAllPrograms = createAdminEndpoint(async (req, res) => {
 });
 
 export const saveProgram = createAdminEndpoint(async (req, res) => {
-  const input = commonNormalizeProgramInput(req.body as SaveTrainingProgramInput);
+  const request = req.body as SaveTrainingProgramInput;
+  const input = commonNormalizeProgramInput(request);
+  const programId = String(request.id ?? '').trim();
+  const shouldNotify = commonShouldNotifyClient(input.status, Boolean(programId), request.sendNotification);
 
   const recipient = await getUser(input.assignedToUid).catch(() => {
     throw new HttpsError('invalid-argument', 'Brugeren blev ikke fundet');
   });
 
   const nowIso = new Date().toISOString();
-  const programId = String((req.body as SaveTrainingProgramInput).id ?? '').trim();
   let existing: TrainingProgram | null = null;
 
   if (programId) {
@@ -142,17 +145,21 @@ export const saveProgram = createAdminEndpoint(async (req, res) => {
 
   await programRef.set(data);
 
-  if (data.status === 'active') {
-    await notifyClient(
-      { ...recipient, email: recipient.email || (await getAuth().getUser(recipient.uid)).email },
-      toProgram(programRef.id, data),
-      Boolean(existing),
-    ).catch((error): void => {
+  let notificationFailed = false;
+  if (shouldNotify) {
+    try {
+      await notifyClient(
+        { ...recipient, email: recipient.email || (await getAuth().getUser(recipient.uid)).email },
+        toProgram(programRef.id, data),
+        Boolean(existing),
+      );
+    } catch (error) {
       console.error('Kunne ikke sende træningsprogram-mail', error);
-    });
+      notificationFailed = true;
+    }
   }
 
-  res.json(toProgram(programRef.id, data));
+  res.json({ ...toProgram(programRef.id, data), ...(notificationFailed ? { notificationFailed } : {}) });
 });
 
 export const deleteProgram = createAdminEndpoint(async (req, res) => {

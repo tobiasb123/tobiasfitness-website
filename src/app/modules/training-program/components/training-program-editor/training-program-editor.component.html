@@ -245,6 +245,18 @@
   }
 </section>
 
+<dialog #emailDialog class="email-dialog" aria-labelledby="email-dialog-title" aria-describedby="email-dialog-description">
+  <h3 id="email-dialog-title">Send besked om programmet?</h3>
+  <p id="email-dialog-description">
+    Vil du sende en e-mail til {{ userName(form.controls.assignedToUid.value) }} om opdateringen?
+  </p>
+  <div class="email-actions">
+    <button type="button" class="btn primary" autofocus (click)="confirmEmailChoice(true)">Gem og send mail</button>
+    <button type="button" class="btn" (click)="confirmEmailChoice(false)">Gem uden mail</button>
+    <button type="button" class="btn" (click)="cancelEmailChoice()">Annuller</button>
+  </div>
+</dialog>
+
 @if (pickerOpen()) {
   <div class="backdrop" (click)="closePicker()" (keydown.escape)="closePicker()">
     <div
