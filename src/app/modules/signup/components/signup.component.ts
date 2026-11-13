@@ -1,8 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
-import { FirebaseError } from 'firebase/app';
 import { Address } from '../../../../../models/auth/interfaces/address.interface';
 import { ToastService } from '../../core/services/toast/toast.service';
 
@@ -17,6 +16,7 @@ export class SignupComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
   private router = inject(Router);
   private authState = inject(AUTH_STATE);
+  readonly isCreatingAccount = signal(false);
 
   firstnameControl = new FormControl<string>('', [Validators.required]);
   lastnameControl = new FormControl<string>('', [Validators.required]);
@@ -61,11 +61,15 @@ export class SignupComponent implements OnInit {
   onSubmit(event: SubmitEvent) {
     event.preventDefault();
 
+    if (this.isCreatingAccount()) {
+      return;
+    }
     if (!this.formGroup.valid) {
       this.formGroup.markAllAsTouched();
       return;
     }
 
+    this.isCreatingAccount.set(true);
     const toastRef = this.toast.open('Opretter konto...', 'loading');
 
     this.address = {
@@ -88,13 +92,21 @@ export class SignupComponent implements OnInit {
         this.toast.update(toastRef, 'Konto oprettet!', 'success');
         this.router.navigate(['']);
       })
-      .catch((error: FirebaseError) => {
-        this.toast.update(toastRef, error.message, 'error');
+      .catch((error: unknown) => {
+        this.toast.update(
+          toastRef,
+          error instanceof Error && error.message
+            ? error.message
+            : 'Kontoen kunne ikke oprettes. Prøv igen.',
+          'error',
+        );
+      })
+      .finally(() => {
+        this.isCreatingAccount.set(false);
       });
   }
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
 }

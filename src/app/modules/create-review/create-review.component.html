@@ -11,12 +11,18 @@
         #file
         id="fileInput"
         type="file"
-        style="display: none"
-        (input)="displayFileName(file.files?.[0]?.name)"
+        hidden
+        (change)="onFileSelected(file.files?.[0])"
         [formControl]="imageControl"
       />
-      <img src="upload image.png" id="uploadBtn" (click)="selectFile($event)" />
-      <span id="fileName">Ingen Fil</span>
+      <button id="uploadBtn" type="button" aria-describedby="fileName" [disabled]="isUploading()" (click)="file.click()">
+        <img ngSrc="upload image.png" width="500" height="500" alt="" />
+        <span>Vælg billede</span>
+      </button>
+      <span id="fileName">{{ selectedFileName() }}</span>
+      @if (imageControl.invalid && imageControl.touched) {
+        <small role="alert">Vælg et billede.</small>
+      }
     </div>
 
     <div class="form-element">
@@ -39,8 +45,19 @@
       }
     </div>
 
+    @if (isUploading()) {
+      <div class="loading-description" role="status">
+        {{ uploadProgress() === 100 ? 'Billedet er uploadet. Gemmer anmeldelsen…' : 'Uploader billede…' }}
+      </div>
+      @if (uploadProgress() !== null) {
+        <progress aria-label="Upload af anmeldelsesbillede" [value]="uploadProgress()" max="100"></progress>
+        <span>{{ uploadProgress() }}%</span>
+      }
+    }
+
     <button class="submitButton" type="submit" [disabled]="isUploading()">
-      {{ isUploading() ? 'Oploader...' : 'Anmeld' }}
+      @if (isUploading()) { <span class="action-spinner" aria-hidden="true"></span> }
+      {{ isUploading() ? 'Uploader…' : 'Anmeld' }}
     </button>
   </form>
 </section>

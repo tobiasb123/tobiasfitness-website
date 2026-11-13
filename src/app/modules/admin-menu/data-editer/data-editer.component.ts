@@ -101,6 +101,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   public selectedBooking: WritableSignal<Booking> = signal(undefined);
   public isDeleteConfirmationOpen = signal(false);
   public isBookingCommandLoading = signal(false);
+  public isSavingUser = signal(false);
 
   ngOnInit(): void {
     this.contactFunctions
@@ -110,6 +111,7 @@ export class DataEditerComponent implements OnInit, OnDestroy {
       })
       .catch(() => {
         this.hourOptions = BOOKING_TIME_OPTIONS;
+        this.toast.open('Bookingstiderne kunne ikke hentes. Standardtider vises.', 'warning');
       });
 
     this.subs.push(
@@ -174,6 +176,9 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   }
 
   deleteBooking(id: string): void {
+    if (this.activeCommand || this.isBookingCommandLoading()) {
+      return;
+    }
     if (!id) {
       this.toast.open('Vælg en booking først', 'error');
       return;
@@ -201,6 +206,9 @@ export class DataEditerComponent implements OnInit, OnDestroy {
   }
 
   editBooking(): void {
+    if (this.activeCommand || this.isBookingCommandLoading()) {
+      return;
+    }
     const service: string = this.serviceControl.value;
     const date: string = this.dateControl.value;
 
@@ -271,10 +279,19 @@ export class DataEditerComponent implements OnInit, OnDestroy {
     return newUser;
   }
 
-  private saveUserSettings(): void {
-    this.authfunctions.updateDetails(this.setSelectedUser()).then(() => {
+  private async saveUserSettings(): Promise<void> {
+    if (this.isSavingUser()) {
+      return;
+    }
+    this.isSavingUser.set(true);
+    try {
+      await this.authfunctions.updateDetails(this.setSelectedUser());
       this.toast.open('Bruger Gemt', 'success');
-    });
+    } catch {
+      this.toast.open('Brugeren kunne ikke gemmes. Prøv igen.', 'error');
+    } finally {
+      this.isSavingUser.set(false);
+    }
   }
 
   hourOptions: Array<string> = BOOKING_TIME_OPTIONS;

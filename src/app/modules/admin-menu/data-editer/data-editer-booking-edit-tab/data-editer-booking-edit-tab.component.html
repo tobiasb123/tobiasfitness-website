@@ -27,7 +27,7 @@
     </form>
     <div class="button-holder">
       <button class="confirm" type="button" [disabled]="isBookingCommandLoading()" (click)="save()">
-        Gem
+        {{ isBookingCommandLoading() && !isDeleteConfirmationOpen() ? 'Gemmer…' : 'Gem' }}
       </button>
       <button
         class="danger"
@@ -50,10 +50,15 @@
       <div class="delete-confirmation inline-confirmation">
         <p>Er du sikker på, at du vil slette denne booking?</p>
         <div class="confirmation-actions">
-          <button class="danger" type="button" (click)="confirmDelete()">Ja, slet</button>
-          <button class="cancel" type="button" (click)="cancelDelete()">Annuller</button>
+          <button class="danger" type="button" [disabled]="isBookingCommandLoading()" (click)="confirmDelete()">
+            {{ isBookingCommandLoading() ? 'Sletter…' : 'Ja, slet' }}
+          </button>
+          <button class="cancel" type="button" [disabled]="isBookingCommandLoading()" (click)="cancelDelete()">Annuller</button>
         </div>
       </div>
+    }
+    @if (isBookingCommandLoading()) {
+      <p class="loading-description" role="status">{{ isDeleteConfirmationOpen() ? 'Sletter booking…' : 'Gemmer booking…' }}</p>
     }
   </div>
 </div>

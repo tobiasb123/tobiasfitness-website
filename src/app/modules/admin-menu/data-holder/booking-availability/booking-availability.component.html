@@ -5,7 +5,7 @@
   </header>
 
   @if (isLoading()) {
-    <p role="status">Henter bookingstider…</p>
+    <p class="loading-description" role="status">Henter bookingstider…</p>
   } @else if (loadError()) {
     <div class="load-error" role="alert">
       <p>{{ loadError() }}</p>

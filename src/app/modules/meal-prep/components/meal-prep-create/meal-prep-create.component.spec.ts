@@ -36,4 +36,45 @@ describe('MealPrepCreateComponent category', () => {
     component.resetForm();
     expect(component.categoryControl.value).toBe('');
   });
+
+  it('saves normalized groups, instructions, and storage notes for new recipes', () => {
+    const component = fixture.componentInstance;
+    const fileInput: HTMLInputElement = fixture.nativeElement.querySelector('input[type="file"]');
+    const file = new File(['image'], 'meal.png');
+    Object.defineProperty(fileInput, 'files', { value: [file] });
+    component.titleControl.setValue('Meal');
+    component.categoryControl.setValue('lunch');
+    component.ingredientGroups.set([
+      { title: ' ', items: [' Rice ', ' '] },
+      { title: 'Empty', items: [' '] },
+    ]);
+    component.instructionSections.set([
+      {
+        title: ' ',
+        steps: [{ title: ' Stir ', description: ' ' }, { title: '', description: ' Mix ' }],
+      },
+      { title: 'Empty', steps: [{ title: '', description: '' }] },
+    ]);
+    component.storageNotes.set([
+      { title: ' Cold ', description: ' Fridge ' },
+      { title: ' ', description: '' },
+    ]);
+    let payload: MealPrepCreatePayload | undefined;
+    component.submitCreate.subscribe((value) => (payload = value));
+    component.onSubmit(new Event('submit') as SubmitEvent);
+    expect(payload?.recipe).toEqual(
+      expect.objectContaining({
+        ingredientGroups: [{ title: 'Ingrediensgruppe 1', items: ['Rice'] }],
+        instructionSections: [
+          {
+            title: 'Sektion 1',
+            steps: [{ title: 'Stir', description: '' }, { title: '', description: 'Mix' }],
+          },
+        ],
+        storageNotes: [{ title: 'Cold', description: 'Fridge' }],
+        ingredients: ['Rice'],
+        instructions: ['Stir', 'Mix'],
+      }),
+    );
+  });
 });

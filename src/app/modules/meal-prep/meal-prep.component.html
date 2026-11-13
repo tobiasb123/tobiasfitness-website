@@ -56,7 +56,7 @@
 
     @if (!viewMealPageActive()) {
       @if (recipesLoading()) {
-        <p class="state" role="status">Indlæser opskrifter...</p>
+        <p class="state loading-description" role="status">Indlæser opskrifter...</p>
       } @else if (recipesError()) {
         <p class="state error" role="alert">{{ recipesError() }}</p>
       } @else {

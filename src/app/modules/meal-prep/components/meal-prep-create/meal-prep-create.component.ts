@@ -12,6 +12,11 @@ import {
   RecipeNutritionRow,
   RecipeStorageNote,
 } from '@models/storage';
+import {
+  flattenIngredients,
+  flattenInstructions,
+  normalizeStorageNotes,
+} from '../../utils/recipe-form.util';
 
 export interface MealPrepCreatePayload {
   receiverUids: string[];
@@ -406,10 +411,10 @@ export class MealPrepCreateComponent {
         totalTimeMinutes: this.totalTimeMinutesControl.value,
         ingredientGroups,
         instructionSections,
-        storageNotes: this.getSanitizedStorageNotes(),
+        storageNotes: normalizeStorageNotes(this.storageNotes()),
         nutritionPerServing: this.buildNutritionRows(),
-        ingredients: this.flattenIngredientItems(ingredientGroups),
-        instructions: this.flattenInstructionItems(instructionSections),
+        ingredients: flattenIngredients(ingredientGroups),
+        instructions: flattenInstructions(instructionSections),
         macros: this.buildLegacyMacros(),
       },
       file,
@@ -468,17 +473,6 @@ export class MealPrepCreateComponent {
       .filter((section) => section.steps.length > 0);
   }
 
-  private flattenIngredientItems(groups: RecipeIngredientGroup[]): string[] {
-    return groups.flatMap((group) => group.items);
-  }
-
-  private flattenInstructionItems(sections: RecipeInstructionSection[]): string[] {
-    return sections
-      .flatMap((section) => section.steps)
-      .map((step) => step.description || step.title)
-      .filter((step) => step.length > 0);
-  }
-
   private normalizeInstructionStep(step: RecipeInstructionStep): RecipeInstructionStep {
     return {
       title: step.title.trim(),
@@ -505,15 +499,6 @@ export class MealPrepCreateComponent {
       { name: 'Kulhydrat', value: this.carbsControl.value.trim(), unit: 'g' },
       { name: 'Fedt', value: this.fatControl.value.trim(), unit: 'g' },
     ].filter((row) => row.value !== '');
-  }
-
-  getSanitizedStorageNotes(): RecipeStorageNote[] {
-    return this.storageNotes()
-      .map((note) => ({
-        title: note.title.trim(),
-        description: note.description.trim(),
-      }))
-      .filter((note) => note.title.length > 0 || note.description.length > 0);
   }
 
   private buildLegacyMacros(): string[] {

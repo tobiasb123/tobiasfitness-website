@@ -75,6 +75,7 @@ describe('RecipeEditerComponent category', () => {
       ['all'],
       'recipe-1',
       image,
+      expect.any(Function),
     );
     expect(toast.open).toHaveBeenCalledWith('Opskrift gemt', 'success');
   });
@@ -92,5 +93,49 @@ describe('RecipeEditerComponent category', () => {
       'error',
     );
     expect(toast.open).not.toHaveBeenCalledWith('Opskrift gemt', 'success');
+  });
+
+  it('preserves title-only groups and saves normalized recipe details when editing', async () => {
+    const fixture = TestBed.createComponent(RecipeEditerComponent);
+    fixture.componentRef.setInput('selectedRecipe', document);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.ingredientGroups.set([
+      { title: ' Empty group ', items: [' '] },
+      { title: '', items: [' Rice '] },
+    ]);
+    component.instructionSections.set([
+      { title: ' Empty section ', steps: [{ title: '', description: '' }] },
+      {
+        title: '',
+        steps: [{ title: ' Stir ', description: '' }, { title: '', description: ' Mix ' }],
+      },
+    ]);
+    component.storageNotes.set([
+      { title: ' Cold ', description: ' Fridge ' },
+      { title: ' ', description: '' },
+    ]);
+
+    await component.saveRecipeChanges();
+    expect(storage.updateRecipe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recipe: expect.objectContaining({
+          ingredientGroups: [
+            { title: 'Empty group', items: [] },
+            { title: '', items: ['Rice'] },
+          ],
+          instructionSections: [
+            { title: 'Empty section', steps: [] },
+            {
+              title: '',
+              steps: [{ title: 'Stir', description: '' }, { title: '', description: 'Mix' }],
+            },
+          ],
+          storageNotes: [{ title: 'Cold', description: 'Fridge' }],
+          ingredients: ['Rice'],
+          instructions: ['Stir', 'Mix'],
+        }),
+      }),
+    );
   });
 });

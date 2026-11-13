@@ -320,10 +320,11 @@
         <button
           class="confirm"
           type="button"
-          [disabled]="isRecipeSaving()"
+          [disabled]="isRecipeSaving() || isRecipeDeleting()"
           (click)="saveRecipeChanges()"
         >
-          Gem ændringer
+          @if (isRecipeSaving()) { <span class="action-spinner" aria-hidden="true"></span> }
+          {{ isRecipeSaving() ? 'Gemmer…' : 'Gem ændringer' }}
         </button>
         <button
           class="danger"
@@ -333,10 +334,17 @@
         >
           Slet opskrift
         </button>
-        <button class="cancel" type="button" [disabled]="isRecipeSaving()" (click)="close()">
+        <button class="cancel" type="button" [disabled]="isRecipeSaving() || isRecipeDeleting()" (click)="close()">
           Luk
         </button>
       </div>
+      @if (isRecipeSaving() || isRecipeDeleting()) {
+        <p class="loading-description" role="status">{{ isRecipeDeleting() ? 'Sletter opskrift…' : uploadProgress() === 100 ? 'Billedet er uploadet. Gemmer opskriften…' : 'Gemmer opskrift…' }}</p>
+      }
+      @if (isRecipeSaving() && uploadProgress() !== null) {
+        <progress aria-label="Upload af opskriftsbillede" [value]="uploadProgress()" max="100"></progress>
+        <span>{{ uploadProgress() }}%</span>
+      }
 
       @if (showDeleteConfirmation()) {
         <div class="delete-confirmation">
@@ -348,7 +356,8 @@
               [disabled]="isRecipeDeleting()"
               (click)="confirmDeleteRecipe()"
             >
-              Ja, slet
+              @if (isRecipeDeleting()) { <span class="action-spinner" aria-hidden="true"></span> }
+              {{ isRecipeDeleting() ? 'Sletter…' : 'Ja, slet' }}
             </button>
             <button
               class="cancel"

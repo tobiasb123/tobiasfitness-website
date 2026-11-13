@@ -1,14 +1,4 @@
 import { Route } from '@angular/router';
-import { AccountManagementComponent } from './modules/account-management/account-management.component';
-import { AdminMenuComponent } from './modules/admin-menu/admin-menu.component';
-import { ContactComponent } from './modules/contact/components/contact.component';
-import { CreateReviewComponent } from './modules/create-review/create-review.component';
-import { HomeComponent } from './modules/home/components/home.component';
-import { MealPrepComponent } from './modules/meal-prep/meal-prep.component';
-import { PricesComponent } from './modules/prices/components/prices.component';
-import { SigninComponent } from './modules/signin/components/signin.component';
-import { SignupComponent } from './modules/signup/components/signup.component';
-import { TrainingProgramComponent } from './modules/training-program/training-program.component';
 
 export interface RouteExt extends Route {
   displayName?: string;
@@ -18,60 +8,76 @@ export interface RouteExt extends Route {
 export const routes: RouteExt[] = [
   {
     path: '',
-    component: HomeComponent,
+    loadComponent: () =>
+      import('./modules/home/components/home.component').then((m) => m.HomeComponent),
     pathMatch: 'full',
   },
   {
     path: 'admin-menu',
-    component: AdminMenuComponent,
+    loadComponent: () =>
+      import('./modules/admin-menu/admin-menu.component').then((m) => m.AdminMenuComponent),
     displayName: 'Admin-Menu',
     showInNavList: true,
   },
   {
     path: 'meal-prep',
-    component: MealPrepComponent,
+    loadComponent: () =>
+      import('./modules/meal-prep/meal-prep.component').then((m) => m.MealPrepComponent),
     displayName: 'Opskrifter',
     showInNavList: true,
   },
   {
     path: 'training-program',
-    component: TrainingProgramComponent,
+    loadComponent: () =>
+      import('./modules/training-program/training-program.component').then(
+        (m) => m.TrainingProgramComponent,
+      ),
     displayName: 'Træningsprogram',
     showInNavList: true,
   },
   {
     path: 'prices',
-    component: PricesComponent,
+    loadComponent: () =>
+      import('./modules/prices/components/prices.component').then((m) => m.PricesComponent),
     displayName: 'Priser',
     showInNavList: true,
   },
   {
     path: 'contact',
-    component: ContactComponent,
+    loadComponent: () =>
+      import('./modules/contact/components/contact.component').then((m) => m.ContactComponent),
     displayName: 'Bestil Tid',
     showInNavList: true,
   },
   {
     path: 'signup',
-    component: SignupComponent,
+    loadComponent: () =>
+      import('./modules/signup/components/signup.component').then((m) => m.SignupComponent),
     displayName: 'Konto',
     showInNavList: true,
   },
   {
     path: 'signin',
-    component: SigninComponent,
+    loadComponent: () =>
+      import('./modules/signin/components/signin.component').then((m) => m.SigninComponent),
     displayName: 'Konto',
     showInNavList: false,
   },
   {
     path: 'account-management',
-    component: AccountManagementComponent,
+    loadComponent: () =>
+      import('./modules/account-management/account-management.component').then(
+        (m) => m.AccountManagementComponent,
+      ),
     displayName: 'account-management',
     showInNavList: false,
   },
   {
     path: 'create-review',
-    component: CreateReviewComponent,
+    loadComponent: () =>
+      import('./modules/create-review/create-review.component').then(
+        (m) => m.CreateReviewComponent,
+      ),
     displayName: 'create-review',
     showInNavList: false,
   },

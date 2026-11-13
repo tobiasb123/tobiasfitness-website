@@ -1,27 +1,26 @@
-import { Component, inject, signal } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Review } from '@models/storage';
 import { AuthFacade } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
-import { UploadTaskSnapshot } from 'firebase/storage';
+import { uploadPercentage } from '../core/helpers/upload-progress';
 import { ToastService } from '../core/services/toast/toast.service';
-import { ResumableUpload, StorageFunctions } from '../meal-prep/services/storage-functions.service';
+import { StorageFunctions } from '../meal-prep/services/storage-functions.service';
 
 @Component({
   selector: 'app-create-review',
-  imports: [RouterModule, ReactiveFormsModule],
+  imports: [RouterModule, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './create-review.component.html',
   styleUrl: './create-review.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateReviewComponent {
   private storageFunctions = inject(StorageFunctions);
   private authFacade = inject(AuthFacade);
   private toast = inject(ToastService);
   private router = inject(Router);
-
-  private activeUpload: ResumableUpload = null;
-  private uploadStartedAtMs: number = null;
 
   imageControl = new FormControl<string>('', [Validators.required]);
   reviewControl = new FormControl<string>('', [Validators.required]);
@@ -38,21 +37,11 @@ export class CreateReviewComponent {
   });
 
   isUploading = signal(false);
-  uploadProgress = signal(0);
-  uploadEtaSeconds = signal<number>(null);
+  uploadProgress = signal<number | null>(null);
+  selectedFileName = signal('Ingen Fil');
 
-  selectFile(event: any) {
-    event.target.parentElement.children[0].click();
-  }
-
-  displayFileName(fileName?: string | null): void {
-    const fileDisplayName = document.getElementById('fileName');
-
-    if (!fileDisplayName) {
-      return;
-    }
-
-    fileDisplayName.textContent = fileName?.trim() || 'Ingen Fil';
+  onFileSelected(file: File | undefined): void {
+    this.selectedFileName.set(file?.name.trim() || 'Ingen Fil');
   }
 
   onSubmit(img: HTMLInputElement): void {
@@ -78,6 +67,11 @@ export class CreateReviewComponent {
   private async saveReview(file: File): Promise<void> {
     const currentUser = this.authFacade.currentProfile();
 
+    if (!currentUser) {
+      this.toast.open('Du skal være logget ind for at oprette en anmeldelse.', 'error');
+      return;
+    }
+
     const review = <Review>{
       age: currentUser.age,
       fullName: `${currentUser.firstName} ${currentUser.lastName}`,
@@ -85,16 +79,14 @@ export class CreateReviewComponent {
       text: this.reviewControl.value,
     };
 
-    this.startUpload();
-    this.activeUpload = this.storageFunctions.saveReview(
-      file,
-      review,
-      currentUser.uid,
-      (snapshot) => this.handleUploadProgress(snapshot),
-    );
+    this.isUploading.set(true);
+    this.uploadProgress.set(null);
 
     try {
-      await this.activeUpload.promise;
+      const upload = this.storageFunctions.saveReview(file, review, currentUser.uid, (snapshot) =>
+        this.uploadProgress.set(uploadPercentage(snapshot)),
+      );
+      await upload.promise;
       this.toast.open('Anmeldelse blev oprettet', 'success');
       await this.router.navigate(['/']);
     } catch (error: unknown) {
@@ -107,59 +99,8 @@ export class CreateReviewComponent {
 
       this.toast.open(message || 'Der skete en ukendt fejl. Kunne ikke gemme anmeldelsen', 'error');
     } finally {
-      this.finishUpload();
+      this.isUploading.set(false);
+      this.uploadProgress.set(null);
     }
-  }
-
-  private handleUploadProgress(snapshot: UploadTaskSnapshot): void {
-    const totalBytes = snapshot.totalBytes;
-
-    if (!totalBytes) {
-      this.uploadProgress.set(0);
-      this.uploadEtaSeconds.set(null);
-      return;
-    }
-
-    const progress = Math.floor((snapshot.bytesTransferred / totalBytes) * 100);
-    this.uploadProgress.set(progress);
-
-    if (!this.uploadStartedAtMs || snapshot.bytesTransferred <= 0) {
-      this.uploadEtaSeconds.set(null);
-      return;
-    }
-
-    const elapsedSeconds = (Date.now() - this.uploadStartedAtMs) / 1000;
-
-    if (elapsedSeconds <= 0) {
-      this.uploadEtaSeconds.set(null);
-      return;
-    }
-
-    const bytesPerSecond = snapshot.bytesTransferred / elapsedSeconds;
-
-    if (bytesPerSecond <= 0) {
-      this.uploadEtaSeconds.set(null);
-      return;
-    }
-
-    const remainingBytes = totalBytes - snapshot.bytesTransferred;
-    const etaSeconds = Math.max(0, Math.ceil(remainingBytes / bytesPerSecond));
-
-    this.uploadEtaSeconds.set(etaSeconds);
-  }
-
-  private startUpload(): void {
-    this.isUploading.set(true);
-    this.uploadProgress.set(0);
-    this.uploadEtaSeconds.set(null);
-    this.uploadStartedAtMs = Date.now();
-  }
-
-  private finishUpload(): void {
-    this.activeUpload = null;
-    this.isUploading.set(false);
-    this.uploadProgress.set(0);
-    this.uploadEtaSeconds.set(null);
-    this.uploadStartedAtMs = null;
   }
 }

@@ -20,6 +20,7 @@ describe('program update email choice', () => {
     getAllPrograms: vi.fn().mockResolvedValue([]),
     loadExercises: vi.fn().mockResolvedValue(undefined),
     saveProgram: vi.fn(),
+    deleteProgram: vi.fn(),
   };
   const toast = { open: vi.fn() };
 
@@ -86,5 +87,25 @@ describe('program update email choice', () => {
     await fixture.componentInstance.confirmEmailChoice(true);
     expect(toast.open).toHaveBeenCalledWith('Træningsprogrammet blev gemt, men mailen kunne ikke sendes', 'warning');
     expect(fixture.componentInstance.editingId()).toBeNull();
+  });
+
+  it('prevents duplicate deletions and restores controls after failure', async () => {
+    let rejectDelete: (error: Error) => void;
+    const pending = new Promise<never>((_, reject) => { rejectDelete = reject; });
+    service.deleteProgram.mockReturnValue(pending);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    fixture.componentInstance.programs.set([program]);
+    fixture.componentInstance.loading.set(false);
+    fixture.detectChanges();
+    void fixture.componentInstance.remove(program);
+    void fixture.componentInstance.remove(program);
+    fixture.detectChanges();
+    expect(service.deleteProgram).toHaveBeenCalledOnce();
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('.list .danger');
+    expect(button.disabled).toBe(true);
+    expect(button.textContent).toContain('Sletter');
+    rejectDelete(new Error('Unavailable'));
+    await vi.waitFor(() => expect(fixture.componentInstance.deletingId()).toBeNull());
+    expect(toast.open).toHaveBeenCalledWith('Unavailable', 'error');
   });
 });

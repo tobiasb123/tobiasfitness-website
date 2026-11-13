@@ -15,7 +15,6 @@ import { AUTH_STATE } from '@modules/auth';
 import { HomeHeroAdminComponent } from '../home-hero-admin/home-hero-admin.component';
 
 const ROTATION_INTERVAL_MS = 5000;
-const FALLBACK_IMAGE = 'Forbillede.jpeg';
 
 @Component({
   selector: 'app-home-hero',
@@ -47,8 +46,7 @@ export class HomeHeroComponent {
       return [];
     }
 
-    const urls = this.images().map((image) => image.fileUrl);
-    return urls.length > 0 ? urls : [FALLBACK_IMAGE];
+    return this.images().map((image) => image.fileUrl);
   });
   readonly activeIndex = computed(() => this.currentIndex() % Math.max(this.slides().length, 1));
   private readonly rotating = computed(

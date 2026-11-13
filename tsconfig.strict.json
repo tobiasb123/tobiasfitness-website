@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "noEmit": true,
+    "types": []
+  },
+  "include": [
+    "src/app/modules/meal-prep/utils/recipe-form.util.ts",
+    "src/app/modules/meal-prep/utils/recipe-receivers.util.ts"
+  ]
+}

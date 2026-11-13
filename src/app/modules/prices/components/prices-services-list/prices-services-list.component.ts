@@ -18,6 +18,7 @@ export class PricesServicesListComponent {
   loading = input(false);
   error = input('');
   isAdmin = input(false);
+  uploadProgress = input<number | null>(null);
   serviceUpdateState = input<ServiceUpdateState>({
     updatingServiceId: null,
     updateError: '',
@@ -148,7 +149,7 @@ export class PricesServicesListComponent {
 
   saveEdit(): void {
     const service = this.activeService();
-    if (!service || this.editForm.invalid) {
+    if (!service || this.editForm.invalid || this.savePending()) {
       return;
     }
 

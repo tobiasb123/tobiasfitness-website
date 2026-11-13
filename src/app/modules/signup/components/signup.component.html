@@ -145,7 +145,11 @@
         </div>
       </div>
 
-      <button type="submit">Opret</button>
+      <button type="submit" [disabled]="isCreatingAccount()">
+        @if (isCreatingAccount()) { <span class="action-spinner" aria-hidden="true"></span> }
+        {{ isCreatingAccount() ? 'Opretter…' : 'Opret' }}
+      </button>
+      @if (isCreatingAccount()) { <p class="loading-description" role="status">Opretter din konto…</p> }
 
       <a class="auth-switch" routerLink="/signin">Har du en konto? Log ind</a>
     </form>

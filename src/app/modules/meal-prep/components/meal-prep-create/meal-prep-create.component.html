@@ -67,9 +67,10 @@
 
       @if (isUploading()) {
         <div class="upload-progress">
-          <label>Uploader: {{ uploadProgress() }}%</label>
-          <small>{{ uploadEtaLabel() }}</small>
-          <progress [value]="uploadProgress()" max="100"></progress>
+          <span class="loading-description" role="status">{{ uploadProgress() === 100 ? 'Billedet er uploadet. Gemmer opskriften…' : 'Uploader billede…' }}</span>
+          <label>Upload: {{ uploadProgress() }}%</label>
+          @if (uploadProgress() < 100) { <small>{{ uploadEtaLabel() }}</small> }
+          <progress aria-label="Upload af opskriftsbillede" [value]="uploadProgress()" max="100"></progress>
           <button type="button" (click)="cancelUpload()">Annuller upload</button>
         </div>
       }

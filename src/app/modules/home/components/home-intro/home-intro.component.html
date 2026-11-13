@@ -13,7 +13,9 @@
       </p>
     </div>
     <div class="info-media">
-      <img [ngSrc]="aboutImage()?.fileUrl ?? 'Forbillede.jpeg'" fill alt="Tobias foran en trævæg" />
+      @if (aboutImage(); as image) {
+        <img [ngSrc]="image.fileUrl" sizes="100vw" fill alt="Tobias foran en trævæg" />
+      }
     </div>
   </article>
 

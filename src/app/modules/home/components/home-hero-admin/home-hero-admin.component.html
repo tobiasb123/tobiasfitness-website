@@ -3,7 +3,7 @@
 <dialog #dialog class="admin-dialog" aria-labelledby="hero-admin-title">
   <div class="admin-header">
     <h2 id="hero-admin-title">Hero-billeder</h2>
-    <button type="button" class="secondary" (click)="close()">Luk</button>
+    <button type="button" class="secondary" [disabled]="busy()" (click)="close()">Luk</button>
   </div>
 
   <div class="upload">
@@ -23,12 +23,20 @@
       <p class="error" role="alert">{{ error() }}</p>
     }
     @if (status()) {
-      <p class="status">{{ status() }}</p>
+      <p class="status" [class.loading-description]="busy()">
+        @if (busy()) { <span class="action-spinner" aria-hidden="true"></span> }
+        {{ status() }}
+        @if (busy() && uploadProgress() === 100) { Gemmer billedet… }
+      </p>
     }
   </div>
+  @if (busy() && uploadProgress() !== null) {
+    <progress aria-label="Upload af billede" [value]="uploadProgress()" max="100"></progress>
+    <span>{{ uploadProgress() }}%</span>
+  }
 
   @if (items().length === 0) {
-    <p>Der er ingen billeder endnu. Standardbilledet vises.</p>
+    <p>Der er ingen billeder endnu. En baggrundsfarve vises.</p>
   } @else {
     <ol class="image-list">
       @for (
@@ -82,9 +90,13 @@
       <h3 [id]="slot.id + '-image-title'">{{ slot.title }}</h3>
       <div class="services-row">
         <span class="thumb">
-          <img [ngSrc]="slot.image?.fileUrl ?? slot.fallback" fill alt="" />
+          @if (slot.image?.fileUrl ?? slot.fallback; as imageUrl) {
+            <img [ngSrc]="imageUrl" fill alt="" />
+          }
         </span>
-        <span class="position">{{ slot.image ? 'Eget billede' : 'Standardbillede' }}</span>
+        <span class="position">{{
+          slot.image ? 'Eget billede' : slot.fallback ? 'Standardbillede' : 'Intet billede valgt'
+        }}</span>
         @if (slot.image) {
           <button
             type="button"

@@ -37,12 +37,12 @@
     <img [src]="recipeData.fileUrl" [alt]="recipeData.recipe?.title || 'Opskrift billede'" />
 
     <div class="detail-grid">
-      @if (getIngredientGroups(recipeData.recipe).length > 0) {
+      @if (ingredientGroups().length > 0) {
         <div class="info-card span-full">
           <h3>Ingredienser</h3>
 
           <div class="grouped-columns">
-            @for (group of getIngredientGroups(recipeData.recipe); track $index) {
+            @for (group of ingredientGroups(); track $index) {
               <div class="sub-group">
                 <h4>{{ group.title }}</h4>
                 @for (ingredient of group.items; track $index; let itemIndex = $index) {
@@ -56,11 +56,11 @@
         </div>
       }
 
-      @if (getInstructionSections(recipeData.recipe).length > 0) {
+      @if (instructionSections().length > 0) {
         <div class="info-card span-full">
           <h3>Instruktioner</h3>
 
-          @for (section of getInstructionSections(recipeData.recipe); track $index) {
+          @for (section of instructionSections(); track $index) {
             <div class="instruction-section">
               <h4>{{ section.title }}</h4>
               @for (step of section.steps; track $index) {
@@ -91,7 +91,7 @@
             <span>Enhed</span>
           </div>
 
-          @for (row of getNutritionRows(recipeData.recipe); track $index) {
+          @for (row of nutritionRows(); track $index) {
             <div class="nutrition-row" role="row">
               <span>{{ row.name }}</span>
               <span>{{ row.value }}</span>
@@ -101,10 +101,10 @@
         </div>
       </div>
 
-      @if (getStorageNotes(recipeData.recipe).length > 0) {
+      @if (storageNotes().length > 0) {
         <div class="info-card span-full">
           <h3>Opbevaring og holdbarhed</h3>
-          @for (note of getStorageNotes(recipeData.recipe); track $index) {
+          @for (note of storageNotes(); track $index) {
             <div class="storage-note-item">
               <label class="storage-note-header">
                 {{ $index + 1 }}.

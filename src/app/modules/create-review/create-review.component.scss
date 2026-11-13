@@ -29,7 +29,7 @@
   h1 {
     margin: 0;
     font-size: 1.6rem;
-    color: white;
+    color: #0f172a;
   }
 
   .eyebrow {
@@ -64,6 +64,10 @@
     padding: 12px;
     cursor: pointer;
     border-radius: 16px;
+    border: 0;
+    background: transparent;
+    color: #1d4ed8;
+    font-weight: 600;
     transition:
       transform 0.2s ease,
       opacity 0.2s ease;
@@ -72,12 +76,27 @@
       transform: translateY(-1px);
       opacity: 0.9;
     }
+
+    &:focus-visible {
+      outline: 3px solid #1d4ed8;
+      outline-offset: 3px;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
   }
 
   #fileName {
     font-size: 0.95rem;
     color: #1d4ed8;
     font-weight: 600;
+  }
+
+  small {
+    color: #b91c1c;
   }
 }
 
@@ -150,6 +169,11 @@
 
   &:hover {
     transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
   }
 
   &:disabled {

@@ -9,6 +9,7 @@
         id="date"
         class="date-input"
         type="button"
+        [disabled]="isBooking()"
         [class.invalid]="dateControl().invalid && dateControl().touched"
         aria-labelledby="date-label"
         aria-haspopup="dialog"
@@ -41,7 +42,7 @@
               class="month-navigation"
               type="button"
               aria-label="Forrige måned"
-              [disabled]="!canGoToPreviousMonth()"
+              [disabled]="isBooking() || !canGoToPreviousMonth()"
               (click)="goToPreviousMonth()"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -53,6 +54,7 @@
               class="month-navigation"
               type="button"
               aria-label="Næste måned"
+              [disabled]="isBooking()"
               (click)="goToNextMonth()"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -73,7 +75,7 @@
                 type="button"
                 [attr.aria-label]="day.label"
                 [attr.aria-pressed]="dateControl().value === day.value"
-                [disabled]="day.disabled"
+                [disabled]="isBooking() || day.disabled"
                 (click)="selectDate(day)"
               >
                 {{ day.day }}
@@ -98,6 +100,7 @@
         id="time"
         class="time-input"
         type="button"
+        [disabled]="isBooking()"
         [class.invalid]="timeControl().invalid && timeControl().touched"
         aria-labelledby="time-label"
         aria-haspopup="dialog"
@@ -127,7 +130,7 @@
               [class.selected]="timeControl().value === option.value"
               [class.booked]="option.isBooked"
               [attr.aria-pressed]="timeControl().value === option.value"
-              [disabled]="option.isBooked"
+              [disabled]="isBooking() || option.isBooked"
               (click)="selectTime(option.value, option.isBooked)"
             >
               <span>{{ option.value }}</span>
@@ -147,9 +150,15 @@
 
   @if (showButtonGroup()) {
     <div class="button-group">
-      <button id="submit-button" type="submit">Book Tid</button>
-      <button type="button" (click)="onBack()">Tilbage</button>
+      <button id="submit-button" type="submit" [disabled]="isBooking()">
+        @if (isBooking()) { <span class="action-spinner" aria-hidden="true"></span> }
+        {{ isBooking() ? 'Booker tid…' : 'Book Tid' }}
+      </button>
+      <button type="button" [disabled]="isBooking()" (click)="onBack()">Tilbage</button>
     </div>
+    @if (isBooking()) {
+      <p class="loading-description" role="status">Booker din tid…</p>
+    }
   }
 
   <div class="time-period-overview">

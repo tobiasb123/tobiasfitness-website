@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DocumentFile } from '@models/storage';
+import { uploadPercentage } from '../../../core/helpers/upload-progress';
 import { StorageFunctions } from '../../../meal-prep/services/storage-functions.service';
 
 const MAX_IMAGE_SIZE_BYTES = 25 * 1024 * 1024;
@@ -37,7 +38,7 @@ export class HomeHeroAdminComponent {
       id: 'about',
       title: 'Billede til "Om mig"',
       image: this.aboutImage(),
-      fallback: 'Forbillede.jpeg',
+      fallback: null,
     },
     {
       id: 'services',
@@ -51,6 +52,7 @@ export class HomeHeroAdminComponent {
   readonly busy = signal(false);
   readonly status = signal('');
   readonly error = signal('');
+  readonly uploadProgress = signal<number | null>(null);
 
   private readonly syncItems = effect(() => {
     this.items.set(this.images());
@@ -67,6 +69,9 @@ export class HomeHeroAdminComponent {
   }
 
   async onFilesSelected(event: Event): Promise<void> {
+    if (this.busy()) {
+      return;
+    }
     const input = event.target;
     if (!(input instanceof HTMLInputElement) || !input.files?.length) {
       return;
@@ -75,6 +80,7 @@ export class HomeHeroAdminComponent {
     const files = Array.from(input.files);
     input.value = '';
     this.error.set('');
+    this.status.set('');
 
     const invalidFile = files.find(
       (file) => !file.type.startsWith('image/') || file.size > MAX_IMAGE_SIZE_BYTES,
@@ -89,8 +95,11 @@ export class HomeHeroAdminComponent {
 
     try {
       for (const file of files) {
+        this.uploadProgress.set(null);
         this.status.set(`Uploader billede ${uploaded + 1} af ${files.length}…`);
-        await this.storageFunctions.uploadHeroImage(file).promise;
+        await this.storageFunctions.uploadHeroImage(file, (snapshot) =>
+          this.uploadProgress.set(uploadPercentage(snapshot)),
+        ).promise;
         uploaded++;
       }
       this.status.set(`${uploaded} billede(r) uploadet.`);
@@ -99,6 +108,7 @@ export class HomeHeroAdminComponent {
       this.status.set('');
     } finally {
       this.busy.set(false);
+      this.uploadProgress.set(null);
       if (uploaded > 0) {
         this.changed.emit();
       }
@@ -106,6 +116,9 @@ export class HomeHeroAdminComponent {
   }
 
   async onSiteImageSelected(event: Event, slot: string): Promise<void> {
+    if (this.busy()) {
+      return;
+    }
     const input = event.target;
     const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined;
     if (!(input instanceof HTMLInputElement) || !file) {
@@ -114,6 +127,7 @@ export class HomeHeroAdminComponent {
 
     input.value = '';
     this.error.set('');
+    this.status.set('');
 
     if (!file.type.startsWith('image/') || file.size > MAX_IMAGE_SIZE_BYTES) {
       this.error.set(`"${file.name}" skal være et billede på maks. 25 MB.`);
@@ -121,10 +135,13 @@ export class HomeHeroAdminComponent {
     }
 
     this.busy.set(true);
+    this.uploadProgress.set(null);
     this.status.set('Uploader billede…');
 
     try {
-      await this.storageFunctions.uploadSiteImage(file, slot).promise;
+      await this.storageFunctions.uploadSiteImage(file, slot, (snapshot) =>
+        this.uploadProgress.set(uploadPercentage(snapshot)),
+      ).promise;
       this.status.set('Billedet er opdateret.');
       this.changed.emit();
     } catch {
@@ -132,6 +149,7 @@ export class HomeHeroAdminComponent {
       this.status.set('');
     } finally {
       this.busy.set(false);
+      this.uploadProgress.set(null);
     }
   }
 
@@ -142,6 +160,7 @@ export class HomeHeroAdminComponent {
 
     this.busy.set(true);
     this.error.set('');
+    this.status.set('Fjerner billede…');
 
     try {
       await this.storageFunctions.deleteSiteImage(slot);
@@ -149,6 +168,7 @@ export class HomeHeroAdminComponent {
       this.changed.emit();
     } catch {
       this.error.set('Billedet kunne ikke fjernes.');
+      this.status.set('');
     } finally {
       this.busy.set(false);
     }
@@ -167,6 +187,7 @@ export class HomeHeroAdminComponent {
 
     this.busy.set(true);
     this.error.set('');
+    this.status.set('Gemmer rækkefølge…');
     this.items.set(reordered);
 
     try {
@@ -176,6 +197,7 @@ export class HomeHeroAdminComponent {
     } catch {
       this.items.set(previous);
       this.error.set('Rækkefølgen kunne ikke gemmes.');
+      this.status.set('');
     } finally {
       this.busy.set(false);
     }
@@ -188,6 +210,7 @@ export class HomeHeroAdminComponent {
 
     this.busy.set(true);
     this.error.set('');
+    this.status.set('Fjerner billede…');
 
     try {
       await this.storageFunctions.deleteHeroImage(image.id);
@@ -195,6 +218,7 @@ export class HomeHeroAdminComponent {
       this.changed.emit();
     } catch {
       this.error.set('Billedet kunne ikke fjernes.');
+      this.status.set('');
     } finally {
       this.busy.set(false);
     }

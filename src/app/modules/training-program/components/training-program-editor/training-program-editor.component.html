@@ -92,16 +92,35 @@
                 <div class="exercise-fields">
                   <div class="field">
                     <label [for]="'ex-expl-' + i">Forklaring</label>
-                    <textarea [id]="'ex-expl-' + i" rows="3" formControlName="explanation"></textarea>
+                    <textarea
+                      [id]="'ex-expl-' + i"
+                      rows="3"
+                      formControlName="explanation"
+                    ></textarea>
                   </div>
                   <div class="row">
                     <div class="field">
-                      <label [for]="'ex-reps-' + i">{{ repsLabel(group.controls.intensityUnit.value, group.controls.repsType.value) }}</label>
-                      <input [id]="'ex-reps-' + i" type="text" inputmode="decimal" maxlength="40"
+                      <label [for]="'ex-reps-' + i">{{
+                        repsLabel(group.controls.intensityUnit.value, group.controls.repsType.value)
+                      }}</label>
+                      <input
+                        [id]="'ex-reps-' + i"
+                        type="number"
+                        inputmode="decimal"
+                        maxlength="40"
                         formControlName="reps"
-                        [attr.aria-invalid]="group.controls.reps.touched && group.controls.reps.invalid"
-                        [attr.aria-describedby]="group.controls.reps.touched && group.controls.reps.invalid ? 'ex-reps-error-' + i : null" />
-                      @if (group.controls.reps.touched && group.controls.reps.hasError('numericReps')) {
+                        [attr.aria-invalid]="
+                          group.controls.reps.touched && group.controls.reps.invalid
+                        "
+                        [attr.aria-describedby]="
+                          group.controls.reps.touched && group.controls.reps.invalid
+                            ? 'ex-reps-error-' + i
+                            : null
+                        "
+                      />
+                      @if (
+                        group.controls.reps.touched && group.controls.reps.hasError('numericReps')
+                      ) {
                         <span [id]="'ex-reps-error-' + i" role="alert">Indtast kun et tal.</span>
                       }
                     </div>
@@ -113,21 +132,40 @@
                       @if (group.controls.intensityUnit.value === 'bodyweight') {
                         <span>Intensitet: Kropsvægt</span>
                       } @else {
-                        <label [for]="'ex-int-' + i">{{ intensityLabel(group.controls.intensityUnit.value) }}</label>
+                        <label [for]="'ex-int-' + i">{{
+                          intensityLabel(group.controls.intensityUnit.value)
+                        }}</label>
                         <div class="intensity-input">
-                          <input [id]="'ex-int-' + i" type="text"
-                            [attr.inputmode]="group.controls.intensityUnit.value === 'time' ? 'numeric' : 'decimal'"
-                            maxlength="35" formControlName="intensity"
-                            [readOnly]="group.controls.intensityUnit.value === 'legacy' || group.controls.intensityUnit.value === 'legacy-time'"
+                          <input
+                            [id]="'ex-int-' + i"
+                            type="number"
+                            [attr.inputmode]="
+                              group.controls.intensityUnit.value === 'time' ? 'numeric' : 'decimal'
+                            "
+                            maxlength="35"
+                            formControlName="intensity"
+                            [readOnly]="
+                              group.controls.intensityUnit.value === 'legacy' ||
+                              group.controls.intensityUnit.value === 'legacy-time'
+                            "
                             [attr.aria-invalid]="group.hasError('intensity') && group.touched"
-                            [attr.aria-describedby]="group.controls.intensityUnit.value === 'time' ? 'ex-int-help-' + i : null" />
+                            [attr.aria-describedby]="
+                              group.controls.intensityUnit.value === 'time'
+                                ? 'ex-int-help-' + i
+                                : null
+                            "
+                          />
                           @if (group.controls.intensityUnit.value === 'time') {
                             <span [id]="'ex-int-help-' + i">/10</span>
                           }
                         </div>
                       }
                       @if (group.hasError('intensity') && group.touched) {
-                        <span role="alert">{{ group.controls.intensityUnit.value === 'time' ? 'Indtast et helt tal fra 1 til 10.' : 'Indtast et gyldigt tal.' }}</span>
+                        <span role="alert">{{
+                          group.controls.intensityUnit.value === 'time'
+                            ? 'Indtast et helt tal fra 1 til 10.'
+                            : 'Indtast et gyldigt tal.'
+                        }}</span>
                       }
                       @if (group.controls.intensityUnit.value === 'legacy-time') {
                         <span>Vælg Tid for at angive intensitet fra 1 til 10.</span>
@@ -152,11 +190,25 @@
                     @if (group.controls.intensityUnit.value === 'kg') {
                       <div class="field">
                         <span [id]="'ex-reps-type-label-' + i">Type</span>
-                        <div class="choice-buttons" role="group" [attr.aria-labelledby]="'ex-reps-type-label-' + i">
-                          <button type="button" [attr.aria-pressed]="group.controls.repsType.value === 'time'"
-                            (click)="group.controls.repsType.setValue('time')">Tid</button>
-                          <button type="button" [attr.aria-pressed]="group.controls.repsType.value === 'reps'"
-                            (click)="group.controls.repsType.setValue('reps')">Reps</button>
+                        <div
+                          class="choice-buttons"
+                          role="group"
+                          [attr.aria-labelledby]="'ex-reps-type-label-' + i"
+                        >
+                          <button
+                            type="button"
+                            [attr.aria-pressed]="group.controls.repsType.value === 'time'"
+                            (click)="group.controls.repsType.setValue('time')"
+                          >
+                            Tid
+                          </button>
+                          <button
+                            type="button"
+                            [attr.aria-pressed]="group.controls.repsType.value === 'reps'"
+                            (click)="group.controls.repsType.setValue('reps')"
+                          >
+                            Reps
+                          </button>
                         </div>
                       </div>
                     }
@@ -208,19 +260,21 @@
     </div>
 
     <div class="actions">
-      <button type="submit" class="btn primary" [disabled]="saving()">
+      <button type="submit" class="btn primary" [disabled]="saving() || !!deletingId()">
+        @if (saving()) { <span class="action-spinner" aria-hidden="true"></span> }
         {{ saving() ? 'Gemmer…' : editingId() ? 'Gem ændringer' : 'Opret program' }}
       </button>
       @if (editingId()) {
-        <button type="button" class="btn" (click)="resetForm()">Annuller</button>
+        <button type="button" class="btn" [disabled]="saving() || !!deletingId()" (click)="resetForm()">Annuller</button>
       }
     </div>
+    @if (saving()) { <span class="loading-description" role="status">Gemmer program…</span> }
   </form>
 
   <h3>Alle programmer</h3>
 
   @if (loading()) {
-    <p>Henter programmer…</p>
+    <p class="loading-description">Henter programmer…</p>
   } @else if (programs().length === 0) {
     <p>Ingen programmer oprettet endnu.</p>
   } @else {
@@ -236,22 +290,33 @@
             </span>
           </div>
           <div class="actions">
-            <button type="button" class="btn" (click)="edit(program)">Ret</button>
-            <button type="button" class="btn danger" (click)="remove(program)">Slet</button>
+            <button type="button" class="btn" [disabled]="saving() || !!deletingId()" (click)="edit(program)">Ret</button>
+            <button type="button" class="btn danger" [disabled]="saving() || !!deletingId()" (click)="remove(program)">
+              @if (deletingId() === program.id) { <span class="action-spinner" aria-hidden="true"></span> }
+              {{ deletingId() === program.id ? 'Sletter…' : 'Slet' }}
+            </button>
           </div>
+          @if (deletingId() === program.id) { <span class="loading-description" role="status">Sletter program…</span> }
         </li>
       }
     </ul>
   }
 </section>
 
-<dialog #emailDialog class="email-dialog" aria-labelledby="email-dialog-title" aria-describedby="email-dialog-description">
+<dialog
+  #emailDialog
+  class="email-dialog"
+  aria-labelledby="email-dialog-title"
+  aria-describedby="email-dialog-description"
+>
   <h3 id="email-dialog-title">Send besked om programmet?</h3>
   <p id="email-dialog-description">
     Vil du sende en e-mail til {{ userName(form.controls.assignedToUid.value) }} om opdateringen?
   </p>
   <div class="email-actions">
-    <button type="button" class="btn primary" autofocus (click)="confirmEmailChoice(true)">Gem og send mail</button>
+    <button type="button" class="btn primary" autofocus (click)="confirmEmailChoice(true)">
+      Gem og send mail
+    </button>
     <button type="button" class="btn" (click)="confirmEmailChoice(false)">Gem uden mail</button>
     <button type="button" class="btn" (click)="cancelEmailChoice()">Annuller</button>
   </div>

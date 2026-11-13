@@ -18,9 +18,9 @@ import { DocumentFile, RecipeCategory, RECIPE_CATEGORIES } from '@models/storage
 import { AuthFunctionsService } from '@modules/auth';
 import { FirebaseError } from 'firebase/app';
 import { UploadTaskSnapshot } from 'firebase/storage';
-import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
 import { AdminFacade } from '../admin-menu';
+import moment from '../core/helpers/date-time';
 import { ToastService } from '../core/services/toast/toast.service';
 import { MealPrepRecipeCardComponent } from './components/meal-prep-recipe-card/meal-prep-recipe-card.component';
 import {

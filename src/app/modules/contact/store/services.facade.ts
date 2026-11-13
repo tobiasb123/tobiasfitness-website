@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Service } from '@models/booking/interfaces';
 import { Store } from '@ngrx/store';
+import { UploadTaskSnapshot } from 'firebase/storage';
 import { filter, Observable, switchMap, tap } from 'rxjs';
 import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
 import {
@@ -48,12 +49,20 @@ export class ServicesFacade {
     return this.store.select(selectServiceUpdateState);
   }
 
-  public async createService(service: Service, imageFile: File): Promise<void> {
-    await this.saveService(service, imageFile, createServiceAction);
+  public async createService(
+    service: Service,
+    imageFile: File,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): Promise<void> {
+    await this.saveService(service, imageFile, createServiceAction, onProgress);
   }
 
-  public async updateService(service: Service, imageFile?: File): Promise<void> {
-    await this.saveService(service, imageFile, updateServiceAction);
+  public async updateService(
+    service: Service,
+    imageFile?: File,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): Promise<void> {
+    await this.saveService(service, imageFile, updateServiceAction, onProgress);
   }
 
   public deleteService(serviceId: string): void {
@@ -64,12 +73,13 @@ export class ServicesFacade {
     service: Service,
     imageFile: File | undefined,
     action: typeof updateServiceAction | typeof createServiceAction,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
   ): Promise<void> {
     this.store.dispatch(updateServiceStartedAction({ serviceId: service.id }));
 
     try {
       const uploadedImage = imageFile
-        ? await this.storageFunctions.uploadServiceImage(imageFile, service.id).promise
+        ? await this.storageFunctions.uploadServiceImage(imageFile, service.id, onProgress).promise
         : null;
 
       this.store.dispatch(

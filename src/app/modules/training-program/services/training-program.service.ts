@@ -7,6 +7,7 @@ import {
   UpdateExerciseWeightInput,
 } from '@models/training';
 import { FirebaseService } from '@modules/firebase';
+import { UploadTaskSnapshot } from 'firebase/storage';
 import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
 
 @Injectable({ providedIn: 'root' })
@@ -67,12 +68,21 @@ export class TrainingProgramService {
     return this.firebaseService.httpGet<DocumentFile[]>('storage-getExercises');
   }
 
-  createExercise(file: File, exercise: ExerciseTemplate): Promise<DocumentFile> {
-    return this.storageFunctions.saveExercise(file, exercise).promise;
+  createExercise(
+    file: File,
+    exercise: ExerciseTemplate,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): Promise<DocumentFile> {
+    return this.storageFunctions.saveExercise(file, exercise, undefined, onProgress).promise;
   }
 
-  replaceExerciseImage(file: File, exercise: ExerciseTemplate, id: string): Promise<DocumentFile> {
-    return this.storageFunctions.saveExercise(file, exercise, id).promise;
+  replaceExerciseImage(
+    file: File,
+    exercise: ExerciseTemplate,
+    id: string,
+    onProgress?: (snapshot: UploadTaskSnapshot) => void,
+  ): Promise<DocumentFile> {
+    return this.storageFunctions.saveExercise(file, exercise, id, onProgress).promise;
   }
 
   async updateExercise(file: DocumentFile): Promise<void> {

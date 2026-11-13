@@ -8,7 +8,7 @@ const NO_SERVICE_SELECTED: Service = {
   price: 'Pris: 0kr',
   time: 'Tid: 0',
   description: '',
-  image: 'Priser_Billede_2.jpeg',
+  image: '',
 };
 
 @Component({

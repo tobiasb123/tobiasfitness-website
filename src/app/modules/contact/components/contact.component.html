@@ -11,15 +11,28 @@
       (nextRequested)="goToSchedule()"
     ></app-contact-service-step>
 
-    <app-contact-schedule-step
-      [active]="currentStep() === 'schedule'"
-      [showButtonGroup]="showButtonGroup()"
-      [hourOptions]="hourOptions()"
-      [blockedWeekdays]="blockedDays()"
-      [bookedSlots]="bookedSlots()"
-      [dateControl]="dateControl"
-      [timeControl]="timeControl"
-      (backRequested)="goToService()"
-    ></app-contact-schedule-step>
+    @if (currentStep() === 'schedule' && scheduleLoading()) {
+      <p class="schedule-message loading-description" role="status">Henter bookingstider...</p>
+    } @else if (currentStep() === 'schedule' && scheduleError()) {
+      <div class="schedule-message" role="alert">
+        <p>{{ scheduleError() }}</p>
+        <button type="button" (click)="loadSchedule()">Prøv igen</button>
+        <button type="button" (click)="goToService()">Tilbage</button>
+      </div>
+    }
+
+    @if (!scheduleLoading() && !scheduleError()) {
+      <app-contact-schedule-step
+        [active]="currentStep() === 'schedule'"
+        [showButtonGroup]="showButtonGroup()"
+        [hourOptions]="hourOptions()"
+        [blockedWeekdays]="blockedDays()"
+        [bookedSlots]="bookedSlots()"
+        [isBooking]="isBooking()"
+        [dateControl]="dateControl"
+        [timeControl]="timeControl"
+        (backRequested)="goToService()"
+      ></app-contact-schedule-step>
+    }
   </form>
 </div>

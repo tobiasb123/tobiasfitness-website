@@ -1,5 +1,6 @@
 import {
   Component,
+  ChangeDetectionStrategy,
   effect,
   inject,
   OnDestroy,
@@ -14,7 +15,6 @@ import { DEFAULT_BLOCKED_DAYS } from '@models/booking/booking-availability';
 import { BOOKING_TIME_OPTIONS } from '@models/booking/booking-time-options';
 import { BookedSlot, BookingBase, Service, TimePeriod } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
-import { FirebaseError } from 'firebase/app';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { ContactFunctionsService } from '../services/contact-functions/contact-functions.service';
@@ -37,6 +37,7 @@ type ContactStep = 'service' | 'schedule';
   ],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactComponent implements OnInit, OnDestroy {
   private subs: Subscription[] = [];
@@ -75,32 +76,12 @@ export class ContactComponent implements OnInit, OnDestroy {
   serviceFormComponents: WritableSignal<Service[]> = signal([]);
   servicesLoading = signal(false);
   servicesError = signal('');
+  scheduleLoading = signal(false);
+  scheduleError = signal('');
+  isBooking = signal(false);
 
   async ngOnInit(): Promise<void> {
     this.scrollToTop();
-
-    try {
-      const availability = await this.contactFunctions.getBookingAvailability();
-      this.hourOptions.set(
-        availability.timePeriods.map(
-          (period) =>
-            `${this.formatTime(Number(period.start.hour), Number(period.start.minute))} - ${this.formatTime(
-              Number(period.end.hour),
-              Number(period.end.minute),
-            )}`,
-        ),
-      );
-      this.blockedDays.set(availability.blockedDays);
-    } catch {
-      // Defaults already set
-    }
-
-    try {
-      const bookedSlots = await this.contactFunctions.getBookedSlots();
-      this.bookedSlots.set(bookedSlots);
-    } catch {
-      // Defaults to empty
-    }
 
     this.subs.push(
       this.servicesFacade.getServices().subscribe((services) => {
@@ -119,13 +100,61 @@ export class ContactComponent implements OnInit, OnDestroy {
         this.servicesError.set(error || '');
       }),
     );
+
+    await this.loadSchedule();
+  }
+
+  async loadSchedule(): Promise<void> {
+    if (this.scheduleLoading()) {
+      return;
+    }
+
+    this.scheduleLoading.set(true);
+    this.scheduleError.set('');
+
+    try {
+      const [availability, bookedSlots] = await Promise.all([
+        this.contactFunctions.getBookingAvailability(),
+        this.contactFunctions.getBookedSlots(),
+      ]);
+      this.hourOptions.set(
+        availability.timePeriods.map(
+          (period) =>
+            `${this.formatTime(Number(period.start.hour), Number(period.start.minute))} - ${this.formatTime(
+              Number(period.end.hour),
+              Number(period.end.minute),
+            )}`,
+        ),
+      );
+      this.blockedDays.set(availability.blockedDays);
+      this.bookedSlots.set(bookedSlots);
+    } catch {
+      this.scheduleError.set('Bookingstiderne kunne ikke hentes. Prøv igen.');
+    } finally {
+      this.scheduleLoading.set(false);
+    }
   }
 
   onSubmit(event: SubmitEvent) {
     event.preventDefault();
 
+    if (this.isBooking()) {
+      return;
+    }
+
+    if (this.scheduleLoading() || this.scheduleError()) {
+      this.toast.open('Bookingstiderne skal hentes, før du kan booke.', 'error');
+      return;
+    }
+
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      this.toast.open('Vælg en service, dato og tid.', 'error');
+      return;
+    }
+
     if (!this.userProfile?.email) {
-      console.log('No Valid Email.');
+      this.toast.open('Du skal være logget ind med en gyldig email for at booke.', 'error');
       return;
     }
 
@@ -158,6 +187,7 @@ export class ContactComponent implements OnInit, OnDestroy {
       service: this.serviceControl.value,
     };
 
+    this.isBooking.set(true);
     this.contactFunctions
       .newBooking(newBooking)
       .then((booking) => {
@@ -168,8 +198,11 @@ export class ContactComponent implements OnInit, OnDestroy {
           { date: booking.date, timePeriod: booking.timePeriod },
         ]);
       })
-      .catch((error: FirebaseError) => {
-        this.toast.open(error.message, 'error');
+      .catch((error: unknown) => {
+        this.toast.open(error instanceof Error && error.message ? error.message : 'Bookingen kunne ikke gennemføres. Prøv igen.', 'error');
+      })
+      .finally(() => {
+        this.isBooking.set(false);
       });
   }
 

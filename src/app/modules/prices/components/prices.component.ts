@@ -14,6 +14,7 @@ import { Service } from '@models/booking/interfaces';
 import { AUTH_STATE, AuthFunctionsService } from '@modules/auth';
 import { ToastService } from '@modules/core';
 import { Subscription } from 'rxjs';
+import { uploadPercentage } from '../../core/helpers/upload-progress';
 import { ServicesFacade, ServiceUpdateState } from '../../contact';
 import { PricesAdminPanelComponent } from './prices-admin-panel/prices-admin-panel.component';
 import { PricesServicesListComponent } from './prices-services-list/prices-services-list.component';
@@ -39,6 +40,7 @@ export class PricesComponent implements OnInit, OnDestroy {
   } | null = null;
 
   adminPanelOpen = signal(false);
+  uploadProgress = signal<number | null>(null);
 
   generalServices: WritableSignal<Service[]> = signal([]);
   servicesLoading = signal(false);
@@ -92,16 +94,27 @@ export class PricesComponent implements OnInit, OnDestroy {
   }
 
   updateService(update: { service: Service; imageFile: File | null }): void {
-    void this.servicesFacade.updateService(update.service, update.imageFile ?? undefined);
+    if (this.pendingOperation) return;
+    this.uploadProgress.set(null);
+    void this.servicesFacade.updateService(
+      update.service,
+      update.imageFile ?? undefined,
+      (snapshot) => this.uploadProgress.set(uploadPercentage(snapshot)),
+    );
     this.startOperation(update.service.id, 'Gemmer ydelse...', 'Ydelsen blev gemt');
   }
 
   createService(create: { service: Service; imageFile: File }): void {
-    void this.servicesFacade.createService(create.service, create.imageFile);
+    if (this.pendingOperation) return;
+    this.uploadProgress.set(null);
+    void this.servicesFacade.createService(create.service, create.imageFile, (snapshot) =>
+      this.uploadProgress.set(uploadPercentage(snapshot)),
+    );
     this.startOperation(create.service.id, 'Opretter ydelse...', 'Ydelsen blev oprettet');
   }
 
   deleteService(service: Service): void {
+    if (this.pendingOperation) return;
     this.servicesFacade.deleteService(service.id);
     this.startOperation(service.id, 'Sletter ydelse...', 'Ydelsen blev slettet');
   }
@@ -135,6 +148,7 @@ export class PricesComponent implements OnInit, OnDestroy {
     }
 
     this.pendingOperation = null;
+    this.uploadProgress.set(null);
   }
 
   navigateTo(route: string) {
@@ -145,6 +159,7 @@ export class PricesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.pendingOperation?.toastRef.close({ dismissedByAction: true });
     this.subs.forEach((sub) => {
       sub.unsubscribe();
     });

@@ -44,6 +44,15 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
+## Frontend loading and dates
+
+Feature routes load their components on demand. Frontend code using Moment should import the
+[configured date helper](./src/app/modules/core/helpers/date-time.ts), which preserves Danish
+locale and the Europe/Copenhagen timezone without loading Moment on every page.
+
+Run `npm run typecheck:strict` to check the recipe utilities with strict null checks. More
+frontend files can be added to `tsconfig.strict.json` as they are migrated.
+
 ## Recipe categories
 
 Administrators select Morgenmad, Frokost, Aftensmad, or Snack when creating or editing a recipe. Existing recipes without a category remain available under "Ikke kategoriseret" until an administrator assigns one. The recipe overview continues to show shared and personally assigned recipes separately.

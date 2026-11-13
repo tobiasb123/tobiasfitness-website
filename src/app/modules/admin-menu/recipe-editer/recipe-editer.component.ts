@@ -21,9 +21,15 @@ import {
   RecipeStorageNote,
 } from '@models/storage';
 import { RecipesFacade } from '@modules/meal-prep';
+import { uploadPercentage } from '../../core/helpers/upload-progress';
 import { ToastService } from '../../core/services/toast/toast.service';
 import { RecipeReceiverPickerComponent } from '../../meal-prep/components/recipe-receiver-picker/recipe-receiver-picker.component';
 import { StorageFunctions } from '../../meal-prep/services/storage-functions.service';
+import {
+  flattenIngredients,
+  flattenInstructions,
+  normalizeStorageNotes,
+} from '../../meal-prep/utils/recipe-form.util';
 import {
   getRecipeReceiverUids,
   toRecipeReceiverFields,
@@ -83,6 +89,7 @@ export class RecipeEditerComponent implements OnDestroy {
   readonly recipeImagePreviewUrl = signal('');
   readonly isRecipeSaving = signal(false);
   readonly isRecipeDeleting = signal(false);
+  readonly uploadProgress = signal<number | null>(null);
   readonly showDeleteConfirmation = signal(false);
 
   private readonly selectedRecipeEffect = effect(() => {
@@ -375,6 +382,9 @@ export class RecipeEditerComponent implements OnDestroy {
   }
 
   async confirmDeleteRecipe(): Promise<void> {
+    if (this.isRecipeSaving() || this.isRecipeDeleting()) {
+      return;
+    }
     const recipe = this.selectedRecipe();
 
     if (!recipe) {
@@ -399,6 +409,9 @@ export class RecipeEditerComponent implements OnDestroy {
   }
 
   async saveRecipeChanges(): Promise<void> {
+    if (this.isRecipeSaving() || this.isRecipeDeleting()) {
+      return;
+    }
     const recipe = this.selectedRecipe();
 
     if (!recipe) {
@@ -414,14 +427,14 @@ export class RecipeEditerComponent implements OnDestroy {
 
     const normalizedIngredientGroups = this.getNormalizedIngredientGroups();
     const normalizedInstructionSections = this.getNormalizedInstructionSections();
-    const normalizedStorageNotes = this.getNormalizedStorageNotes();
+    const normalizedStorageNotes = normalizeStorageNotes(this.storageNotes());
     const normalizedNutritionRows = this.getNormalizedNutritionRows();
 
     const updatedRecipeData: Recipe = {
       title: this.titleControl.value.trim(),
       ...(this.categoryControl.value ? { category: this.categoryControl.value } : {}),
-      ingredients: this.flattenIngredients(normalizedIngredientGroups),
-      instructions: this.flattenInstructions(normalizedInstructionSections),
+      ingredients: flattenIngredients(normalizedIngredientGroups),
+      instructions: flattenInstructions(normalizedInstructionSections),
       macros: this.buildLegacyMacros(normalizedNutritionRows),
       servings: this.servingsControl.value,
       prepTimeMinutes: this.prepTimeMinutesControl.value,
@@ -452,6 +465,7 @@ export class RecipeEditerComponent implements OnDestroy {
           this.receiverControl.value,
           recipe.id,
           selectedImage,
+          (snapshot) => this.uploadProgress.set(uploadPercentage(snapshot)),
         ).promise;
         this.recipesFacade.upsertRecipe(replacedDocument);
         this.hydrateFromRecipe(replacedDocument);
@@ -471,6 +485,7 @@ export class RecipeEditerComponent implements OnDestroy {
       this.toast.open(error instanceof Error ? error.message : 'Kunne ikke gemme opskriften', 'error');
     } finally {
       this.isRecipeSaving.set(false);
+      this.uploadProgress.set(null);
     }
   }
 
@@ -635,15 +650,6 @@ export class RecipeEditerComponent implements OnDestroy {
       .filter((section) => section.title.length > 0 || section.steps.length > 0);
   }
 
-  private getNormalizedStorageNotes(): RecipeStorageNote[] {
-    return this.storageNotes()
-      .map((note) => ({
-        title: note.title.trim(),
-        description: note.description.trim(),
-      }))
-      .filter((note) => note.title.length > 0 || note.description.length > 0);
-  }
-
   private getNormalizedNutritionRows(): RecipeNutritionRow[] {
     return this.nutritionRows()
       .map((row) => ({
@@ -652,18 +658,6 @@ export class RecipeEditerComponent implements OnDestroy {
         unit: row.unit?.trim() || '',
       }))
       .filter((row) => row.name.length > 0 || row.value.length > 0 || (row.unit?.length || 0) > 0);
-  }
-
-  private flattenIngredients(groups: RecipeIngredientGroup[]): string[] {
-    return groups.flatMap((group) => group.items);
-  }
-
-  private flattenInstructions(sections: RecipeInstructionSection[]): string[] {
-    return sections.flatMap((section) =>
-      section.steps
-        .map((step) => step.description || step.title)
-        .filter((value) => value && value.trim().length > 0),
-    );
   }
 
   private buildLegacyMacros(rows: RecipeNutritionRow[]): string[] {

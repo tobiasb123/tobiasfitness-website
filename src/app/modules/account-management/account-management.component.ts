@@ -1,11 +1,11 @@
 import {
   Component,
+  computed,
   effect,
   inject,
   OnDestroy,
   OnInit,
   signal,
-  WritableSignal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -17,9 +17,9 @@ import {
   RescheduleBookingRequest,
 } from '@models/booking/interfaces';
 import { AuthFunctionsService } from '@modules/auth';
-import moment from 'moment-timezone';
 import { Subscription } from 'rxjs';
 import { BookingFacade, ContactFunctionsService } from '../contact';
+import moment from '../core/helpers/date-time';
 import { ToastService } from '../core/services/toast/toast.service';
 
 export interface BookingRescheduleSelection {
@@ -35,16 +35,25 @@ export interface BookingRescheduleSelection {
 })
 export class AccountManagementComponent implements OnInit, OnDestroy {
   public readonly rescheduleTimeOptions = signal<string[]>(BOOKING_TIME_OPTIONS);
+  readonly isSavingProfile = signal(false);
+  readonly pendingBookingRequests = signal<Record<string, 'reschedule' | 'cancel'>>({});
 
-  private subs: Subscription[] = [];
+  private bookingsSubscription?: Subscription;
 
   private authFunctions = inject(AuthFunctionsService);
   private toast = inject(ToastService);
   private contactFunctions = inject(ContactFunctionsService);
   private bookingFacade = inject(BookingFacade);
-  private userProfile: UserProfile | undefined;
 
-  public bookings: WritableSignal<Booking[]> = signal([]);
+  private readonly allBookings = signal<Booking[]>([]);
+  public readonly bookings = computed(() => {
+    const uid = this.authFunctions.currentUserProfile()?.uid;
+    return uid
+      ? this.allBookings()
+          .filter((booking) => booking.uid === uid)
+          .sort((a, b) => a.date.localeCompare(b.date))
+      : [];
+  });
   public rescheduleSelections = signal<Record<string, BookingRescheduleSelection>>({});
 
   private readonly profileEffect = effect(() => {
@@ -79,13 +88,12 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     city: this.cityControl,
   });
 
-  private loadBookingsForUser(uid: String): void {
-    this.subs.push(
-      this.bookingFacade.getBookings().subscribe((bookings) => {
-        const userBookings = bookings.filter((booking) => booking.uid === uid);
-        this.bookings.set([...userBookings].sort((a, b) => a.date.localeCompare(b.date)));
-      }),
-    );
+  private loadBookings(): void {
+    if (!this.bookingsSubscription) {
+      this.bookingsSubscription = this.bookingFacade
+        .getBookings()
+        .subscribe((bookings) => this.allBookings.set(bookings));
+    }
   }
 
   public formatBookingDate(date: string): string {
@@ -145,6 +153,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
   }
 
   public async sendRescheduleMail(booking: Booking): Promise<void> {
+    if (this.pendingBookingRequests()[booking.id]) {
+      return;
+    }
     const selection = this.getRescheduleSelection(booking);
 
     if (!selection.date || !selection.time) {
@@ -158,25 +169,42 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
       requestedTime: selection.time,
     };
 
+    this.pendingBookingRequests.update((requests) => ({ ...requests, [booking.id]: 'reschedule' }));
     try {
       await this.contactFunctions.sendRescheduleMail(request);
       this.toast.open('Forespørgsel om omlægning sendt', 'success');
     } catch {
       this.toast.open('Forespørgsel om omlægning kunne ikke sendes', 'error');
+    } finally {
+      this.clearBookingRequest(booking.id);
     }
   }
 
   public async sendCancellationMail(booking: Booking): Promise<void> {
+    if (this.pendingBookingRequests()[booking.id]) {
+      return;
+    }
     const request: CancelBookingRequest = {
       bookingId: booking.id,
     };
 
+    this.pendingBookingRequests.update((requests) => ({ ...requests, [booking.id]: 'cancel' }));
     try {
       await this.contactFunctions.sendCancellationMail(request);
       this.toast.open('Forespørgsel om aflysning sendt', 'success');
     } catch {
       this.toast.open('Forespørgsel om aflysning kunne ikke sendes', 'error');
+    } finally {
+      this.clearBookingRequest(booking.id);
     }
+  }
+
+  private clearBookingRequest(id: string): void {
+    this.pendingBookingRequests.update((requests) => {
+      const updated = { ...requests };
+      delete updated[id];
+      return updated;
+    });
   }
 
   async ngOnInit(): Promise<void> {
@@ -184,7 +212,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
       const availability = await this.contactFunctions.getBookingAvailability();
       this.rescheduleTimeOptions.set(availability.timePeriods.map(formatTimePeriodOption));
     } catch {
-      // Defaults already set
+      this.toast.open('Bookingstiderne kunne ikke hentes. Standardtider vises.', 'warning');
     }
 
     const initialProfile = this.authFunctions.currentUserProfile();
@@ -195,13 +223,11 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
   }
 
   private applyProfile(profile: UserProfile | undefined): void {
-    this.userProfile = profile;
-
     if (!profile?.uid) {
       return;
     }
 
-    this.loadBookingsForUser(profile.uid);
+    this.loadBookings();
 
     const address = profile.address;
 
@@ -216,8 +242,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
   }
 
   async onSubmit(): Promise<void> {
-    this.userProfile = this.authFunctions.currentUserProfile();
-
+    if (this.isSavingProfile()) {
+      return;
+    }
     const address = {
       street: this.addressControl.value ?? '',
       postalCode: this.postalCodeControl.value ?? null,
@@ -233,6 +260,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
       address,
     };
 
+    this.isSavingProfile.set(true);
     try {
       const data = await this.authFunctions.updateDetails(newData);
       const updatedProfile = data ?? {};
@@ -243,12 +271,12 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
       this.toast.open('Bruger gemt', 'success');
     } catch {
       this.toast.open('Bruger kunne ikke gemmes', 'error');
+    } finally {
+      this.isSavingProfile.set(false);
     }
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach((sub) => {
-      sub.unsubscribe();
-    });
+    this.bookingsSubscription?.unsubscribe();
   }
 }

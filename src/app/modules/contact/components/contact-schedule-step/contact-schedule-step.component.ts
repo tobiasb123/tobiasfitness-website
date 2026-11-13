@@ -26,6 +26,7 @@ interface TimeOptionItem {
 export class ContactScheduleStepComponent {
   active = input(false);
   showButtonGroup = input(false);
+  isBooking = input(false);
   hourOptions = input<string[]>([]);
   blockedWeekdays = input<number[]>(DEFAULT_BLOCKED_DAYS);
   bookedSlots = input<BookedSlot[]>([]);

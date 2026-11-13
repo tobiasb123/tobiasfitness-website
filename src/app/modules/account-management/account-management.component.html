@@ -59,7 +59,11 @@
           </div>
         </div>
 
-        <button class="save-button" type="submit">Gem</button>
+        <button class="save-button" type="submit" [disabled]="isSavingProfile()">
+          @if (isSavingProfile()) { <span class="action-spinner" aria-hidden="true"></span> }
+          {{ isSavingProfile() ? 'Gemmer…' : 'Gem' }}
+        </button>
+        @if (isSavingProfile()) { <p class="loading-description" role="status">Gemmer dine oplysninger…</p> }
       </form>
     </div>
   </section>
@@ -122,17 +126,21 @@
                 </select>
               </div>
 
-              <button class="reschedule-button" type="button" (click)="sendRescheduleMail(booking)">
-                Foreslå omlægning
+              <button class="reschedule-button" type="button" [disabled]="!!pendingBookingRequests()[booking.id]" (click)="sendRescheduleMail(booking)">
+                @if (pendingBookingRequests()[booking.id] === 'reschedule') { <span class="action-spinner" aria-hidden="true"></span> }
+                {{ pendingBookingRequests()[booking.id] === 'reschedule' ? 'Sender…' : 'Foreslå omlægning' }}
               </button>
 
               <button
                 class="cancel-request-button"
                 type="button"
+                [disabled]="!!pendingBookingRequests()[booking.id]"
                 (click)="sendCancellationMail(booking)"
               >
-                Anmod om aflysning
+                @if (pendingBookingRequests()[booking.id] === 'cancel') { <span class="action-spinner" aria-hidden="true"></span> }
+                {{ pendingBookingRequests()[booking.id] === 'cancel' ? 'Sender…' : 'Anmod om aflysning' }}
               </button>
+              @if (pendingBookingRequests()[booking.id]) { <p class="loading-description" role="status">Sender din forespørgsel…</p> }
             </div>
           </article>
         }

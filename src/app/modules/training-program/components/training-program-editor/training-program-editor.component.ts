@@ -21,7 +21,7 @@ import { DocumentFile } from '@models/storage';
 import { TRAINING_SECTION_LABELS, TRAINING_SECTIONS, TrainingProgram, TrainingSection } from '@models/training';
 import { intensityLabel, IntensityUnit, parseIntensity, repsLabel, RepsType } from '@models/training/intensity';
 import { ToastService } from '../../../core/services/toast/toast.service';
-import moment from 'moment-timezone';
+import moment from '../../../core/helpers/date-time';
 import { TrainingProgramService } from '../../services/training-program.service';
 import { savedIntensity, validateIntensity } from '../../intensity-form';
 import { repsValidator } from '../../reps-validator';
@@ -86,6 +86,7 @@ export class TrainingProgramEditorComponent implements OnInit {
   readonly library = this.service.exercises;
   readonly editingId = signal<string | null>(null);
   readonly saving = signal(false);
+  readonly deletingId = signal<string | null>(null);
   readonly loading = signal(true);
   readonly pickerOpen = signal(false);
   private readonly initialWeightDates = new Map<string, string>();
@@ -269,7 +270,7 @@ export class TrainingProgramEditorComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
-    if (this.form.invalid || this.saving()) {
+    if (this.form.invalid || this.saving() || this.deletingId()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -290,7 +291,7 @@ export class TrainingProgramEditorComponent implements OnInit {
   }
 
   async confirmEmailChoice(sendNotification: boolean): Promise<void> {
-    if (!this.emailDialog().nativeElement.open || this.saving()) {
+    if (!this.emailDialog().nativeElement.open || this.saving() || this.deletingId()) {
       return;
     }
     this.emailDialog().nativeElement.close();
@@ -298,7 +299,7 @@ export class TrainingProgramEditorComponent implements OnInit {
   }
 
   private async saveProgram(sendNotification?: boolean): Promise<void> {
-    if (this.form.invalid || this.saving()) {
+    if (this.form.invalid || this.saving() || this.deletingId()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -335,10 +336,14 @@ export class TrainingProgramEditorComponent implements OnInit {
   }
 
   async remove(program: TrainingProgram): Promise<void> {
+    if (this.deletingId() || this.saving()) {
+      return;
+    }
     if (!confirm(`Slet programmet "${program.title}"?`)) {
       return;
     }
 
+    this.deletingId.set(program.id);
     try {
       await this.service.deleteProgram(program.id);
       await this.refreshPrograms();
@@ -350,6 +355,8 @@ export class TrainingProgramEditorComponent implements OnInit {
       this.toast.open('Programmet blev slettet', 'success');
     } catch (error) {
       this.toast.open(this.messageOf(error, 'Programmet kunne ikke slettes'), 'error');
+    } finally {
+      this.deletingId.set(null);
     }
   }
 

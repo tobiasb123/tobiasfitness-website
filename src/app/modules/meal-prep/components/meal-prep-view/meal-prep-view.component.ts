@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import {
   DocumentFile,
   Recipe,
   RecipeIngredientGroup,
   RecipeInstructionSection,
-  RecipeInstructionStep,
   RecipeNutritionRow,
   RecipeStorageNote,
 } from '@models/storage';
@@ -19,7 +18,12 @@ export class MealPrepViewComponent {
   recipe = input<DocumentFile | null>(null);
   visible = input(false);
 
-  getIngredientGroups(recipe: Recipe | undefined): RecipeIngredientGroup[] {
+  readonly ingredientGroups = computed(() => this.getIngredientGroups(this.recipe()?.recipe));
+  readonly instructionSections = computed(() => this.getInstructionSections(this.recipe()?.recipe));
+  readonly nutritionRows = computed(() => this.getNutritionRows(this.recipe()?.recipe));
+  readonly storageNotes = computed(() => this.getStorageNotes(this.recipe()?.recipe));
+
+  private getIngredientGroups(recipe: Recipe | undefined): RecipeIngredientGroup[] {
     if (!recipe) {
       return [];
     }
@@ -37,7 +41,7 @@ export class MealPrepViewComponent {
     return [{ title: 'Ingredienser', items: ingredients }];
   }
 
-  getInstructionSections(recipe: Recipe | undefined): RecipeInstructionSection[] {
+  private getInstructionSections(recipe: Recipe | undefined): RecipeInstructionSection[] {
     if (!recipe) {
       return [];
     }
@@ -60,7 +64,7 @@ export class MealPrepViewComponent {
     ];
   }
 
-  getNutritionRows(recipe: Recipe | undefined): RecipeNutritionRow[] {
+  private getNutritionRows(recipe: Recipe | undefined): RecipeNutritionRow[] {
     if (!recipe) {
       return [];
     }
@@ -78,7 +82,7 @@ export class MealPrepViewComponent {
     ];
   }
 
-  getStorageNotes(recipe: Recipe | undefined): RecipeStorageNote[] {
+  private getStorageNotes(recipe: Recipe | undefined): RecipeStorageNote[] {
     if (!recipe?.storageNotes || recipe.storageNotes.length === 0) {
       return [];
     }

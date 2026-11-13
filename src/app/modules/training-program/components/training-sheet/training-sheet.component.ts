@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TRAINING_SECTION_LABELS, TRAINING_SECTIONS, TrainingExercise, TrainingProgram } from '@models/training';
 import { formatIntensity, intensityLabel, INTENSITY_RATING_PATTERN, INTENSITY_VALUE_PATTERN, isTimeUnit, parseIntensity, repsLabel } from '@models/training/intensity';
-import moment from 'moment-timezone';
+import moment from '../../../core/helpers/date-time';
 
 export interface WeightChange {
   exerciseId: string;

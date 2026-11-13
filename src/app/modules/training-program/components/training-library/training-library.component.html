@@ -89,13 +89,21 @@
     </div>
 
     <div class="actions">
-      <button type="submit" class="btn primary" [disabled]="saving()">
+      <button type="submit" class="btn primary" [disabled]="saving() || !!deletingId()">
+        @if (saving()) { <span class="action-spinner" aria-hidden="true"></span> }
         {{ saving() ? 'Gemmer…' : editingId() ? 'Gem ændringer' : 'Opret øvelse' }}
       </button>
       @if (editingId()) {
-        <button type="button" class="btn" (click)="resetForm()">Annuller</button>
+        <button type="button" class="btn" [disabled]="saving() || !!deletingId()" (click)="resetForm()">Annuller</button>
       }
     </div>
+    @if (saving()) {
+      <p class="loading-description" role="status">{{ uploadProgress() === 100 ? 'Billedet er uploadet. Gemmer øvelsen…' : 'Gemmer øvelse…' }}</p>
+    }
+    @if (saving() && uploadProgress() !== null) {
+      <progress aria-label="Upload af øvelsesbillede" [value]="uploadProgress()" max="100"></progress>
+      <span>{{ uploadProgress() }}%</span>
+    }
   </form>
 
   <div class="field">
@@ -109,7 +117,7 @@
   </div>
 
   @if (loading()) {
-    <p>Henter øvelser…</p>
+    <p class="loading-description">Henter øvelser…</p>
   } @else if (filtered().length === 0) {
     <p>Ingen øvelser fundet.</p>
   } @else {
@@ -122,9 +130,13 @@
             <span>{{ item.exercise?.sets }} sæt · {{ item.exercise?.reps }}</span>
           </div>
           <div class="item-actions">
-            <button type="button" class="btn" (click)="edit(item)">Ret</button>
-            <button type="button" class="btn danger" (click)="remove(item)">Slet</button>
+            <button type="button" class="btn" [disabled]="saving() || !!deletingId()" (click)="edit(item)">Ret</button>
+            <button type="button" class="btn danger" [disabled]="saving() || !!deletingId()" (click)="remove(item)">
+              @if (deletingId() === item.id) { <span class="action-spinner" aria-hidden="true"></span> }
+              {{ deletingId() === item.id ? 'Sletter…' : 'Slet' }}
+            </button>
           </div>
+          @if (deletingId() === item.id) { <span class="loading-description" role="status">Sletter øvelse…</span> }
         </li>
       }
     </ul>

@@ -10,6 +10,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { DocumentFile } from '@models/storage';
 import { intensityLabel, IntensityUnit, parseIntensity, repsLabel, RepsType } from '@models/training/intensity';
 import { ToastService } from '../../../core/services/toast/toast.service';
+import { uploadPercentage } from '../../../core/helpers/upload-progress';
 import { TrainingProgramService } from '../../services/training-program.service';
 import { savedIntensity, validateIntensity } from '../../intensity-form';
 import { repsValidator } from '../../reps-validator';
@@ -32,6 +33,8 @@ export class TrainingLibraryComponent implements OnInit {
   readonly editingId = signal<string | null>(null);
   readonly selectedFile = signal<File | null>(null);
   readonly saving = signal(false);
+  readonly deletingId = signal<string | null>(null);
+  readonly uploadProgress = signal<number | null>(null);
   readonly loading = signal(true);
 
   readonly filtered = computed(() => {
@@ -111,7 +114,7 @@ export class TrainingLibraryComponent implements OnInit {
     const id = this.editingId();
     const file = this.selectedFile();
 
-    if (this.form.invalid || this.saving() || (!id && !file)) {
+    if (this.form.invalid || this.saving() || this.deletingId() || (!id && !file)) {
       this.form.markAllAsTouched();
 
       if (!id && !file) {
@@ -130,11 +133,15 @@ export class TrainingLibraryComponent implements OnInit {
 
     try {
       if (id && file) {
-        await this.service.replaceExerciseImage(file, exercise, id);
+        await this.service.replaceExerciseImage(file, exercise, id, (snapshot) =>
+          this.uploadProgress.set(uploadPercentage(snapshot)),
+        );
       } else if (id) {
         await this.service.updateExercise({ id, exercise } as DocumentFile);
       } else if (file) {
-        await this.service.createExercise(file, exercise);
+        await this.service.createExercise(file, exercise, (snapshot) =>
+          this.uploadProgress.set(uploadPercentage(snapshot)),
+        );
       }
 
       await this.service.loadExercises();
@@ -144,14 +151,19 @@ export class TrainingLibraryComponent implements OnInit {
       this.toast.open(this.messageOf(error, 'Øvelsen kunne ikke gemmes'), 'error');
     } finally {
       this.saving.set(false);
+      this.uploadProgress.set(null);
     }
   }
 
   async remove(item: DocumentFile): Promise<void> {
+    if (this.deletingId() || this.saving()) {
+      return;
+    }
     if (!confirm(`Slet øvelsen "${item.exercise?.name}"?`)) {
       return;
     }
 
+    this.deletingId.set(item.id);
     try {
       await this.service.deleteExercise(item.id);
       await this.service.loadExercises();
@@ -163,6 +175,8 @@ export class TrainingLibraryComponent implements OnInit {
       this.toast.open('Øvelsen blev slettet', 'success');
     } catch (error) {
       this.toast.open(this.messageOf(error, 'Øvelsen kunne ikke slettes'), 'error');
+    } finally {
+      this.deletingId.set(null);
     }
   }
 

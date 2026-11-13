@@ -9,13 +9,13 @@
 
   @if (!recipeOnlyMode) {
     <div class="nav-bar">
-      <button class="ebn" [class.active]="activeTab() === 'Oversigt'" (click)="openTab('Oversigt')">
+      <button class="ebn" [disabled]="isBookingCommandLoading() || isSavingUser()" [class.active]="activeTab() === 'Oversigt'" (click)="openTab('Oversigt')">
         Oversigt
       </button>
-      <button class="ebn" [class.active]="activeTab() === 'Tider'" (click)="openTab('Tider')">
+      <button class="ebn" [disabled]="isBookingCommandLoading() || isSavingUser()" [class.active]="activeTab() === 'Tider'" (click)="openTab('Tider')">
         Tider
       </button>
-      <button class="ebn" [class.active]="activeTab() === 'Profil'" (click)="openTab('Profil')">
+      <button class="ebn" [disabled]="isBookingCommandLoading() || isSavingUser()" [class.active]="activeTab() === 'Profil'" (click)="openTab('Profil')">
         Profil
       </button>
     </div>
@@ -76,7 +76,11 @@
   }
 
   <div class="option-buttons">
-    <button (click)="save()">Gem</button>
-    <button (click)="closeEditer()">Luk</button>
+    <button [disabled]="isSavingUser() || isBookingCommandLoading()" (click)="save()">
+      @if (isSavingUser()) { <span class="action-spinner" aria-hidden="true"></span> }
+      {{ isSavingUser() ? 'Gemmer…' : 'Gem' }}
+    </button>
+    <button [disabled]="isSavingUser() || isBookingCommandLoading()" (click)="closeEditer()">Luk</button>
   </div>
+  @if (isSavingUser()) { <span class="loading-description" role="status">Gemmer bruger…</span> }
 </div>

@@ -110,6 +110,9 @@ export class BookingAvailabilityComponent implements OnInit {
   }
 
   async saveAvailability(): Promise<void> {
+    if (this.isSaving()) {
+      return;
+    }
     const periods = this.periods();
     if (!this.arePeriodsValid(periods)) {
       this.toast.open(
