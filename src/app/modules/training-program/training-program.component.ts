@@ -4,12 +4,16 @@ import {
   Component,
   computed,
   effect,
+  afterNextRender,
   ElementRef,
   inject,
+  Injector,
   OnInit,
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { UserProfile } from '@models/auth/interfaces';
 import { TrainingProgram } from '@models/training';
 import { intensityLabel, parseIntensity } from '@models/training/intensity';
@@ -17,6 +21,7 @@ import { AuthFunctionsService } from '@modules/auth';
 import { toPng } from 'html-to-image';
 import { AdminFacade } from '../admin-menu';
 import moment from '../core/helpers/date-time';
+import { DetailNavigationService } from '../core/services/detail-navigation.service';
 import { ToastService } from '../core/services/toast/toast.service';
 import { TrainingLibraryComponent } from './components/training-library/training-library.component';
 import { TrainingProgramEditorComponent } from './components/training-program-editor/training-program-editor.component';
@@ -41,6 +46,11 @@ export class TrainingProgramComponent implements OnInit {
   private authFunctions = inject(AuthFunctionsService);
   private adminFacade = inject(AdminFacade);
   private toast = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly detailNavigation = inject(DetailNavigationService);
+  private readonly injector = inject(Injector);
+  private readonly overview = viewChild<ElementRef<HTMLElement>>('overview');
+  private readonly backButton = viewChild<ElementRef<HTMLButtonElement>>('backButton');
 
   readonly isAdmin = computed(() => Boolean(this.authFunctions.currentUserProfile()?.admin));
   readonly users = signal<UserProfile[]>([]);
@@ -58,6 +68,7 @@ export class TrainingProgramComponent implements OnInit {
   readonly exportImages = signal<Record<string, string> | null>(null);
   readonly previewUrl = signal<string | null>(null);
   private readonly programSheet = viewChild<ElementRef<HTMLElement>>('programSheet');
+  private selectionVersion = 0;
 
   readonly archivedCount = computed(
     () => this.programs().filter((program) => program.status === 'archived').length,
@@ -81,11 +92,37 @@ export class TrainingProgramComponent implements OnInit {
     }
   });
 
+  constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const previousId = this.selectedId();
+      const id = params.get('program');
+      this.selectedId.set(id);
+      if (id !== previousId) {
+        this.selectionVersion++;
+        this.closePreview();
+        if (id !== null) {
+          this.tab.set('mine');
+          afterNextRender(
+            () => (this.backButton() ?? this.overview())?.nativeElement.focus(),
+            { injector: this.injector },
+          );
+        } else if (previousId !== null) {
+          afterNextRender(() => this.overview()?.nativeElement.focus(), { injector: this.injector });
+        }
+      }
+    });
+  }
+
   async ngOnInit(): Promise<void> {
     await this.loadMyPrograms();
   }
 
   async showTab(tab: AdminTab): Promise<void> {
+    if (tab !== 'mine' && this.selectedId() !== null) {
+      if (!(await this.detailNavigation.clear(this.route, 'program'))) {
+        return;
+      }
+    }
     this.tab.set(tab);
 
     if (tab === 'mine') {
@@ -94,9 +131,21 @@ export class TrainingProgramComponent implements OnInit {
   }
 
   async toggleAllPrograms(): Promise<void> {
+    if (this.selectedId() !== null) {
+      if (!(await this.detailNavigation.clear(this.route, 'program'))) {
+        return;
+      }
+    }
     this.showAll.update((value) => !value);
-    this.selectedId.set(null);
     await this.loadMyPrograms();
+  }
+
+  openProgram(id: string): void {
+    void this.detailNavigation.open(this.route, 'program', id);
+  }
+
+  closeProgram(): void {
+    this.detailNavigation.close(this.route, 'program');
   }
 
   isOwn(program: TrainingProgram): boolean {
@@ -165,12 +214,13 @@ export class TrainingProgramComponent implements OnInit {
     }
 
     this.exporting.set(true);
+    const selectionVersion = this.selectionVersion;
 
     try {
       const images = await this.service.getProgramImages(program.id);
 
-      if (this.selectedId() !== program.id) {
-        throw new Error('Træningsprogrammet blev ændret, mens billedet blev oprettet');
+      if (this.selectedId() !== program.id || this.selectionVersion !== selectionVersion) {
+        return;
       }
 
       if (program.exercises.some((exercise) => exercise.imageUrl && !images[exercise.id])) {
@@ -201,9 +251,12 @@ export class TrainingProgramComponent implements OnInit {
         4096 / height,
       );
 
-      this.previewUrl.set(
-        await toPng(sheet, { width, height, pixelRatio, backgroundColor: '#ffffff' }),
-      );
+      const preview = await toPng(sheet, {
+        width, height, pixelRatio, backgroundColor: '#ffffff',
+      });
+      if (this.selectedId() === program.id && this.selectionVersion === selectionVersion) {
+        this.previewUrl.set(preview);
+      }
     } catch (error) {
       console.error('Kunne ikke oprette billede af træningsprogram', error);
       this.toast.open(this.messageOf(error, 'Billedet kunne ikke oprettes'), 'error');

@@ -29,7 +29,7 @@ export function repsLabel(unit: IntensityUnit, repsType?: RepsType): string {
 }
 
 export function parseIntensity(intensity: string): ParsedIntensity {
-  const text = intensity.trim();
+  const text = String(intensity ?? '').trim();
   if (/^kropsvægt$/i.test(text)) {
     return { unit: 'bodyweight', value: '' };
   }
@@ -57,19 +57,22 @@ export function formatIntensity(value: string, unit: IntensityUnit): string {
   if (unit === 'bodyweight') {
     return 'Kropsvægt';
   }
+  const valueStr = String(value ?? '');
   if (unit === 'legacy' || unit === 'legacy-time') {
-    return value.trim();
+    return valueStr.trim();
   }
-  const trimmed = value.trim();
+  const trimmed = valueStr.trim();
   return trimmed ? (unit === 'kg' ? `${trimmed} kg` : `${trimmed}/10`) : '';
 }
 
 export function isValueOnlyIntensityUpdate(previous: string, next: string): boolean {
-  const current = parseIntensity(previous);
-  const updated = parseIntensity(next);
+  const prevStr = String(previous ?? '');
+  const nextStr = String(next ?? '');
+  const current = parseIntensity(prevStr);
+  const updated = parseIntensity(nextStr);
   return (current.unit === 'kg' || current.unit === 'time')
     && updated.unit === current.unit
-    && next.trim() !== updated.value
+    && nextStr.trim() !== updated.value
     && (updated.unit === 'time'
       ? INTENSITY_RATING_PATTERN.test(updated.value)
       : INTENSITY_VALUE_PATTERN.test(updated.value));

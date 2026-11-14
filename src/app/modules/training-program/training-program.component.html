@@ -6,7 +6,7 @@
   </div>
 </section>
 
-<main class="content">
+<main #overview class="content" tabindex="-1">
   @if (isAdmin()) {
     <div class="tabs" role="tablist" aria-label="Visning">
       <button type="button" role="tab" [attr.aria-selected]="tab() === 'mine'" (click)="showTab('mine')">
@@ -49,15 +49,29 @@
   } @else if (isAdmin() && tab() === 'library') {
     <app-training-library />
   } @else {
+    @if (selectedId() !== null && (loading() || error())) {
+      <div class="toolbar">
+        <button #backButton type="button" class="toggle-all" (click)="closeProgram()">
+          ← Alle programmer
+        </button>
+      </div>
+    }
     @if (loading()) {
       <p class="state">Henter dine træningsprogrammer…</p>
     } @else if (error()) {
       <p class="state error" role="alert">{{ error() }}</p>
+    } @else if (selectedId() !== null && !selected()) {
+      <div class="toolbar">
+        <button #backButton type="button" class="toggle-all" (click)="closeProgram()">
+          ← Alle programmer
+        </button>
+      </div>
+      <p class="state" role="alert">Træningsprogrammet blev ikke fundet eller er ikke tilgængeligt.</p>
     } @else if (programs().length === 0) {
       <p class="state">Du har ikke fået tildelt et træningsprogram endnu.</p>
     } @else if (selected(); as program) {
       <div class="toolbar">
-        <button type="button" class="toggle-all" (click)="selectedId.set(null)">
+        <button #backButton type="button" class="toggle-all" (click)="closeProgram()">
           ← Alle programmer
         </button>
         <button type="button" class="download" [disabled]="exporting()" (click)="createPng()">
@@ -94,7 +108,7 @@
         <ul class="grid">
           @for (program of visiblePrograms(); track program.id) {
             <li>
-              <button type="button" class="card" (click)="selectedId.set(program.id)">
+              <button type="button" class="card" (click)="openProgram(program.id)">
                 <span class="card-title">{{ program.title }}</span>
                 @if (showAll()) {
                   <span class="card-owner">{{ ownerName(program) }}</span>

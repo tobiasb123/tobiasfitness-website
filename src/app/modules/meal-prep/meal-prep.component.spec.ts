@@ -1,9 +1,12 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NavigationEnd, provideRouter, Router } from '@angular/router';
+import { provideLocationMocks } from '@angular/common/testing';
+import { Location } from '@angular/common';
 import { UserProfile } from '@models/auth/interfaces';
 import { DocumentFile, RecipeCategory } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, of } from 'rxjs';
 import { vi } from 'vitest';
 import { AdminFacade } from '../admin-menu';
 import { ToastService } from '../core/services/toast/toast.service';
@@ -35,6 +38,15 @@ describe('MealPrepComponent', () => {
   };
   const toast = { open: vi.fn() };
   const storage = { saveRecipe: vi.fn() };
+
+  async function historyNavigation(action: () => void): Promise<void> {
+    const navigation = firstValueFrom(
+      TestBed.inject(Router).events.pipe(filter((event) => event instanceof NavigationEnd)),
+    );
+    action();
+    await navigation;
+    fixture.detectChanges();
+  }
 
   function recipe(id: string, category?: RecipeCategory, uid = 'all'): DocumentFile {
     return {
@@ -73,6 +85,8 @@ describe('MealPrepComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MealPrepComponent],
       providers: [
+        provideRouter([{ path: '', children: [] }]),
+        provideLocationMocks(),
         { provide: AuthFunctionsService, useValue: { currentUserProfile: profile } },
         { provide: AdminFacade, useValue: { getUsers: () => of([adminUser]) } },
         { provide: RecipesFacade, useValue: facade },
@@ -80,6 +94,9 @@ describe('MealPrepComponent', () => {
         { provide: ToastService, useValue: toast },
       ],
     }).compileComponents();
+    const router = TestBed.inject(Router);
+    router.initialNavigation();
+    await router.navigateByUrl('/');
     fixture = TestBed.createComponent(MealPrepComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -107,11 +124,12 @@ describe('MealPrepComponent', () => {
     expect(text).toContain('Ikke kategoriseret (1)');
   });
 
-  it('opens a recipe instead of the overview and restores the selected category on return', () => {
+  it('opens a recipe instead of the overview and restores the selected category on return', async () => {
     fixture.componentInstance.selectedCategory.set('lunch');
     fixture.detectChanges();
     const card: HTMLButtonElement = fixture.nativeElement.querySelector('.recipe-card');
     card.click();
+    await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.grid')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-meal-prep-view').textContent).toContain(
@@ -121,7 +139,7 @@ describe('MealPrepComponent', () => {
     expect(nutritionTable.getAttribute('aria-label')).toBe('Næringsindhold pr. portion');
     expect(nutritionTable.parentElement?.textContent).toContain('Næringsindhold (pr. portion)');
     expect(nutritionTable.textContent).toContain('100');
-    fixture.nativeElement.querySelector('.back-button').click();
+    await historyNavigation(() => fixture.nativeElement.querySelector('.back-button').click());
     fixture.detectChanges();
     expect(fixture.componentInstance.selectedCategory()).toBe('lunch');
     expect(fixture.nativeElement.querySelector('.grid').textContent).toContain('Lunch');
@@ -137,7 +155,7 @@ describe('MealPrepComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Shared breakfast');
   });
 
-  it('keeps the form and file input mounted when the switch or detail view is closed', () => {
+  it('keeps the form and file input mounted when the switch or detail view is closed', async () => {
     const toggle: HTMLInputElement = fixture.nativeElement.querySelector('[role="switch"]');
     const container: HTMLElement = fixture.nativeElement.querySelector('#recipe-creation');
     expect(container.hidden).toBe(true);
@@ -150,8 +168,9 @@ describe('MealPrepComponent', () => {
     toggle.click();
     fixture.detectChanges();
     fixture.nativeElement.querySelector('.recipe-card').click();
+    await fixture.whenStable();
     fixture.detectChanges();
-    fixture.nativeElement.querySelector('.back-button').click();
+    await historyNavigation(() => fixture.nativeElement.querySelector('.back-button').click());
     fixture.detectChanges();
     fixture.nativeElement.querySelector('[role="switch"]').click();
     fixture.detectChanges();
@@ -160,16 +179,17 @@ describe('MealPrepComponent', () => {
     expect(title.value).toBe('Draft');
   });
 
-  it('keeps the creation form open and its draft intact after viewing a recipe', () => {
+  it('keeps the creation form open and its draft intact after viewing a recipe', async () => {
     fixture.nativeElement.querySelector('[role="switch"]').click();
     fixture.detectChanges();
     const title: HTMLInputElement = fixture.nativeElement.querySelector('#recipe-creation #title');
     title.value = 'Draft';
     title.dispatchEvent(new Event('input'));
     fixture.nativeElement.querySelector('.recipe-card').click();
+    await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('#recipe-creation').hidden).toBe(true);
-    fixture.nativeElement.querySelector('.back-button').click();
+    await historyNavigation(() => fixture.nativeElement.querySelector('.back-button').click());
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('#recipe-creation').hidden).toBe(false);
     expect(title.value).toBe('Draft');
@@ -186,6 +206,60 @@ describe('MealPrepComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Ingen fælles opskrifter');
     expect(fixture.nativeElement.textContent).toContain('ingen personlige opskrifter');
+  });
+
+  it('restores recipe details when browser history moves back and forward', async () => {
+    const router = TestBed.inject(Router);
+    const location = TestBed.inject(Location);
+    fixture.componentInstance.selectedCategory.set('lunch');
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('.recipe-card').click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(router.parseUrl(router.url).queryParams['recipe']).toBe('Lunch');
+
+    await historyNavigation(() => location.back());
+    expect(fixture.componentInstance.viewMealPageActive()).toBe(false);
+    expect(fixture.componentInstance.selectedCategory()).toBe('lunch');
+
+    await historyNavigation(() => location.forward());
+    expect(fixture.nativeElement.querySelector('app-meal-prep-view').textContent).toContain('Lunch');
+  });
+
+  it('opens direct links and returns to the overview without leaving the page', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/?recipe=Lunch');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-meal-prep-view').textContent).toContain('Lunch');
+
+    fixture.nativeElement.querySelector('.back-button').click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(router.url).toBe('/');
+    expect(fixture.componentInstance.viewMealPageActive()).toBe(false);
+  });
+
+  it('shows an unavailable message for a recipe outside the user collection', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?recipe=Other%20user%20breakfast');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
+      'ikke tilgængelig',
+    );
+    expect(fixture.nativeElement.querySelector('app-meal-prep-view')).toBeNull();
+  });
+
+  it('resolves a detail link after recipes finish loading', async () => {
+    recipes.next([]);
+    fixture.componentInstance.recipesLoaded.set(false);
+    await TestBed.inject(Router).navigateByUrl('/?recipe=Lunch');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="status"]').textContent).toContain(
+      'Indlæser opskrift',
+    );
+
+    recipes.next([recipe('Lunch', 'lunch')]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-meal-prep-view').textContent).toContain('Lunch');
   });
 
   it('reports an upload whose response does not retain the chosen category', async () => {

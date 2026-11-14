@@ -37,7 +37,15 @@
       <button #backButton type="button" class="back-button" (click)="closeMealView()">
         ← Alle opskrifter
       </button>
-      <app-meal-prep-view [visible]="true" [recipe]="selectedDocumentData()" />
+      @if (selectedDocumentData(); as recipe) {
+        <app-meal-prep-view [visible]="true" [recipe]="recipe" />
+      } @else if (recipesError()) {
+        <p class="state error" role="alert">{{ recipesError() }}</p>
+      } @else if (!recipesLoaded()) {
+        <p class="state loading-description" role="status">Indlæser opskrift...</p>
+      } @else {
+        <p class="state" role="alert">Opskriften blev ikke fundet eller er ikke tilgængelig.</p>
+      }
     }
 
     @if (isAdmin()) {

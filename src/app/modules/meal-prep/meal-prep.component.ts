@@ -16,11 +16,13 @@ import {
 import { UserProfile } from '@models/auth/interfaces';
 import { DocumentFile, RecipeCategory, RECIPE_CATEGORIES } from '@models/storage';
 import { AuthFunctionsService } from '@modules/auth';
+import { ActivatedRoute } from '@angular/router';
 import { FirebaseError } from 'firebase/app';
 import { UploadTaskSnapshot } from 'firebase/storage';
 import { Subscription } from 'rxjs';
 import { AdminFacade } from '../admin-menu';
 import moment from '../core/helpers/date-time';
+import { DetailNavigationService } from '../core/services/detail-navigation.service';
 import { ToastService } from '../core/services/toast/toast.service';
 import { MealPrepRecipeCardComponent } from './components/meal-prep-recipe-card/meal-prep-recipe-card.component';
 import {
@@ -54,17 +56,26 @@ export class MealPrepComponent implements OnInit, OnDestroy {
   private adminFacade = inject(AdminFacade);
   private recipesFacade = inject(RecipesFacade);
   private injector = inject(Injector);
+  private readonly route = inject(ActivatedRoute);
+  private readonly detailNavigation = inject(DetailNavigationService);
   private readonly backButton = viewChild<ElementRef<HTMLButtonElement>>('backButton');
   private readonly overviewHeading = viewChild<ElementRef<HTMLElement>>('overviewHeading');
 
   recieverOptions: WritableSignal<UserProfile[]> = signal([]);
 
-  selectedDocumentData: WritableSignal<DocumentFile | null> = signal(null);
+  private readonly selectedRecipeId = signal<string | null>(null);
+  readonly selectedDocumentData = computed(
+    () =>
+      [...this.recipies(), ...this.yourRecipies()].find(
+        (recipe) => recipe.id === this.selectedRecipeId(),
+      ) ?? null,
+  );
 
   recipies: WritableSignal<DocumentFile[]> = signal([]);
   yourRecipies: WritableSignal<DocumentFile[]> = signal([]);
   allRecipes: WritableSignal<DocumentFile[]> = signal([]);
   recipesLoading = signal(false);
+  recipesLoaded = signal(false);
   recipesError = signal('');
   createResetVersion = signal(0);
   showCreate = signal(false);
@@ -104,6 +115,7 @@ export class MealPrepComponent implements OnInit, OnDestroy {
       this.recipesFacade.getRecipes().subscribe((recipes) => {
         this.allRecipes.set(recipes);
         this.setRecipeCollections(recipes);
+        this.recipesLoaded.set(true);
       }),
     );
 
@@ -118,6 +130,20 @@ export class MealPrepComponent implements OnInit, OnDestroy {
         this.recipesError.set(error || '');
       }),
     );
+
+    this.subs.push(
+      this.route.queryParamMap.subscribe((params) => {
+        const wasActive = this.viewMealPageActive();
+        const id = params.get('recipe');
+        this.selectedRecipeId.set(id);
+        this.viewMealPageActive.set(id !== null);
+        if (id !== null && !wasActive) {
+          afterNextRender(() => this.backButton()?.nativeElement.focus(), { injector: this.injector });
+        } else if (id === null && wasActive) {
+          afterNextRender(() => this.overviewHeading()?.nativeElement.focus(), { injector: this.injector });
+        }
+      }),
+    );
   }
 
   openMeal(id: string) {
@@ -129,15 +155,11 @@ export class MealPrepComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.selectedDocumentData.set(recipe);
-    this.viewMealPageActive.set(true);
-    afterNextRender(() => this.backButton()?.nativeElement.focus(), { injector: this.injector });
+    void this.detailNavigation.open(this.route, 'recipe', recipe.id);
   }
 
   closeMealView(): void {
-    this.viewMealPageActive.set(false);
-    this.selectedDocumentData.set(null);
-    afterNextRender(() => this.overviewHeading()?.nativeElement.focus(), { injector: this.injector });
+    this.detailNavigation.close(this.route, 'recipe');
   }
 
   async submitRecipe(payload: MealPrepCreatePayload): Promise<void> {

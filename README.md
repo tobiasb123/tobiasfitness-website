@@ -59,6 +59,10 @@ Administrators select Morgenmad, Frokost, Aftensmad, or Snack when creating or e
 
 The recipe category is stored by the Firebase storage functions, so deploy the updated functions along with the frontend when releasing this change.
 
+Recipe and training-program detail views use the `recipe` and `program` URL query parameters.
+Browser back and forward navigate between the overview and detail views. A detail link only
+displays an item available in the current user's recipe or program collection.
+
 ## Training program notifications
 
 When saving an active program update, administrators choose whether to email the recipient.
