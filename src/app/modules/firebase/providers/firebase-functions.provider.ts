@@ -2,7 +2,7 @@ import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { environment } from '@environments';
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../tokens/firebase-functions-base-url.token';
 
-const FUNCTIONS_REGION = 'us-central1';
+const FUNCTIONS_REGION = 'europe-west1';
 const FIREBASE_PROJECT_ID = 'tobiasbastholmfitness';
 
 export function provideFirebaseFunctions(): EnvironmentProviders {
